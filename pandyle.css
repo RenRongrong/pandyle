@@ -120,14 +120,15 @@ textarea:focus {
     display: flex;
     display: -webkit-flex;
     justify-content: space-between;
-    align-items: center;
-    align-content: center;
+    align-items: stretch;
+    align-content: stretch;
     flex-wrap: nowrap;
     flex-basis: 100%;
 }
 
 .flex.wrap {
     flex-wrap: wrap;
+    justify-content: flex-start;
 }
 
 .flex.slide {
@@ -138,12 +139,43 @@ textarea:focus {
     display: none;
 }
 
+.flex.by-start {
+    justify-content: flex-start;
+}
+
+.flex.by-end {
+    justify-content: flex-end;
+}
+
+.flex.by-center {
+    justify-content: center;
+}
+
+.flex.on-start {
+    align-items: flex-start;
+}
+
+.flex.on-end {
+    align-items: flex-end;
+}
+
+.flex.on-center {
+    align-items: center;
+}
+
 .flex>* {
+    flex: 0 1 auto;
+}
+
+.flex[data-gap]>* {
     flex: 1 1 auto;
 }
 
 .flex.wrap>*,
-.flex.slide>* {
+.flex.slide>*,
+.flex.by-start>*,
+.flex.by-end>*,
+.flex.by-center>* {
     flex: 0 0 auto;
 }
 
