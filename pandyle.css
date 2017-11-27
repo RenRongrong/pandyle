@@ -143,24 +143,72 @@ textarea:focus {
     justify-content: flex-start;
 }
 
+:not(.vertical).flex.x-left {
+    justify-content: flex-start;
+}
+
+.flex.vertical.x-left {
+    align-items: flex-start;
+}
+
 .flex.by-end {
     justify-content: flex-end;
+}
+
+:not(.vertical).flex.x-right {
+    justify-content: flex-end;
+}
+
+.flex.vertical.x-right {
+    align-items: flex-end;
 }
 
 .flex.by-center {
     justify-content: center;
 }
 
+:not(.vertical).flex.x-center {
+    justify-content: center;
+}
+
+.flex.vertical.x-center {
+    align-items: center;
+}
+
 .flex.on-start {
     align-items: flex-start;
+}
+
+:not(.vertical).flex.y-top {
+    align-items: flex-start;
+}
+
+.flex.vertical.y-top {
+    justify-content: flex-start;
 }
 
 .flex.on-end {
     align-items: flex-end;
 }
 
+:not(.vertical).flex.y-bottom {
+    align-items: flex-end;
+}
+
+.flex.vertical.y-bottom {
+    justify-content: flex-end;
+}
+
 .flex.on-center {
     align-items: center;
+}
+
+:not(.vertical).flex.y-center {
+    align-items: center;
+}
+
+.flex.vertical.y-center {
+    justify-content: center;
 }
 
 .flex>* {
@@ -175,7 +223,13 @@ textarea:focus {
 .flex.slide>*,
 .flex.by-start>*,
 .flex.by-end>*,
-.flex.by-center>* {
+.flex.by-center>*,
+:not(vertical).flex.x-left>*,
+:not(vertical).flex.x-right>*,
+:not(vertical).flex.x-center>*,
+.flex.vertical.y-top>*,
+.flex.vertical.y-bottom>*,
+.flex.vertical.y-center>* {
     flex: 0 0 auto;
 }
 
