@@ -236,3 +236,16 @@ textarea:focus {
 .flex.vertical {
     flex-direction: column;
 }
+
+.no-flex {
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+.no-grow {
+    flex-grow: 0 !important;
+}
+
+.no-shrink {
+    flex-shrink: 0 !important;
+}
