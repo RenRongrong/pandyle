@@ -1,6 +1,10 @@
 /// <reference path="node_modules/@types/jquery/index.d.ts" />
 
 $(document).ready(function() {
+    updateFlex();
+})
+
+function updateFlex() {
     $('.flex').each(function(index, ele) {
         if ($(ele).data('gap')) {
             var gap = parseFloat($(ele).data('gap')) / 2 + 'px';
@@ -15,4 +19,4 @@ $(document).ready(function() {
             }
         }
     });
-})
+}
