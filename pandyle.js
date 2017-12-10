@@ -2,6 +2,9 @@
 
 $(document).ready(function() {
     updateFlex();
+    if ('undefined' != typeof Vue) {
+        Vue.nextTick(updateFlex);
+    }
 })
 
 function updateFlex() {
