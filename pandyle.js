@@ -4,7 +4,10 @@ $(document).ready(function() {
     updateFlex();
     if ('undefined' != typeof Vue) {
         Vue.nextTick(updateFlex);
-    }
+    };
+
+    $('.tab-hover').on('mouseenter', switchTab);
+    $('.tab-click').on('click', switchTab);
 })
 
 function updateFlex() {
@@ -22,4 +25,13 @@ function updateFlex() {
             }
         }
     });
+}
+
+function switchTab(e) {
+    var ele = e.currentTarget;
+    $(ele).siblings().removeClass('active');
+    $(ele).addClass('active');
+    var id = '#' + $(ele).data('target');
+    $(id).siblings().addClass('hidden');
+    $(id).removeClass('hidden');
 }

@@ -68,6 +68,10 @@ textarea:focus {
     outline: none;
 }
 
+.hidden {
+    display: none;
+}
+
 .w-1 {
     width: 100%;
 }
@@ -224,9 +228,9 @@ textarea:focus {
 .flex.by-start>*,
 .flex.by-end>*,
 .flex.by-center>*,
-:not(vertical).flex.x-left>*,
-:not(vertical).flex.x-right>*,
-:not(vertical).flex.x-center>*,
+:not(.vertical).flex.x-left>*,
+:not(.vertical).flex.x-right>*,
+:not(.vertical).flex.x-center>*,
 .flex.vertical.y-top>*,
 .flex.vertical.y-bottom>*,
 .flex.vertical.y-center>* {
