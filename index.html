@@ -25,6 +25,17 @@
         <div id="tab1">这是tab1</div>
         <div id="tab2" class="hidden">这是tab2</div>
     </div>
+    <button onclick="prev()">click me</button>
+    <div class="carousel" style="border: 1px solid silver; width: 500px; height: 300px">
+        <div class="active" style="background-color: yellow">item1</div>
+        <div class="hidden" style="background-color: blue">item2</div>
+        <div class="hidden" style="background-color: gray">item3</div>
+    </div>
+    <script>
+        function prev() {
+            $('.carousel').carousel().prev();
+        }
+    </script>
 
 </body>
 

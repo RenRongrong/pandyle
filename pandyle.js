@@ -1,5 +1,16 @@
 /// <reference path="node_modules/@types/jquery/index.d.ts" />
 
+jQuery.fn.carousel = function() {
+    var crs = new carousel(this);
+    return crs;
+}
+
+jQuery.fn.moveRight = function(x, duration, callback) {
+    var left = this.css('left') ? parseFloat(this.css('left')) : 0;
+    var timing = duration ? duration : 0;
+    callback ? this.animate({ left: left + x }, timing, function() { callback(this) }) : this.animate({ left: left + x }, timing);
+}
+
 $(document).ready(function() {
     updateFlex();
     if ('undefined' != typeof Vue) {
@@ -34,4 +45,22 @@ function switchTab(e) {
     var id = '#' + $(ele).data('target');
     $(id).siblings().addClass('hidden');
     $(id).removeClass('hidden');
+}
+
+function carousel(element) {
+    this.prev = function() {
+        if ($(element).children().length < 2) {
+            return;
+        }
+        var width = $(element).width();
+        var current = $(element).children('.active');
+        var prev = current.prev().length == 0 ? $(element).children().last() : current.prev();
+        prev.css('left', 0 - width).removeClass('hidden');
+        $(current).moveRight(width, 1000, function() {
+            $(current).removeClass('active').addClass('hidden');
+        });
+        $(prev).moveRight(width, 1000, function() {
+            $(prev).addClass('active');
+        })
+    }
 }

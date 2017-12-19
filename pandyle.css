@@ -253,3 +253,14 @@ textarea:focus {
 .no-shrink {
     flex-shrink: 0 !important;
 }
+
+.carousel {
+    position: relative;
+    overflow-x: hidden;
+}
+
+.carousel>div {
+    position: absolute;
+    width: 100%;
+    left: 0;
+}
