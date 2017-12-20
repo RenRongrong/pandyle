@@ -259,7 +259,7 @@ textarea:focus {
     overflow: hidden;
 }
 
-.carousel>div {
+.carousel>* {
     position: absolute;
     width: 100%;
     left: 0;

@@ -56,11 +56,11 @@ function switchTab(e) {
 
 function carousel(element) {
     var width = $(element).width();
-    var duration = $(element).data('timing') ? $(element).data('timing') : 1000;
+    var duration = $(element).data('timing') ? $(element).data('timing') : 500;
     var current = $(element).children('.active');
     var prev = current.prev().length == 0 ? $(element).children().last() : current.prev();
     var next = current.next().length == 0 ? $(element).children().first() : current.next();
-    var currentLeft = current.css('left') ? parseFloat(current.css('left')) : 0;
+    var afterSlide = [];
 
     function showPrev() {
         if (prev.hasClass('hidden')) {
@@ -74,6 +74,10 @@ function carousel(element) {
         }
     }
 
+    function currentLeft() {
+        return current.css('left') ? parseFloat(current.css('left')) : 0;
+    }
+
     this.prev = prev;
     this.active = current;
     this.next = next;
@@ -85,11 +89,14 @@ function carousel(element) {
             return;
         }
         showPrev();
-        $(current).moveRight(width - currentLeft, 1000, function() {
+        $(current).moveRight(width - currentLeft(), duration, function() {
             $(current).removeClass('active').addClass('hidden');
         });
-        $(prev).moveRight(width - currentLeft, 1000, function() {
+        $(prev).moveRight(width - currentLeft(), duration, function() {
             $(prev).addClass('active');
+            afterSlide.forEach(function(handler) {
+                handler.apply(this);
+            })
         });
         $(next).addClass('hidden');
     }
@@ -99,13 +106,20 @@ function carousel(element) {
             return;
         }
         showNext();
-        $(current).moveLeft(width + currentLeft, duration, function() {
+        $(current).moveLeft(width + currentLeft(), duration, function() {
             $(current).removeClass('active').addClass('hidden');
         });
-        $(next).moveLeft(width + currentLeft, duration, function() {
+        $(next).moveLeft(width + currentLeft(), duration, function() {
             $(next).addClass('active');
+            afterSlide.forEach(function(handler) {
+                handler.apply(this);
+            })
         });
         $(prev).addClass('hidden');
+    }
+
+    this.afterSlide = function(handler) {
+        afterSlide.push(handler);
     }
 }
 
@@ -114,6 +128,15 @@ function initCarousel() {
         if ($(ele).children().length < 2) {
             return;
         }
+        if ($(ele).children().length == 2) {
+            var first = $(ele).children().first();
+            var second = $(ele).children().last();
+            $(ele).append(first.prop('outerHTML')).append(second.prop('outerHTML'));
+        }
+        if ($(ele).children('.active').length < 1) {
+            $(ele).children().first().addClass('active');
+        }
+        $(ele).children(':not(.active)').addClass('hidden');
         var currentX = 0;
         var startX = 0;
         var width = $(ele).width();
@@ -121,27 +144,53 @@ function initCarousel() {
         var startPrevX = 0;
         var startActiveX = 0;
         var startNextX = 0;
+        var touchFlag = true;
+        var moveFlag = false;
+        var endFlag = false;
         $(ele).on('touchstart', function(e) {
+            if (!touchFlag) {
+                return false;
+            }
+            touchFlag = false;
             var x = e.targetTouches[0].clientX;
             startX = currentX = x;
             carousel = $(ele).carousel();
+            carousel.afterSlide(function() {
+                touchFlag = true;
+            })
             carousel.showPrev();
             carousel.showNext();
             startPrevX = parseFloat(carousel.prev.css('left'));
             startNextX = parseFloat(carousel.next.css('left'));
+            moveFlag = true;
         })
         $(ele).on('touchmove', function(e) {
+            if (!moveFlag) {
+                return false;
+            }
             currentX = e.targetTouches[0].clientX;
             var delta = currentX - startX;
             carousel.prev.css('left', startPrevX + delta);
             carousel.active.css('left', startActiveX + delta);
             carousel.next.css('left', startNextX + delta);
+            endFlag = true;
         })
         $(ele).on('touchend', function(e) {
+            moveFlag = false;
+            if (!endFlag) {
+                touchFlag = true;
+                return false;
+            }
+            endFlag = false;
             if (currentX - 5 > startX) {
-                $(ele).carousel().slidePrev();
+                carousel.slidePrev();
             } else if (currentX + 5 < startX) {
-                $(ele).carousel().slideNext();
+                carousel.slideNext();
+            } else {
+                carousel.active.css('left', 0);
+                carousel.prev.addClass('hidden');
+                carousel.next.addClass('hidden');
+                touchFlag = true;
             }
         })
     })
