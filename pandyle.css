@@ -264,3 +264,42 @@ textarea:focus {
     width: 100%;
     left: 0;
 }
+
+.text-left {
+    text-align: left;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+[data-clamp] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+
+[data-clamp="1"] {
+    -webkit-line-clamp: 1;
+}
+
+[data-clamp="2"] {
+    -webkit-line-clamp: 2;
+}
+
+[data-clamp="3"] {
+    -webkit-line-clamp: 3;
+}
+
+[data-clamp="4"] {
+    -webkit-line-clamp: 4;
+}
+
+[data-clamp="5"] {
+    -webkit-line-clamp: 5;
+}

@@ -6,15 +6,66 @@ jQuery.fn.carousel = function() {
 }
 
 jQuery.fn.moveRight = function(x, duration, callback) {
-    var left = this.css('left') ? parseFloat(this.css('left')) : 0;
+    var elements = this;
     var timing = duration ? duration : 0;
-    callback ? this.animate({ left: left + x }, timing, function() { callback(this) }) : this.animate({ left: left + x }, timing);
+    var dests = [];
+    elements.each(function(index, ele) {
+        var left = $(ele).css('left') ? parseFloat($(ele).css('left')) : 0;
+        dests[index] = left + x;
+    })
+    perform(function() {
+        elements.each(function(index, ele) {
+            var left = $(ele).css('left') ? parseFloat($(ele).css('left')) : 0;
+            $(ele).css('left', left + (x / 30));
+        })
+    }, duration, function() {
+        elements.each(function(index, ele) {
+            $(ele).css('left', dests[index]);
+        })
+        if (callback) {
+            callback(this);
+        }
+    })
 }
 
 jQuery.fn.moveLeft = function(x, duration, callback) {
-    var left = this.css('left') ? parseFloat(this.css('left')) : 0;
-    var timing = duration ? duration : 0;
-    callback ? this.animate({ left: left - x }, timing, function() { callback(this) }) : this.animate({ left: left - x }, timing);
+    this.moveRight(-x, duration, callback);
+}
+
+
+function perform(story, duration, callback) {
+    var fps = 30;
+    var timing = duration ? duration : 500;
+    var now;
+    var begin = Date.now();
+    var then = Date.now();
+    var interval = 1000 / fps;
+    var delta;
+    window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+    function tick() {
+        now = Date.now();　　
+        if (window.requestAnimationFrame) {　　　　　　
+            delta = now - then;　　
+            if (delta > interval) {　　　
+                then = now - (delta);　　　　
+                story();
+            }
+            if (now < begin + duration) {
+                requestAnimationFrame(tick);
+            } else {
+                callback();
+            }
+        } else {
+            story();
+            if (now < begin + duration) {
+                setTimeout(tick, interval);
+            } else {
+                callback();
+            }
+        }
+    }
+    tick();
 }
 
 $(document).ready(function() {
@@ -89,15 +140,13 @@ function carousel(element) {
             return;
         }
         showPrev();
-        $(current).moveRight(width - currentLeft(), duration, function() {
+        element.children(':not(.hidden)').moveRight(width - currentLeft(), duration, function() {
             $(current).removeClass('active').addClass('hidden');
-        });
-        $(prev).moveRight(width - currentLeft(), duration, function() {
             $(prev).addClass('active');
             afterSlide.forEach(function(handler) {
                 handler.apply(this);
             })
-        });
+        })
         $(next).addClass('hidden');
     }
 
@@ -106,15 +155,13 @@ function carousel(element) {
             return;
         }
         showNext();
-        $(current).moveLeft(width + currentLeft(), duration, function() {
+        element.children(':not(.hidden)').moveLeft(width + currentLeft(), duration, function() {
             $(current).removeClass('active').addClass('hidden');
-        });
-        $(next).moveLeft(width + currentLeft(), duration, function() {
             $(next).addClass('active');
             afterSlide.forEach(function(handler) {
                 handler.apply(this);
             })
-        });
+        })
         $(prev).addClass('hidden');
     }
 
