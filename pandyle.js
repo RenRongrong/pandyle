@@ -108,25 +108,34 @@ function switchTab(e) {
 function carousel(element) {
     var width = $(element).width();
     var duration = $(element).data('timing') ? $(element).data('timing') : 500;
-    var current = $(element).children('.active');
-    var prev = current.prev().length == 0 ? $(element).children().last() : current.prev();
-    var next = current.next().length == 0 ? $(element).children().first() : current.next();
     var afterSlide = [];
 
+    function current() {
+        return $(element).children('.active');
+    }
+
+    function prev() {
+        return current().prev().length == 0 ? $(element).children().last() : current().prev();
+    }
+
+    function next() {
+        return current().next().length == 0 ? $(element).children().first() : current().next();
+    }
+
     function showPrev() {
-        if (prev.hasClass('hidden')) {
-            prev.css('left', 0 - width).removeClass('hidden');
+        if (prev().hasClass('hidden')) {
+            prev().css('left', 0 - width).removeClass('hidden');
         }
     }
 
     function showNext() {
-        if (next.hasClass('hidden')) {
-            next.css('left', width).removeClass('hidden');
+        if (next().hasClass('hidden')) {
+            next().css('left', width).removeClass('hidden');
         }
     }
 
     function currentLeft() {
-        return current.css('left') ? parseFloat(current.css('left')) : 0;
+        return current().css('left') ? parseFloat(current().css('left')) : 0;
     }
 
     this.prev = prev;
@@ -140,14 +149,17 @@ function carousel(element) {
             return;
         }
         showPrev();
+        var temp_current = current();
+        var temp_prev = prev();
+        var temp_next = next();
         element.children(':not(.hidden)').moveRight(width - currentLeft(), duration, function() {
-            $(current).removeClass('active').addClass('hidden');
-            $(prev).addClass('active');
+            temp_current.removeClass('active').addClass('hidden');
+            temp_prev.addClass('active');
             afterSlide.forEach(function(handler) {
                 handler.apply(this);
             })
         })
-        $(next).addClass('hidden');
+        temp_next.addClass('hidden');
     }
 
     this.slideNext = function() {
@@ -155,14 +167,17 @@ function carousel(element) {
             return;
         }
         showNext();
+        var temp_current = current();
+        var temp_prev = prev();
+        var temp_next = next();
         element.children(':not(.hidden)').moveLeft(width + currentLeft(), duration, function() {
-            $(current).removeClass('active').addClass('hidden');
-            $(next).addClass('active');
+            temp_current.removeClass('active').addClass('hidden');
+            temp_next.addClass('active');
             afterSlide.forEach(function(handler) {
                 handler.apply(this);
             })
         })
-        $(prev).addClass('hidden');
+        temp_prev.addClass('hidden');
     }
 
     this.afterSlide = function(handler) {
@@ -187,13 +202,17 @@ function initCarousel() {
         var currentX = 0;
         var startX = 0;
         var width = $(ele).width();
-        var carousel;
+        var carousel = $(ele).carousel();
         var startPrevX = 0;
         var startActiveX = 0;
         var startNextX = 0;
         var touchFlag = true;
         var moveFlag = false;
         var endFlag = false;
+        carousel.afterSlide(function() {
+            touchFlag = true;
+        })
+
         $(ele).on('touchstart', function(e) {
             if (!touchFlag) {
                 return false;
@@ -201,15 +220,12 @@ function initCarousel() {
             touchFlag = false;
             var x = e.targetTouches[0].clientX;
             startX = currentX = x;
-            carousel = $(ele).carousel();
-            carousel.afterSlide(function() {
-                touchFlag = true;
-            })
             carousel.showPrev();
             carousel.showNext();
-            startPrevX = parseFloat(carousel.prev.css('left'));
-            startNextX = parseFloat(carousel.next.css('left'));
+            startPrevX = parseFloat(carousel.prev().css('left'));
+            startNextX = parseFloat(carousel.next().css('left'));
             moveFlag = true;
+
         })
         $(ele).on('touchmove', function(e) {
             if (!moveFlag) {
@@ -217,9 +233,9 @@ function initCarousel() {
             }
             currentX = e.targetTouches[0].clientX;
             var delta = currentX - startX;
-            carousel.prev.css('left', startPrevX + delta);
-            carousel.active.css('left', startActiveX + delta);
-            carousel.next.css('left', startNextX + delta);
+            carousel.prev().css('left', startPrevX + delta);
+            carousel.active().css('left', startActiveX + delta);
+            carousel.next().css('left', startNextX + delta);
             endFlag = true;
         })
         $(ele).on('touchend', function(e) {
@@ -234,9 +250,9 @@ function initCarousel() {
             } else if (currentX + 5 < startX) {
                 carousel.slideNext();
             } else {
-                carousel.active.css('left', 0);
-                carousel.prev.addClass('hidden');
-                carousel.next.addClass('hidden');
+                carousel.active().css('left', 0);
+                carousel.prev().addClass('hidden');
+                carousel.next().addClass('hidden');
                 touchFlag = true;
             }
         })

@@ -277,29 +277,33 @@ textarea:focus {
     text-align: right;
 }
 
-[data-clamp] {
+.clamp-1,
+.clamp-2,
+.clamp-3,
+.clamp-4,
+.clamp-5 {
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-box-orient: vertical;
 }
 
-[data-clamp="1"] {
+.clamp-1 {
     -webkit-line-clamp: 1;
 }
 
-[data-clamp="2"] {
+.clamp-2 {
     -webkit-line-clamp: 2;
 }
 
-[data-clamp="3"] {
+.clamp-3 {
     -webkit-line-clamp: 3;
 }
 
-[data-clamp="4"] {
+.clamp-4 {
     -webkit-line-clamp: 4;
 }
 
-[data-clamp="5"] {
+.clamp-5 {
     -webkit-line-clamp: 5;
 }
