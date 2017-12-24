@@ -312,6 +312,5 @@ function initCarousel() {
                 touchFlag = true;
             }
         });
-        return { touchFlag, startX, currentX, startPrevX, startNextX, moveFlag, endFlag };
     }
 }
