@@ -37,6 +37,7 @@ ol {
 img {
     border: none;
     vertical-align: middle;
+    box-sizing: border-box;
 }
 
 a,
