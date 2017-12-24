@@ -263,6 +263,38 @@ textarea:focus {
     position: absolute;
     width: 100%;
     left: 0;
+    top: 0;
+}
+
+.carousel>.layer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
+.indicator {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    height: 10px;
+    display: -webkit-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.indicator>* {
+    width: 10px;
+    height: 10px;
+    border: 1px solid white;
+    background-color: transparent;
+    border-radius: 50%;
+    margin: 0 3px;
+}
+
+.indicator>.active {
+    background-color: red;
+    border-color: red;
 }
 
 .text-left {

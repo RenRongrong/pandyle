@@ -1,8 +1,16 @@
 /// <reference path="node_modules/@types/jquery/index.d.ts" />
+var $carousels = [];
 
 jQuery.fn.carousel = function() {
-    var crs = new carousel(this);
-    return crs;
+    var id = this.data('id');
+    if (id != undefined) {
+        if (!$carousels[id]) {
+            $carousels[id] = new carousel(this);
+        }
+        return $carousels[id];
+    } else {
+        return new carousel(this);
+    }
 }
 
 jQuery.fn.moveRight = function(x, duration, callback) {
@@ -34,7 +42,7 @@ jQuery.fn.moveLeft = function(x, duration, callback) {
 
 
 function perform(story, duration, callback) {
-    var fps = 30;
+    var fps = 60;
     var timing = duration ? duration : 500;
     var now;
     var begin = Date.now();
@@ -115,11 +123,11 @@ function carousel(element) {
     }
 
     function prev() {
-        return current().prev().length == 0 ? $(element).children().last() : current().prev();
+        return current().prev(':not(.layer)').length == 0 ? $(element).children(':not(.layer)').last() : current().prev(':not(.layer)');
     }
 
     function next() {
-        return current().next().length == 0 ? $(element).children().first() : current().next();
+        return current().next(':not(.layer)').length == 0 ? $(element).children(':not(.layer)').first() : current().next(':not(.layer)');
     }
 
     function showPrev() {
@@ -145,14 +153,14 @@ function carousel(element) {
     this.showNext = showNext;
 
     this.slidePrev = function() {
-        if ($(element).children().length < 2) {
+        if ($(element).children(':not(.layer)').length < 2) {
             return;
         }
         showPrev();
         var temp_current = current();
         var temp_prev = prev();
         var temp_next = next();
-        element.children(':not(.hidden)').moveRight(width - currentLeft(), duration, function() {
+        element.children(':not(.hidden,.layer)').moveRight(width - currentLeft(), duration, function() {
             temp_current.removeClass('active').addClass('hidden');
             temp_prev.addClass('active');
             afterSlide.forEach(function(handler) {
@@ -163,14 +171,14 @@ function carousel(element) {
     }
 
     this.slideNext = function() {
-        if ($(element).children().length < 2) {
+        if ($(element).children(':not(.layer)').length < 2) {
             return;
         }
         showNext();
         var temp_current = current();
         var temp_prev = prev();
         var temp_next = next();
-        element.children(':not(.hidden)').moveLeft(width + currentLeft(), duration, function() {
+        element.children(':not(.hidden,.layer)').moveLeft(width + currentLeft(), duration, function() {
             temp_current.removeClass('active').addClass('hidden');
             temp_next.addClass('active');
             afterSlide.forEach(function(handler) {
@@ -187,22 +195,72 @@ function carousel(element) {
 
 function initCarousel() {
     $('.carousel').each(function(index, ele) {
-        if ($(ele).children().length < 2) {
+        var carousel = $(ele).carousel();
+        initDom(index, ele, carousel);
+        initTouch(ele, carousel);
+    })
+
+    function initDom(index, ele, carousel) {
+        if (!$(ele).data('id')) {
+            $(ele).data('id', index);
+        }
+        var itemNum = $(ele).children(':not(.layer)').length;
+        if (itemNum < 2) {
             return;
         }
-        if ($(ele).children().length == 2) {
-            var first = $(ele).children().first();
-            var second = $(ele).children().last();
+        if (itemNum == 2) {
+            var first = $(ele).children(':not(.layer)').first();
+            var second = $(ele).children(':not(.layer)').last();
             $(ele).append(first.prop('outerHTML')).append(second.prop('outerHTML'));
         }
         if ($(ele).children('.active').length < 1) {
-            $(ele).children().first().addClass('active');
+            $(ele).children(':not(.layer)').first().addClass('active');
         }
-        $(ele).children(':not(.active)').addClass('hidden');
+        $(ele).children(':not(.active,.layer)').addClass('hidden');
+
+        if ($(ele).hasClass('hasIndicator')) {
+            if ($(ele).find('.indicator').length < 1) {
+                if ($(ele).children('.layer').length < 1) {
+                    $(ele).append('<div class="layer"></div>');
+                }
+                $(ele).children('.layer').append('<div class="indicator"></div>');
+                var indicatorDom = '';
+                for (var i = 0; i < itemNum; i++) {
+                    indicatorDom += '<i></i>';
+                }
+                $(ele).find('.indicator').html(indicatorDom);
+            }
+        }
+        initIndicator(ele, carousel, itemNum);
+    }
+
+    function initIndicator(ele, carousel, itemNum) {
+        if ($(ele).find('.indicator').length > 0) {
+            var indicators = $(ele).find('.indicator').children();
+            if (!indicators.hasClass('active')) {
+                var index = $(ele).children(':not(.layer)').index('.active');
+                if (index < 0) {
+                    $(indicators[0]).addClass('active');
+                } else {
+                    $(indicators[index]).addClass('active');
+                }
+            }
+            carousel.afterSlide(function() {
+                var index = $(ele).children(':not(.layer)').index(carousel.active());
+                indicators.removeClass('active');
+                if (itemNum == 2) {
+                    $(indicators[index % 2]).addClass('active');
+                } else {
+                    $(indicators[index]).addClass('active');
+                }
+            });
+        }
+    }
+
+    function initTouch(ele, carousel) {
         var currentX = 0;
         var startX = 0;
         var width = $(ele).width();
-        var carousel = $(ele).carousel();
         var startPrevX = 0;
         var startActiveX = 0;
         var startNextX = 0;
@@ -211,8 +269,7 @@ function initCarousel() {
         var endFlag = false;
         carousel.afterSlide(function() {
             touchFlag = true;
-        })
-
+        });
         $(ele).on('touchstart', function(e) {
             if (!touchFlag) {
                 return false;
@@ -225,8 +282,7 @@ function initCarousel() {
             startPrevX = parseFloat(carousel.prev().css('left'));
             startNextX = parseFloat(carousel.next().css('left'));
             moveFlag = true;
-
-        })
+        });
         $(ele).on('touchmove', function(e) {
             if (!moveFlag) {
                 return false;
@@ -237,7 +293,7 @@ function initCarousel() {
             carousel.active().css('left', startActiveX + delta);
             carousel.next().css('left', startNextX + delta);
             endFlag = true;
-        })
+        });
         $(ele).on('touchend', function(e) {
             moveFlag = false;
             if (!endFlag) {
@@ -255,6 +311,7 @@ function initCarousel() {
                 carousel.next().addClass('hidden');
                 touchFlag = true;
             }
-        })
-    })
+        });
+        return { touchFlag, startX, currentX, startPrevX, startNextX, moveFlag, endFlag };
+    }
 }
