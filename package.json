@@ -16,5 +16,9 @@
     "dependencies": {
         "@types/jquery": "^3.2.16",
         "jquery": "^3.2.1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/RenRongrong/pandyle.git"
     }
 }
