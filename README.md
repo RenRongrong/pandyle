@@ -2,6 +2,7 @@
 pandyle是一个基于flex布局的样式库，其目的是在html中进行快速布局。
 ## 使用方法
 
+### **布局**
 在需要布局的容器中加入class="flex"即可。通过x-和y-系列class可以改变对齐方式，通过data-gap属性可以设定每个子元素之间的间隔。
 
 * x-left: 左对齐
@@ -104,3 +105,74 @@ pandyle是一个基于flex布局的样式库，其目的是在html中进行快�
     *页面显示*
 
     ![](http://www.muyao.site/pandyle/images/flex-no-flex.png)
+
+2. **纵向布局**
+
+    > 在class中加入'flex vertical'就可以使用纵向布局。x-系列、y-系列和no-系列的规则跟横向布局一样。
+
+### **相对宽度**
+
+使用w-系列的class可以很方便的为元素设定相对于父元素的宽度。w-1为父元素宽度的100%，其他比例使用w-分子-分母的形式表示，比如w-1-2表示父元素的1/2，w-5-6表示父元素的5/6。目前的最大分母为6。注意，比例关系请使用最简分数表示，比如4/6应写成w-2-3。
+
+*代码示例：相对宽度*
+
+    ...
+    <div>
+        <div class="w-1-2"></div>
+        <div class="w-1-4"></div>
+        <div class="w-1-4"></div>
+    </div>
+    ...
+
+### **轮播图**
+给一个div加入class="carousel"即可创建一个轮播图，它的每一个直接子元素（class="layer"的除外）都是轮播图的一个项目。你可以给其中一个直接子元素设置class="active"来指定它作为初始显示的项目。如果没有设置，则默认第一个直接子元素为初始项目。
+
+*代码示例：轮播图*
+
+    ...
+    <div class="carousel">
+        <img src="avatar.jpg">
+        <img src="avatar.jpg">
+        <img src="avatar.jpg">
+    </div>
+    ...
+
+> 在轮播图的class中加入hasIndicator可以为轮播图添加指示物，默认的是白色边框的小圆圈，当前项目对应的小圆圈是红色的。你可以在css中对.indicator>*设置样式来创建个性化的指示物。
+
+*代码示例：带指示物的轮播图*
+
+    ...
+    <div class="carousel hasIndicator">
+        <img src="avatar.jpg">
+        <img src="avatar.jpg">
+        <img src="avatar.jpg">
+    </div>
+    ...
+
+> 轮播图默认是用触摸控制的。你也可以在js中对其进行控制。使用Jquery对象`$('...').carousel()`可以获取该元素的轮播图对象，然后使用slidePrev()、slideNext()函数控制轮播图的前进或后退。使用afterSlide()可以为滑动结束后注册事件。可以注册多个事件，轮播图的每一次滑动结束之后将依次调用注册的事件。
+
+*代码示例*
+
+    ...
+    <div class="carousel hasIndicator">
+        <img src="avatar.jpg">
+        <img src="avatar.jpg">
+        <img src="avatar.jpg">
+    </div>
+    <button id="prev">前一个</button>
+    <button id="next">后一个</button>
+    ...
+
+    <script>
+        var c = $('.carousel').carousel();
+        c.afterSlide(function(){
+            alert('滑动结束！');
+        })
+        $('#prev').click(function(){
+            c.slidePrev();
+        });
+        $('#next').click(function(){
+            c.slideNext()
+        });
+    </script>
+    ...
