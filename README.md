@@ -125,7 +125,7 @@ pandyle是一个基于flex布局的样式库，其目的是在html中进行快�
     ...
 
 ### **轮播图**
-给一个div加入class="carousel"即可创建一个轮播图，它的每一个直接子元素（class="layer"的除外）都是轮播图的一个项目。你可以给其中一个直接子元素设置class="active"来指定它作为初始显示的项目。如果没有设置，则默认第一个直接子元素为初始项目。
+给一个div加入class="carousel"即可创建一个轮播图，它的每一个直接子元素（class="layer"的除外）都是轮播图的一个项目。你可以给其中一个直接子元素设置class="active"来指定它作为初始显示的项目。如果没有设置，则默认第一个直接子元素为初始项目。注意：你应该给轮播图设置一个宽高，否则它的默认宽度是100%，默认高度是100px。
 
 *代码示例：轮播图*
 
@@ -175,4 +175,20 @@ pandyle是一个基于flex布局的样式库，其目的是在html中进行快�
             c.slideNext()
         });
     </script>
+    ...
+
+### **标签导航**
+使用tab-系列的class可以创建简单的标签导航。tab-click表示鼠标点击的时候切换内容，tab-hover表示鼠标悬停时切换。你需要将所有的导航标签放到同一个div里，然后再把导航标签所对应的内容放在另一个div里。给导航标签加上`class="tab-click"`，并使用`data-target`来指定对应的内容的id。当切换到指定内容时，对应的导航标签会加上active的class，并移除其他标签的active类，因此你可以在css中对导航标签的不同状态设置样式。
+
+*代码示例*
+
+    ...
+    <div class="flex">
+        <button class="tab-hover" data-target="tab1">tab1</button>
+        <button class="tab-hover" data-target="tab2">tab2</button>
+    </div>
+    <div>
+        <div id="tab1">这是tab1</div>
+        <div id="tab2" class="hidden">这是tab2</div>
+    </div>
     ...

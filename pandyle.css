@@ -258,6 +258,7 @@ textarea:focus {
 .carousel {
     position: relative;
     overflow: hidden;
+    min-height: 100px;
 }
 
 .carousel>* {
