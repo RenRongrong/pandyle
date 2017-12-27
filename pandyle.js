@@ -1,4 +1,3 @@
-/// <reference path="node_modules/@types/jquery/index.d.ts" />
 var $carousels = [];
 
 jQuery.fn.carousel = function() {
@@ -79,12 +78,10 @@ function perform(story, duration, callback) {
 $(document).ready(function() {
     initCarousel();
     updateFlex();
+    bindEvent();
     if ('undefined' != typeof Vue) {
         Vue.nextTick(updateFlex);
     };
-
-    $('.tab-hover').on('mouseenter', switchTab);
-    $('.tab-click').on('click', switchTab);
 })
 
 function updateFlex() {
@@ -272,7 +269,7 @@ function initCarousel() {
         });
         $(ele).on('touchstart', function(e) {
             if (!touchFlag) {
-                return false;
+                return;
             }
             touchFlag = false;
             var x = e.targetTouches[0].clientX;
@@ -285,7 +282,7 @@ function initCarousel() {
         });
         $(ele).on('touchmove', function(e) {
             if (!moveFlag) {
-                return false;
+                return;
             }
             currentX = e.targetTouches[0].clientX;
             var delta = currentX - startX;
@@ -298,7 +295,7 @@ function initCarousel() {
             moveFlag = false;
             if (!endFlag) {
                 touchFlag = true;
-                return false;
+                return;
             }
             endFlag = false;
             if (currentX - 5 > startX) {
@@ -313,4 +310,28 @@ function initCarousel() {
             }
         });
     }
+}
+
+function pop(selector) {
+    $(selector).removeClass('hidden');
+}
+
+function hide(selector) {
+    $(selector).addClass('hidden');
+}
+
+function bindEvent() {
+    $('.tab-hover').on('mouseenter', switchTab);
+    $('.tab-click').on('click', switchTab);
+    $('[data-pop]').on('click', function(e) {
+        var ele = e.currentTarget;
+        var id = $(ele).data('pop');
+        hide('.pop');
+        pop('#' + id);
+        return false;
+    });
+    $('html,body').on('click', function() {
+        hide('.pop');
+    })
+    $('.pop').on('click', function() { return false; })
 }
