@@ -76,6 +76,7 @@ function perform(story, duration, callback) {
 }
 
 $(document).ready(function() {
+    initTemplate();
     initCarousel();
     updateFlex();
     bindEvent();
@@ -334,4 +335,13 @@ function bindEvent() {
         hide('.pop');
     })
     $('.pop').on('click', function() { return false; })
+}
+
+function initTemplate() {
+    $('t').each(function() {
+        var src = $(this).attr('src');
+        $(this).load(src, function(res) {
+            $(this).replaceWith(res);
+        });
+    })
 }
