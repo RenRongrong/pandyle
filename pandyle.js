@@ -315,6 +315,9 @@ function initCarousel() {
 
 function pop(selector) {
     $(selector).removeClass('hidden');
+    if ($(selector).hasClass('full')) {
+        $('html,body').css('overflow', 'hidden');
+    }
 }
 
 function hide(selector) {
