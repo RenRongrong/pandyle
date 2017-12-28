@@ -23,7 +23,7 @@ jQuery.fn.moveRight = function(x, duration, callback) {
     perform(function() {
         elements.each(function(index, ele) {
             var left = $(ele).css('left') ? parseFloat($(ele).css('left')) : 0;
-            $(ele).css('left', left + (x / 30));
+            $(ele).css('left', left + (x / ((duration / 1000) * 40)));
         })
     }, duration, function() {
         elements.each(function(index, ele) {
@@ -41,35 +41,20 @@ jQuery.fn.moveLeft = function(x, duration, callback) {
 
 
 function perform(story, duration, callback) {
-    var fps = 60;
+    var fps = 40;
     var timing = duration ? duration : 500;
-    var now;
     var begin = Date.now();
-    var then = Date.now();
     var interval = 1000 / fps;
     var delta;
     window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
-    function tick() {
-        now = Date.now();　　
-        if (window.requestAnimationFrame) {　　　　　　
-            delta = now - then;　　
-            if (delta > interval) {　　　
-                then = now - (delta);　　　　
-                story();
-            }
-            if (now < begin + duration) {
-                requestAnimationFrame(tick);
-            } else {
-                callback();
-            }
+    function tick() {　　
+        var now = Date.now();　　　　
+        story();
+        if (now < begin + duration) {
+            setTimeout(tick, interval);
         } else {
-            story();
-            if (now < begin + duration) {
-                setTimeout(tick, interval);
-            } else {
-                callback();
-            }
+            callback();
         }
     }
     tick();
