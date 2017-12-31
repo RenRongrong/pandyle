@@ -266,6 +266,7 @@ textarea:focus {
     width: 100%;
     left: 0;
     top: 0;
+    /* transition: 'left' .5s; */
 }
 
 .carousel>.layer {

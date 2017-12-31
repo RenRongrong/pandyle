@@ -15,23 +15,8 @@ jQuery.fn.carousel = function() {
 jQuery.fn.moveRight = function(x, duration, callback) {
     var elements = this;
     var timing = duration ? duration : 0;
-    var dests = [];
-    elements.each(function(index, ele) {
-        var left = $(ele).css('left') ? parseFloat($(ele).css('left')) : 0;
-        dests[index] = left + x;
-    })
-    perform(function() {
-        elements.each(function(index, ele) {
-            var left = $(ele).css('left') ? parseFloat($(ele).css('left')) : 0;
-            $(ele).css('left', left + (x / ((duration / 1000) * 40)));
-        })
-    }, duration, function() {
-        elements.each(function(index, ele) {
-            $(ele).css('left', dests[index]);
-        })
-        if (callback) {
-            callback(this);
-        }
+    this.animate({ left: '+=' + x }, timing, function() {
+        callback(this);
     })
 }
 
@@ -40,19 +25,16 @@ jQuery.fn.moveLeft = function(x, duration, callback) {
 }
 
 
-function perform(story, duration, callback) {
-    var fps = 40;
-    var timing = duration ? duration : 500;
-    var begin = Date.now();
-    var interval = 1000 / fps;
-    var delta;
+function perform(story, frameNum, callback) {
+    var num = frameNum ? frameNum : 60;
+    var frame = 0;
     window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
     function tick() {　　
-        var now = Date.now();　　　　
+        frame++;
         story();
-        if (now < begin + duration) {
-            setTimeout(tick, interval);
+        if (frame < num) {
+            requestAnimationFrame(tick);
         } else {
             callback();
         }
