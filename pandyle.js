@@ -84,73 +84,65 @@ function carousel(element) {
     var afterSlide = [];
 
     function current() {
-        return $(element).children('.active');
+        return $(element).find('.inner>.active');
     }
 
     function prev() {
-        return current().prev(':not(.layer)').length == 0 ? $(element).children(':not(.layer)').last() : current().prev(':not(.layer)');
+        return current().prev().length == 0 ? $(element).find('.inner>*').last() : current().prev();
     }
 
     function next() {
-        return current().next(':not(.layer)').length == 0 ? $(element).children(':not(.layer)').first() : current().next(':not(.layer)');
+        return current().next().length == 0 ? $(element).find('.inner>*').first() : current().next();
     }
 
-    function showPrev() {
-        if (prev().hasClass('hidden')) {
-            prev().css('left', 0 - width).removeClass('hidden');
-        }
-    }
-
-    function showNext() {
-        if (next().hasClass('hidden')) {
-            next().css('left', width).removeClass('hidden');
-        }
-    }
-
-    function currentLeft() {
-        return current().css('left') ? parseFloat(current().css('left')) : 0;
+    function items() {
+        return $(element).find('.inner>*');
     }
 
     this.prev = prev;
     this.active = current;
     this.next = next;
-    this.showPrev = showPrev;
-    this.showNext = showNext;
 
     this.slidePrev = function() {
-        if ($(element).children(':not(.layer)').length < 2) {
+        if (items().length < 2) {
             return;
         }
-        showPrev();
         var temp_current = current();
         var temp_prev = prev();
         var temp_next = next();
-        element.children(':not(.hidden,.layer)').moveRight(width - currentLeft(), duration, function() {
-            temp_current.removeClass('active').addClass('hidden');
-            temp_prev.addClass('active');
+        $(element).children('.inner').animate({ scrollLeft: temp_prev.index() * width + 'px' }, duration, function() {
+            temp_current.removeClass('active');
+            if (temp_prev.index() == 0) {
+                items().last().prev().addClass('active');
+                $(element).children('.inner').scrollLeft((items().length - 2) * width);
+            } else {
+                temp_prev.addClass('active');
+            }
             afterSlide.forEach(function(handler) {
                 handler.apply(this);
             })
         })
-        temp_next.addClass('hidden');
     }
 
     this.slideNext = function() {
-        if ($(element).children(':not(.layer)').length < 2) {
+        if (items().length < 2) {
             return;
         }
-        showNext();
         var temp_current = current();
         var temp_prev = prev();
         var temp_next = next();
-        element.children(':not(.hidden,.layer)').moveLeft(width + currentLeft(), duration, function() {
-            temp_current.removeClass('active').addClass('hidden');
-            temp_next.addClass('active');
+        $(element).children('.inner').animate({ scrollLeft: temp_next.index() * width + 'px' }, duration, function() {
+            temp_current.removeClass('active');
+            if (temp_next.index() == items().length - 1) {
+                items().first().next().addClass('active');
+                $(element).children('.inner').scrollLeft(width);
+            } else {
+                temp_next.addClass('active');
+            }
             afterSlide.forEach(function(handler) {
                 handler.apply(this);
             })
         })
-        temp_prev.addClass('hidden');
     }
 
     this.afterSlide = function(handler) {
@@ -169,19 +161,25 @@ function initCarousel() {
         if (!$(ele).data('id')) {
             $(ele).data('id', index);
         }
+
+        $(ele).addClass('flex').addClass('slide');
         var itemNum = $(ele).children(':not(.layer)').length;
         if (itemNum < 2) {
             return;
         }
-        if (itemNum == 2) {
-            var first = $(ele).children(':not(.layer)').first();
-            var second = $(ele).children(':not(.layer)').last();
-            $(ele).append(first.prop('outerHTML')).append(second.prop('outerHTML'));
-        }
+
+        var first = $(ele).children(':not(.layer)').first();
+        var last = $(ele).children(':not(.layer)').last();
+        $(ele).prepend(first.prop('outerHTML')).append(last.prop('outerHTML'));
+
         if ($(ele).children('.active').length < 1) {
-            $(ele).children(':not(.layer)').first().addClass('active');
+            $(ele).children(':not(.layer)').first().next().addClass('active');
         }
-        $(ele).children(':not(.active,.layer)').addClass('hidden');
+
+        $(ele).children(':not(.layer)').wrapAll('<div class="inner"></div>');
+        $(ele).children('.inner').addClass('flex').addClass('slide');
+
+        $(ele).children('.inner').scrollLeft($(ele).width());
 
         if ($(ele).hasClass('hasIndicator')) {
             if ($(ele).find('.indicator').length < 1) {
@@ -203,7 +201,7 @@ function initCarousel() {
         if ($(ele).find('.indicator').length > 0) {
             var indicators = $(ele).find('.indicator').children();
             if (!indicators.hasClass('active')) {
-                var index = $(ele).children(':not(.layer)').index('.active');
+                var index = $(ele).find('.inner>*').index('.active');
                 if (index < 0) {
                     $(indicators[0]).addClass('active');
                 } else {
@@ -211,7 +209,7 @@ function initCarousel() {
                 }
             }
             carousel.afterSlide(function() {
-                var index = $(ele).children(':not(.layer)').index(carousel.active());
+                var index = $(ele).find('.inner>*').index(carousel.active());
                 indicators.removeClass('active');
                 if (itemNum == 2) {
                     $(indicators[index % 2]).addClass('active');
@@ -226,43 +224,40 @@ function initCarousel() {
         var currentX = 0;
         var startX = 0;
         var width = $(ele).width();
-        var startPrevX = 0;
-        var startActiveX = 0;
-        var startNextX = 0;
+        var startLeft = 0;
         var touchFlag = true;
         var moveFlag = false;
         var endFlag = false;
         carousel.afterSlide(function() {
             touchFlag = true;
         });
-        $(ele).on('touchstart', function(e) {
+        $(ele).children('.inner').on('touchstart', function(e) {
             if (!touchFlag) {
+                e.preventDefault();
                 return;
             }
             touchFlag = false;
             var x = e.targetTouches[0].clientX;
             startX = currentX = x;
-            carousel.showPrev();
-            carousel.showNext();
-            startPrevX = parseFloat(carousel.prev().css('left'));
-            startNextX = parseFloat(carousel.next().css('left'));
+            startLeft = $(ele).children('.inner').scrollLeft();
             moveFlag = true;
         });
-        $(ele).on('touchmove', function(e) {
+        $(ele).children('.inner').on('touchmove', function(e) {
             if (!moveFlag) {
+                e.preventDefault();
                 return;
             }
             currentX = e.targetTouches[0].clientX;
-            var delta = currentX - startX;
-            carousel.prev().css('left', startPrevX + delta);
-            carousel.active().css('left', startActiveX + delta);
-            carousel.next().css('left', startNextX + delta);
+            var delta = startX - currentX;
+            $(ele).children('.inner').scrollLeft(startLeft + delta);
             endFlag = true;
+            e.preventDefault();
         });
-        $(ele).on('touchend', function(e) {
+        $(ele).children('.inner').on('touchend', function(e) {
             moveFlag = false;
             if (!endFlag) {
                 touchFlag = true;
+                e.preventDefault();
                 return;
             }
             endFlag = false;
@@ -271,9 +266,6 @@ function initCarousel() {
             } else if (currentX + 5 < startX) {
                 carousel.slideNext();
             } else {
-                carousel.active().css('left', 0);
-                carousel.prev().addClass('hidden');
-                carousel.next().addClass('hidden');
                 touchFlag = true;
             }
         });
