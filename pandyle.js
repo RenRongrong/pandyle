@@ -303,7 +303,7 @@ function initTemplate() {
     $('t').each(function() {
         var src = $(this).attr('src');
         $(this).load(src, function(res) {
-            $(this).replaceWith(res);
+            $(this).html(res);
         });
     })
 }

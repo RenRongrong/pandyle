@@ -2,6 +2,10 @@ body {
     font-family: '微软雅黑';
 }
 
+t {
+    display: block;
+}
+
 html,
 body,
 div,
