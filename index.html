@@ -13,9 +13,9 @@
 
 <body>
     <div class='flex' data-gap="10" style="height: 200px; border: 1px solid silver; padding: 10px">
-        <div class="no-flex" style="width: 50px; height: 100px; background-color: silver;"></div>
-        <div style="width: 100px; height: 50px; background-color: silver;"></div>
-        <div style="width: 40px; height: 100px; background-color: silver;"></div>
+        <div class="w-1" style="height: 100px; background-color: silver;"></div>
+        <div class="w-1" style="height: 50px; background-color: silver;"></div>
+        <div class="w-1" style="height: 100px; background-color: silver;"></div>
     </div>
     <div class="flex">
         <button class="tab-hover" data-target="tab1">tab1</button>
@@ -25,7 +25,7 @@
         <div id="tab1">这是tab1</div>
         <div id="tab2" class="hidden">这是tab2</div>
     </div>
-    <div class="carousel hasIndicator" data-timing="300" style="border: 1px solid silver; height: 300px">
+    <div class="carousel hasIndicator" data-id="c1" data-timing="300" style="border: 1px solid silver; height: 300px">
         <img src="avatar.jpg" alt="">
         <img src="avatar.jpg" alt="">
     </div>
@@ -40,6 +40,11 @@
     <div id="full" class="full hidden">
         <button onclick="hide('#full')">关闭</button>
     </div>
+    <script>
+        $('.carousel').carousel().afterSlide(function() {
+            alert('Hello');
+        })
+    </script>
 </body>
 
 </html>

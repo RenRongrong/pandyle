@@ -88,11 +88,11 @@ function carousel(element) {
     }
 
     function prev() {
-        return current().prev().length == 0 ? $(element).find('.inner>*').last() : current().prev();
+        return current().prev();
     }
 
     function next() {
-        return current().next().length == 0 ? $(element).find('.inner>*').first() : current().next();
+        return current().next();
     }
 
     function items() {
@@ -110,11 +110,19 @@ function carousel(element) {
         var temp_current = current();
         var temp_prev = prev();
         var temp_next = next();
+        if (temp_prev.index() < 0) {
+            $(element).children('.inner').animate({ scrollLeft: 0 }, duration);
+            return;
+        }
         $(element).children('.inner').animate({ scrollLeft: temp_prev.index() * width + 'px' }, duration, function() {
             temp_current.removeClass('active');
             if (temp_prev.index() == 0) {
-                items().last().prev().addClass('active');
-                $(element).children('.inner').scrollLeft((items().length - 2) * width);
+                if ($(element).hasClass('noCycle')) {
+                    temp_current.addClass('active');
+                } else {
+                    items().last().prev().addClass('active');
+                    $(element).children('.inner').scrollLeft((items().length - 2) * width);
+                }
             } else {
                 temp_prev.addClass('active');
             }
@@ -131,11 +139,19 @@ function carousel(element) {
         var temp_current = current();
         var temp_prev = prev();
         var temp_next = next();
+        if (temp_next.index() < 0) {
+            $(element).children('.inner').animate({ scrollLeft: temp_current.index() * width + 'px' }, duration);
+            return;
+        }
         $(element).children('.inner').animate({ scrollLeft: temp_next.index() * width + 'px' }, duration, function() {
             temp_current.removeClass('active');
             if (temp_next.index() == items().length - 1) {
-                items().first().next().addClass('active');
-                $(element).children('.inner').scrollLeft(width);
+                if ($(element).hasClass('noCycle')) {
+                    temp_next.addClass('active');
+                } else {
+                    items().first().next().addClass('active');
+                    $(element).children('.inner').scrollLeft(width);
+                }
             } else {
                 temp_next.addClass('active');
             }
@@ -168,18 +184,26 @@ function initCarousel() {
             return;
         }
 
-        var first = $(ele).children(':not(.layer)').first();
-        var last = $(ele).children(':not(.layer)').last();
-        $(ele).prepend(first.prop('outerHTML')).append(last.prop('outerHTML'));
+        if (!$(ele).hasClass('noCycle')) {
+            var first = $(ele).children(':not(.layer)').first();
+            var last = $(ele).children(':not(.layer)').last();
+            $(ele).prepend(last.prop('outerHTML')).append(first.prop('outerHTML'));
+        }
 
         if ($(ele).children('.active').length < 1) {
-            $(ele).children(':not(.layer)').first().next().addClass('active');
+            if ($(ele).hasClass('noCycle')) {
+                $(ele).children(':not(.layer)').first().addClass('active');
+            } else {
+                $(ele).children(':not(.layer)').first().next().addClass('active');
+            }
         }
 
         $(ele).children(':not(.layer)').wrapAll('<div class="inner"></div>');
         $(ele).children('.inner').addClass('flex').addClass('slide');
 
-        $(ele).children('.inner').scrollLeft($(ele).width());
+        if (!$(ele).hasClass('noCycle')) {
+            $(ele).children('.inner').scrollLeft($(ele).width());
+        }
 
         if ($(ele).hasClass('hasIndicator')) {
             if ($(ele).find('.indicator').length < 1) {
