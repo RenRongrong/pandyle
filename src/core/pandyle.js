@@ -4,11 +4,11 @@ jQuery.fn.carousel = function() {
     var id = this.data('id');
     if (id != undefined) {
         if (!$carousels[id]) {
-            $carousels[id] = new carousel(this);
+            $carousels[id] = new Pandyle.Carousel(this);
         }
         return $carousels[id];
     } else {
-        return new carousel(this);
+        return new Pandyle.Carousel(this);
     }
 }
 
@@ -43,16 +43,18 @@ function perform(story, frameNum, callback) {
 }
 
 $(document).ready(function() {
-    initTemplate();
-    initCarousel();
-    updateFlex();
-    bindEvent();
+    Pandyle.initTemplate();
+    Pandyle.initCarousel();
+    Pandyle.updateFlex();
+    Pandyle.bindEvent();
     if ('undefined' != typeof Vue) {
         Vue.nextTick(updateFlex);
     };
 })
 
-function updateFlex() {
+function Pandyle() {}
+
+Pandyle.updateFlex = function() {
     $('.flex').each(function(index, ele) {
         if ($(ele).data('gap')) {
             var gap = parseFloat($(ele).data('gap')) / 2 + 'px';
@@ -69,7 +71,7 @@ function updateFlex() {
     });
 }
 
-function switchTab(e) {
+Pandyle.switchTab = function(e) {
     var ele = e.currentTarget;
     $(ele).siblings().removeClass('active');
     $(ele).addClass('active');
@@ -78,7 +80,7 @@ function switchTab(e) {
     $(id).removeClass('hidden');
 }
 
-function carousel(element) {
+Pandyle.Carousel = function(element) {
     var width = $(element).width();
     var duration = $(element).data('timing') ? $(element).data('timing') : 500;
     var afterSlide = [];
@@ -166,7 +168,7 @@ function carousel(element) {
     }
 }
 
-function initCarousel() {
+Pandyle.initCarousel = function() {
     $('.carousel').each(function(index, ele) {
         var carousel = $(ele).carousel();
         initDom(index, ele, carousel);
@@ -296,18 +298,18 @@ function initCarousel() {
     }
 }
 
-function pop(selector) {
+Pandyle.pop = function(selector) {
     $(selector).removeClass('hidden');
     if ($(selector).hasClass('full')) {
         $('html,body').css('overflow', 'hidden');
     }
 }
 
-function hide(selector) {
+Pandyle.hide = function(selector) {
     $(selector).addClass('hidden');
 }
 
-function bindEvent() {
+Pandyle.bindEvent = function() {
     $('.tab-hover').on('mouseenter', switchTab);
     $('.tab-click').on('click', switchTab);
     $('[data-pop]').on('click', function(e) {
@@ -323,7 +325,7 @@ function bindEvent() {
     $('.pop').on('click', function() { return false; })
 }
 
-function initTemplate() {
+Pandyle.initTemplate = function() {
     $('t').each(function() {
         var src = $(this).attr('src');
         $(this).load(src, function(res) {
