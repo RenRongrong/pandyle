@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>template dome</title>
+    <script src="js/template.js"></script>
+    <script src="js/data.js"></script>
+    <style>
+        body {
+            background-color: #ccc;
+        }
+        
+        .wrap {
+            width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #fff;
+            padding: 30px;
+            box-shadow: 0 0 5px #aaa;
+        }
+        
+        span {
+            color: #c78d0a;
+            padding: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #ccc;
+        }
+        
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        
+        #template {
+            display: none;
+        }
+    </style>
+
+    <script>
+        window.onload = function() {
+            var templateText = document.getElementById('template').innerHTML;
+            var box = document.getElementById('box');
+            var template = new Template({
+                template: templateText,
+                data: {
+                    listGroup: data //listGroup为自定义命名空间，data为数据json
+                },
+                handlers: {},
+                dataEmptyHandler: false, //是否把undefined, null 处理为空字符串
+                callback: function(result) {
+                    //console.log(result);
+                    //这里也会把结果输出出来
+                }
+            });
+            box.innerHTML = template.init();
+
+            var text = document.getElementById('t1').innerHTML;
+            console.log(text);
+            var template2 = new Template({
+                template: text,
+                data: {
+                    content: {
+                        id: 200,
+                        state: false,
+                        list: ['张三', '李四', '王五']
+                    }
+                },
+                handlers: {},
+                dataEmptyHandler: false,
+                callback: function(result) {}
+            });
+            var result = template2.init();
+            console.log(result);
+            document.getElementById('t1').innerHTML = result;
+        };
+    </script>
+</head>
+
+<body>
+    <div id="t1">
+        <p>{{@content.id}}</p>
+        <exp if="@content.state">
+            <div>
+                <exp for="item in @content.list">
+                    <p>{{@item}}</p>
+                </exp>
+            </div>
+        </exp>
+    </div>
+    <script id="template" type="text/html">
+        <h1>template dome</h1>
+        <h2 style="color: red;">具体模板语法，请参照以下内容</h2>
+        <h2 style="color: #c78d0a;">这个颜色的东东是运算后的结果</h2>
+        <h3>这是一个<span>{{@listGroup.type}}</span></h3>
+        <p>其中用户一个有<span>{{@listGroup.userList|getLength}}</span>位</p>
+        <p>他们分别是</p>
+        <table>
+            <tr>
+                <td>姓名</td>
+                <td>年龄</td>
+                <td>工作</td>
+                <td>type</td>
+            </tr>
+            <exp for='variable in @listGroup.userList'>
+                <tr>
+                    <td><span>{{@variable.name}}</span></td>
+                    <td><span>{{@variable.age}}</span></td>
+                    <td><span>{{@variable.job}}</span></td>
+                    <td><span>{{@listGroup.type}}</span></td>
+                </tr>
+            </exp>
+        </table>
+        <p>其中年龄大于30岁的有</p>
+        <table>
+            <tr>
+                <td>姓名</td>
+                <td>年龄</td>
+                <td>工作</td>
+            </tr>
+            <exp for='obj in @listGroup.userList'>
+                <exp if='@obj.age > 30'>
+                    <tr>
+                        <td><span>{{@obj.name}}</span></td>
+                        <td><span>{{@obj.age}}</span></td>
+                        <td><span>{{@obj.job}}</span></td>
+                    </tr>
+                </exp>
+            </exp>
+        </table>
+        <p>让我们根据用户的年龄属性排个序吧</p>
+        <table>
+            <tr>
+                <td>姓名</td>
+                <td>年龄</td>
+                <td>性别</td>
+                <td>工作</td>
+            </tr>
+            <exp sort='variable < age @listGroup.userList'>
+                <exp for='child in @variable'>
+                    <tr>
+                        <td><span>{{@child.name}}</span></td>
+                        <td><span>{{@child.age}}</span></td>
+                        <td><span>{{@child.sex}}</span></td>
+                        <td><span>{{@child.job}}</span></td>
+                    </tr>
+                </exp>
+            </exp>
+        </table>
+        <p>当然也可以对数据进行排序</p>
+        <exp sort='newArray > @listGroup.arr'>
+            <exp for='value index in @newArray'>
+                <div>序号：<span>{{@index}}</span>值：<span>{{@value}}</span></div>
+            </exp>
+        </exp>
+        <p>当然，还可以给表格加上序号</p>
+        <table>
+            <tr>
+                <td>序号</td>
+                <td>姓名</td>
+                <td>年龄</td>
+                <td>工作</td>
+            </tr>
+            <exp for='value index in @listGroup.userList'>
+                <tr>
+                    <td><span>{{@index}}</span></td>
+                    <td><span>{{@value.name}}</span></td>
+                    <td><span>{{@value.age}}</span></td>
+                    <td><span>{{@value.job}}</span></td>
+                </tr>
+            </exp>
+        </table>
+        <p>什么？序号不能从0开始，好吧，难不倒我</p>
+        <table>
+            <tr>
+                <td>序号</td>
+                <td>姓名</td>
+                <td>年龄</td>
+                <td>工作</td>
+            </tr>
+            <exp for="value index in @listGroup.userList">
+                <tr>
+                    <td><span>{{@index + 1}}</span></td>
+                    <td><span>{{@value.name}}</span></td>
+                    <td><span>{{@value.age}}</span></td>
+                    <td><span>{{@value.job}}</span></td>
+                </tr>
+            </exp>
+        </table>
+        <p>想看看这里面有没有不男不女的人</p>
+        <table>
+            <tr>
+                <td>姓名</td>
+                <td>年龄</td>
+                <td>工作</td>
+            </tr>
+            <exp for="variable in @listGroup.userList">
+                <exp if="!@variable.sex">
+                    <tr>
+                        <td><span>{{@variable.name}}</span></td>
+                        <td><span>{{@variable.age}}</span></td>
+                        <td><span>{{@variable.job}}</span></td>
+                    </tr>
+                </exp>
+            </exp>
+        </table>
+        <p>我还想看看这些人家的亲戚</p>
+        <table>
+            <tr>
+                <td>姓名</td>
+                <td>年龄</td>
+                <td>工作</td>
+                <td>亲戚</td>
+                <td>注册时间</td>
+            </tr>
+            <exp for="variable in @listGroup.userList">
+                <tr>
+                    <td><span>{{@variable.name}}</span></td>
+                    <td><span>{{@variable.age}}</span></td>
+                    <td><span>{{@variable.job}}</span></td>
+                    <td>
+                        <exp for="value index in @variable.relatives">
+                            <div>关系：<span>{{@index}}</span>名字是什么呢：<span>{{@value}}</span></div>
+                        </exp>
+                    </td>
+                </tr>
+            </exp>
+        </table>
+        <p>我比较喜欢妹子，想看看她们的注册时间，当然，我只会给你提供一个时间戳，你要给我格式化好</p>
+        <table>
+            <tr>
+                <td>姓名</td>
+                <td>年龄</td>
+                <td>性别</td>
+                <td>工作</td>
+                <td>亲戚</td>
+            </tr>
+            <exp for="variable in @listGroup.userList">
+                <exp if="@variable.sex === 女">
+                    <tr>
+                        <td><span>{{@variable.name}}</span></td>
+                        <td><span>{{@variable.age}}</span></td>
+                        <td><span>{{@variable.sex}}</span></td>
+                        <td><span>{{@variable.job}}</span></td>
+                        <td><span>{{@variable.registerTime|dateFormat}}</span></td>
+                    </tr>
+                </exp>
+            </exp>
+        </table>
+        <p>注册时间能不能只要年月，不要日？</p>
+        <table>
+            <tr>
+                <td>姓名</td>
+                <td>年龄</td>
+                <td>性别</td>
+                <td>工作</td>
+                <td>亲戚</td>
+            </tr>
+            <exp for="variable in @listGroup.userList">
+                <exp if="@variable.sex === 女">
+                    <tr>
+                        <td><span>{{@variable.name}}</span></td>
+                        <td><span>{{@variable.age}}</span></td>
+                        <td><span>{{@variable.sex}}</span></td>
+                        <td><span>{{@variable.job}}</span></td>
+                        <td><span>{{@variable.registerTime|dateFormat:yyyy-MM}}</span></td>
+                    </tr>
+                </exp>
+            </exp>
+        </table>
+    </script>
+    <div class="wrap">
+        <div id="box">
+        </div>
+    </div>
+    <script>
+    </script>
+</body>
+
+</html>
