@@ -6,34 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <script src="../src/core/template.js"></script>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../src/core/template2.js"></script>
+    <script src="test.js"></script>
 </head>
 
 <body>
-    <script>
-        window.onload = function() {
-            var ele = document.getElementById('temp');
-            var templateText = ele.innerHTML;
-            var template = new Template({
-                template: templateText,
-                data: {
-                    id: 1,
-                    name: 'hello',
-                    list: ['aaa', 'bbb', 'ccc']
-                },
-                handlers: {},
-                dataEmptyHandler: false, //是否把undefined, null 处理为空字符串
-                callback: function(result) {}
-            });
-            ele.innerHTML = template.init();
-            template.data.id = 2;
-            ele.innerHTML = template.init();
-        }
-    </script>
     <div id="temp">
-        <exp for="item in @list">
-            <p>{{@item}}</p>
-        </exp>
+        <p>Hello {{id}} World!{{name}}</p>
     </div>
 </body>
 

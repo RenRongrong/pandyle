@@ -20,5 +20,8 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/RenRongrong/pandyle.git"
+    },
+    "scripts": {
+        "build": "tsc"
     }
 }

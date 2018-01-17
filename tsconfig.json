@@ -1,0 +1,8 @@
+{
+    "files": [
+        "src/core/template2.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

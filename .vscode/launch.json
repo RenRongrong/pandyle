@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Launch Chrome against localhost",
             "url": "file:///F:/projects/Repos/pandyle/demo/test.html",
-            "webRoot": "${workspaceFolder}"
+            "webRoot": "${workspaceFolder}",
         }
     ]
 }
