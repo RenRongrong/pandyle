@@ -1,6 +1,19 @@
 $(document).ready(function() {
-    var vm = new Pandyle.VM($('#temp'), {
-        id: 1,
-        name: 'rrr'
+    vm = new Pandyle.VM($('#temp'), {
+        content: {
+            id: 2,
+            name: {
+                str: 'rrr'
+            }
+        },
+        type: 'test'
     });
 })
+
+function test() {
+    vm.set({
+        "content.id": 3,
+        "content.name": 'xxx',
+        "type": 't2'
+    });
+}
