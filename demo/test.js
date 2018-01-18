@@ -13,7 +13,7 @@ $(document).ready(function() {
 function test() {
     vm.set({
         "content.id": 3,
-        "content.name": 'xxx',
+        "content.name.str": 'xxx',
         "type": 't2'
     });
 }

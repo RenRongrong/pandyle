@@ -37,7 +37,7 @@ namespace Pandyle{
                 let relation = this._relations.filter(value => value.property == key);
                 if(relation.length > 0){
                     relation[0].elements.forEach(ele=>{
-                        this.setBind(ele, newData[key]);
+                        this.setBind(ele, this._data);
                     })
                 }
             }
@@ -55,11 +55,17 @@ namespace Pandyle{
                     this.setBind(child, data);
                 }
             }else{
-                if(!element.data('binding')){
-                    element.data('binding', {});
-                }
+                let text = element.text();
                 let reg = /{{\s*([\w\.]*)\s*}}/g;
-                let result = element.text().replace(reg, ($0, $1) => {   
+                if(!element.data('binding')){
+                    element.data('binding', []);
+                    if(reg.test(text)){
+                        element.data('binding').text = text;
+                    }
+                }else{
+                    text = element.data('binding').text || text;
+                }
+                let result = text.replace(reg, ($0, $1) => {   
                     this.setRelation($1, element);                 
                     let nodes:string[] = $1.split('.');
                     return nodes.reduce<any>((obj, current) => {
