@@ -68,9 +68,7 @@ var Pandyle;
             }
         };
         VM.prototype.setRelation = function (property, element) {
-            var relation = this._relations.filter(function (value) {
-                value.property == property;
-            });
+            var relation = this._relations.filter(function (value) { return value.property == property; });
             if (relation.length == 0) {
                 this._relations.push({
                     property: property,

@@ -77,9 +77,7 @@ namespace Pandyle{
         }
 
         private setRelation(property:string, element:JQuery<HTMLElement>){
-            let relation = this._relations.filter((value)=>{
-                value.property == property;
-            });
+            let relation = this._relations.filter(value => value.property == property);
             if(relation.length == 0){
                 this._relations.push({
                     property: property,
