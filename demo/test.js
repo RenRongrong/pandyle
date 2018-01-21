@@ -1,12 +1,25 @@
 $(document).ready(function() {
-    vm = new Pandyle.VM($('#temp'), {
+    vm = new Pandyle.VM($('.temp'), {
         content: {
             id: 2,
             name: {
                 str: 'rrr'
             }
         },
-        type: 'test'
+        type: 'test',
+        list: [{
+                id: 101,
+                name: 'aaa'
+            },
+            {
+                id: 102,
+                name: 'bbb'
+            },
+            {
+                id: 103,
+                name: 'ccc'
+            }
+        ]
     });
 })
 
@@ -14,6 +27,15 @@ function test() {
     vm.set({
         "content.id": 3,
         "content.name.str": 'xxx',
-        "type": 't2'
+        "type": 't2',
+        "list": [{
+                id: 201,
+                name: 'xxx'
+            },
+            {
+                id: 202,
+                name: 'yyy'
+            }
+        ]
     });
 }
