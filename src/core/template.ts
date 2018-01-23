@@ -50,6 +50,10 @@ namespace Pandyle {
         private setBind(element: JQuery<HTMLElement>, data: object) {
             element.each((index, ele) => {
                 $(ele).data('context', data);
+                if(!$(ele).data('binding')){
+                    $(ele).data('binding', {});
+                }
+                this.bindAttr(ele);
                 if ($(ele).attr('p-each')) {
                     this.bindFor($(ele), data);
                 } else if ($(ele).children().length > 0) {
@@ -62,6 +66,29 @@ namespace Pandyle {
                     this.bindText($(ele))
                 }
             })
+        }
+
+        private bindAttr(ele: HTMLElement) {
+            if ($(ele).attr('p-bind')) {
+                let binds = $(ele).attr('p-bind').split(';');
+                binds.forEach((bindInfo, index) => {
+                    let array = bindInfo.split(':');
+                    let attr = array[0].replace(/\s/g, '');
+                    let value = array[1];
+                    let reg = /{{\s*([\w\.]*)\s*}}/g;
+                    if (reg.test(value)) {
+                        $(ele).data('binding')[attr] = value;
+                    }
+                });
+                $(ele).removeAttr('p-bind');
+            }
+            let bindings = $(ele).data('binding');
+            let data = $(ele).data('context');
+            for(let a in bindings){
+                if(a != 'text'){
+                    $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a], data));
+                }
+            }
         }
 
         private bindFor(element: JQuery<HTMLElement>, data: object) {
@@ -90,7 +117,7 @@ namespace Pandyle {
             let text = element.text();
             let reg = /{{\s*([\w\.]*)\s*}}/g;
             if (!element.data('binding')) {
-                element.data('binding', []);
+                element.data('binding', {});
                 if (reg.test(text)) {
                     element.data('binding').text = text;
                 }
@@ -108,6 +135,27 @@ namespace Pandyle {
             element.text(result);
         }
 
+        private convertFromPattern(element:JQuery<HTMLElement>, prop:string, pattern:string, data:object){
+            let reg = /{{\s*([\w\.]*)\s*}}/g;
+            let related = true;
+            if(reg.test(pattern)){
+                if(!element.data('binding')[prop]){
+                    element.data('binding')[prop] = pattern;
+                    related = false;
+                }
+            }
+            let result = pattern.replace(reg, ($0, $1) => {
+                if(!related){
+                    this.setRelation($1, element);
+                }
+                let nodes: string[] = $1.split('.');
+                return nodes.reduce((obj, current) => {
+                    return obj[current];
+                }, data);
+            });
+            return result;
+        }
+
         private setRelation(property: string, element: JQuery<HTMLElement>) {
             let relation = this._relations.filter(value => value.property == property);
             if (relation.length == 0) {
@@ -119,5 +167,7 @@ namespace Pandyle {
                 relation[0].elements.push(element);
             }
         }
+
+        
     }
 }
