@@ -1,6 +1,6 @@
 var Pandyle;
 (function (Pandyle) {
-    var VM = /** @class */ (function () {
+    var VM = (function () {
         function VM(element, data) {
             this._data = data;
             this._root = element;
@@ -62,12 +62,15 @@ var Pandyle;
         VM.prototype.bindAttr = function (ele) {
             var related = true;
             if ($(ele).attr('p-bind')) {
-                var binds = $(ele).attr('p-bind').split(',');
+                var binds = $(ele).attr('p-bind').split('^');
                 binds.forEach(function (bindInfo, index) {
                     var array = bindInfo.split(':');
                     var attr = array[0].replace(/\s/g, '');
                     var value = array[1];
-                    $(ele).data('binding')[attr] = value;
+                    $(ele).data('binding')[attr] = {
+                        pattern: value,
+                        related: false
+                    };
                 });
                 $(ele).removeAttr('p-bind');
                 related = false;
@@ -76,7 +79,7 @@ var Pandyle;
             var data = $(ele).data('context');
             for (var a in bindings) {
                 if (a != 'text') {
-                    $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a], data, related));
+                    $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a].pattern, data));
                 }
             }
         };
@@ -84,14 +87,15 @@ var Pandyle;
             if (element.attr('p-each')) {
                 var property = element.attr('p-each').replace(/\s/g, '');
                 var nodes = property.split('.');
-                this.setRelation(property, element);
                 var target = nodes.reduce(function (obj, current) {
                     return obj[current];
                 }, data);
                 if (!element.data('pattern')) {
                     element.data('pattern', element.html());
+                    this.setRelation(property, element);
                 }
-                var children = $(element.data('pattern'));
+                var htmlText = element.data('pattern');
+                var children = $('<div />').html(htmlText).children();
                 element.children().remove();
                 for (var i = 0; i < target.length; i++) {
                     var newChildren = children.clone(true, true);
@@ -101,39 +105,31 @@ var Pandyle;
             }
         };
         VM.prototype.bindText = function (element) {
-            var _this = this;
             var data = element.data('context');
             var text = element.text();
-            var reg = /{{\s*([\w\.]*)\s*}}/g;
-            if (!element.data('binding')) {
-                element.data('binding', {});
-                if (reg.test(text)) {
-                    element.data('binding').text = text;
-                }
+            if (element.data('binding').text) {
+                text = element.data('binding').text.pattern;
             }
-            else {
-                text = element.data('binding').text || text;
-            }
-            var result = text.replace(reg, function ($0, $1) {
-                _this.setRelation($1, element);
-                var nodes = $1.split('.');
-                return nodes.reduce(function (obj, current) {
-                    return obj[current];
-                }, data);
-            });
+            var result = this.convertFromPattern(element, 'text', text, data);
             element.text(result);
         };
-        VM.prototype.convertFromPattern = function (element, prop, pattern, data, related) {
+        VM.prototype.convertFromPattern = function (element, prop, pattern, data) {
             var _this = this;
             var reg = /{{\s*([\w\.]*)\s*}}/g;
+            var related = false;
             if (reg.test(pattern)) {
                 if (!element.data('binding')[prop]) {
-                    element.data('binding')[prop] = pattern;
+                    element.data('binding')[prop] = {
+                        pattern: pattern,
+                        related: false
+                    };
                 }
+                related = element.data('binding')[prop].related;
             }
             var result = pattern.replace(reg, function ($0, $1) {
                 if (!related) {
                     _this.setRelation($1, element);
+                    element.data('binding')[prop].related = true;
                 }
                 var nodes = $1.split('.');
                 return nodes.reduce(function (obj, current) {

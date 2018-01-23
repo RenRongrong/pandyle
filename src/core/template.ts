@@ -71,12 +71,15 @@ namespace Pandyle {
         private bindAttr(ele: HTMLElement) {
             let related = true;
             if ($(ele).attr('p-bind')) {
-                let binds = $(ele).attr('p-bind').split(',');
+                let binds = $(ele).attr('p-bind').split('^');
                 binds.forEach((bindInfo, index) => {
                     let array = bindInfo.split(':');
                     let attr = array[0].replace(/\s/g, '');
                     let value = array[1];
-                    $(ele).data('binding')[attr] = value;
+                    $(ele).data('binding')[attr] = {
+                        pattern: value,
+                        related: false
+                    }
                 });
                 $(ele).removeAttr('p-bind');
                 related = false;
@@ -85,7 +88,7 @@ namespace Pandyle {
             let data = $(ele).data('context');
             for (let a in bindings) {
                 if (a != 'text') {
-                    $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a], data, related));
+                    $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a].pattern, data));
                 }
             }
         }
@@ -94,14 +97,15 @@ namespace Pandyle {
             if (element.attr('p-each')) {
                 let property = element.attr('p-each').replace(/\s/g, '');
                 let nodes = property.split('.');
-                this.setRelation(property, element);
                 let target: any[] = nodes.reduce((obj, current) => {
                     return obj[current];
                 }, data);
                 if (!element.data('pattern')) {
                     element.data('pattern', element.html());
+                    this.setRelation(property, element);
                 }
-                let children = $(element.data('pattern'));
+                let htmlText = element.data('pattern');
+                let children = $('<div />').html(htmlText).children();
                 element.children().remove();
                 for (let i = 0; i < target.length; i++) {
                     let newChildren = children.clone(true, true);
@@ -114,36 +118,29 @@ namespace Pandyle {
         private bindText(element: JQuery<HTMLElement>) {
             let data = element.data('context');
             let text = element.text();
-            let reg = /{{\s*([\w\.]*)\s*}}/g;
-            if (!element.data('binding')) {
-                element.data('binding', {});
-                if (reg.test(text)) {
-                    element.data('binding').text = text;
-                }
+            if(element.data('binding').text){
+                text = element.data('binding').text.pattern;
             }
-            else {
-                text = element.data('binding').text || text;
-            }
-            let result = text.replace(reg, ($0, $1) => {
-                this.setRelation($1, element);
-                let nodes: string[] = $1.split('.');
-                return nodes.reduce((obj, current) => {
-                    return obj[current];
-                }, data);
-            });
+            let result = this.convertFromPattern(element, 'text', text, data);
             element.text(result);
         }
 
-        private convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, related: boolean) {
+        private convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object) {
             let reg = /{{\s*([\w\.]*)\s*}}/g;
+            let related = false;
             if (reg.test(pattern)) {
                 if (!element.data('binding')[prop]) {
-                    element.data('binding')[prop] = pattern;
+                    element.data('binding')[prop] = {
+                        pattern: pattern,
+                        related: false
+                    }
                 }
+                related = element.data('binding')[prop].related;
             }
             let result = pattern.replace(reg, ($0, $1) => {
                 if (!related) {
                     this.setRelation($1, element);
+                    element.data('binding')[prop].related = true;
                 }
                 let nodes: string[] = $1.split('.');
                 return nodes.reduce((obj, current) => {

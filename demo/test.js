@@ -39,6 +39,7 @@ function test() {
                 name: 'yyy'
             }
         ],
-        "link": "http://www.qq.com"
+        "link": "http://www.qq.com",
+        "class": "foo"
     });
 }
