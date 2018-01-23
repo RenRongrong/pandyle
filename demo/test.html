@@ -13,25 +13,7 @@
 
 <body>
     <div class="temp">
-        <p>Hello {{content.id}} World!{{content.name.str}}</p>
-        <div>
-            <p>{{type}}</p>
-        </div>
-        <p>this is my template</p>
-        <p>{{content.id}} : {{type}}</p>
-        <div p-each="list">
-            <p>{{id}}</p>
-            <p>{{name}}</p>
-        </div>
-    </div>
-    <div class="temp">
-        <p>this is another template binding the same data</p>
-        <p>Hello pandyle! {{content.id}}</p>
-        <p>type: {{type}}</p>
-        <div p-each="  list  ">
-            <p>id: {{id}}</p>
-            <p>name: {{name}}</p>
-        </div>
+        <a p-bind="href:{{link}}, class:btn {{class}}">百度</a>
     </div>
     <button onclick="test()">click me</button>
 </body>

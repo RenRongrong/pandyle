@@ -19,7 +19,9 @@ $(document).ready(function() {
                 id: 103,
                 name: 'ccc'
             }
-        ]
+        ],
+        link: 'http://www.baidu.com',
+        class: 'link'
     });
 })
 
@@ -36,6 +38,7 @@ function test() {
                 id: 202,
                 name: 'yyy'
             }
-        ]
+        ],
+        "link": "http://www.qq.com"
     });
 }

@@ -50,7 +50,7 @@ namespace Pandyle {
         private setBind(element: JQuery<HTMLElement>, data: object) {
             element.each((index, ele) => {
                 $(ele).data('context', data);
-                if(!$(ele).data('binding')){
+                if (!$(ele).data('binding')) {
                     $(ele).data('binding', {});
                 }
                 this.bindAttr(ele);
@@ -69,24 +69,23 @@ namespace Pandyle {
         }
 
         private bindAttr(ele: HTMLElement) {
+            let related = true;
             if ($(ele).attr('p-bind')) {
-                let binds = $(ele).attr('p-bind').split(';');
+                let binds = $(ele).attr('p-bind').split(',');
                 binds.forEach((bindInfo, index) => {
                     let array = bindInfo.split(':');
                     let attr = array[0].replace(/\s/g, '');
                     let value = array[1];
-                    let reg = /{{\s*([\w\.]*)\s*}}/g;
-                    if (reg.test(value)) {
-                        $(ele).data('binding')[attr] = value;
-                    }
+                    $(ele).data('binding')[attr] = value;
                 });
                 $(ele).removeAttr('p-bind');
+                related = false;
             }
             let bindings = $(ele).data('binding');
             let data = $(ele).data('context');
-            for(let a in bindings){
-                if(a != 'text'){
-                    $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a], data));
+            for (let a in bindings) {
+                if (a != 'text') {
+                    $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a], data, related));
                 }
             }
         }
@@ -99,12 +98,12 @@ namespace Pandyle {
                 let target: any[] = nodes.reduce((obj, current) => {
                     return obj[current];
                 }, data);
-                if(!element.data('pattern')){
+                if (!element.data('pattern')) {
                     element.data('pattern', element.html());
                 }
                 let children = $(element.data('pattern'));
                 element.children().remove();
-                for(let i = 0; i < target.length; i++){
+                for (let i = 0; i < target.length; i++) {
                     let newChildren = children.clone(true, true);
                     element.append(newChildren);
                     this.setBind(newChildren, target[i]);
@@ -135,17 +134,15 @@ namespace Pandyle {
             element.text(result);
         }
 
-        private convertFromPattern(element:JQuery<HTMLElement>, prop:string, pattern:string, data:object){
+        private convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, related: boolean) {
             let reg = /{{\s*([\w\.]*)\s*}}/g;
-            let related = true;
-            if(reg.test(pattern)){
-                if(!element.data('binding')[prop]){
+            if (reg.test(pattern)) {
+                if (!element.data('binding')[prop]) {
                     element.data('binding')[prop] = pattern;
-                    related = false;
                 }
             }
             let result = pattern.replace(reg, ($0, $1) => {
-                if(!related){
+                if (!related) {
                     this.setRelation($1, element);
                 }
                 let nodes: string[] = $1.split('.');
@@ -164,10 +161,10 @@ namespace Pandyle {
                     elements: [element]
                 });
             } else {
-                relation[0].elements.push(element);
+                if (relation[0].elements.indexOf(element) < 0) {
+                    relation[0].elements.push(element);
+                }
             }
         }
-
-        
     }
 }
