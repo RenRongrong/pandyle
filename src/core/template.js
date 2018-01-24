@@ -12,15 +12,13 @@ var Pandyle;
             var _loop_1 = function (key) {
                 var properties = key.split('.');
                 var lastProperty = properties.pop();
-                if (properties.length == 0) {
-                    this_1._data[lastProperty] = newData[key];
-                }
-                else {
-                    var target = properties.reduce(function (obj, current) {
+                var target = this_1._data;
+                if (properties.length > 0) {
+                    target = properties.reduce(function (obj, current) {
                         return obj[current];
                     }, this_1._data);
-                    target[lastProperty] = newData[key];
                 }
+                target[lastProperty] = newData[key];
                 var relation = this_1._relations.filter(function (value) { return value.property == key; });
                 if (relation.length > 0) {
                     relation[0].elements.forEach(function (ele) {
@@ -39,7 +37,9 @@ var Pandyle;
         VM.prototype.setBind = function (element, data) {
             var _this = this;
             element.each(function (index, ele) {
-                $(ele).data('context', data);
+                if (!$(ele).data('context')) {
+                    $(ele).data('context', data);
+                }
                 if (!$(ele).data('binding')) {
                     $(ele).data('binding', {});
                 }

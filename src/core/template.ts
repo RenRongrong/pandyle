@@ -5,11 +5,6 @@ namespace Pandyle {
         elements: JQuery<HTMLElement>[];
     }
 
-    interface binding {
-        attr: string;
-        pattern: string;
-    }
-
     export class VM {
         private _data: object;
         private _relations: relation[];
@@ -26,14 +21,13 @@ namespace Pandyle {
             for (let key in newData) {
                 let properties = key.split('.');
                 let lastProperty = properties.pop();
-                if (properties.length == 0) {
-                    this._data[lastProperty] = newData[key];
-                } else {
-                    let target = properties.reduce<object>((obj, current) => {
+                let target = this._data;
+                if(properties.length > 0){
+                    target = properties.reduce((obj, current) => {
                         return obj[current];
                     }, this._data);
-                    target[lastProperty] = newData[key];
                 }
+                target[lastProperty] = newData[key];
                 let relation = this._relations.filter(value => value.property == key);
                 if (relation.length > 0) {
                     relation[0].elements.forEach(ele => {
@@ -47,15 +41,17 @@ namespace Pandyle {
             this.setBind(this._root, this._data);
         }
 
-        private setBind(element: JQuery<HTMLElement>, data: object) {
+        private setBind(element: JQuery<HTMLElement>, data: object, parentProperty: string = '') {
             element.each((index, ele) => {
-                $(ele).data('context', data);
+                if(!$(ele).data('context')){
+                    $(ele).data('context', data);
+                }
                 if (!$(ele).data('binding')) {
                     $(ele).data('binding', {});
                 }
-                this.bindAttr(ele);
+                this.bindAttr(ele, parentProperty);
                 if ($(ele).attr('p-each')) {
-                    this.bindFor($(ele), data);
+                    this.bindFor($(ele), data, parentProperty);
                 } else if ($(ele).children().length > 0) {
                     for (let i = 0; i < $(ele).children().length; i++) {
                         let child = $($(ele).children()[i]);
@@ -68,7 +64,7 @@ namespace Pandyle {
             })
         }
 
-        private bindAttr(ele: HTMLElement) {
+        private bindAttr(ele: HTMLElement, parentProperty:string = '') {
             let related = true;
             if ($(ele).attr('p-bind')) {
                 let binds = $(ele).attr('p-bind').split('^');
@@ -93,7 +89,7 @@ namespace Pandyle {
             }
         }
 
-        private bindFor(element: JQuery<HTMLElement>, data: object) {
+        private bindFor(element: JQuery<HTMLElement>, data: object, parentProperty:string = '') {
             if (element.attr('p-each')) {
                 let property = element.attr('p-each').replace(/\s/g, '');
                 let nodes = property.split('.');
@@ -115,7 +111,7 @@ namespace Pandyle {
             }
         }
 
-        private bindText(element: JQuery<HTMLElement>) {
+        private bindText(element: JQuery<HTMLElement>, parentProperty:string = '') {
             let data = element.data('context');
             let text = element.text();
             if(element.data('binding').text){
@@ -125,7 +121,7 @@ namespace Pandyle {
             element.text(result);
         }
 
-        private convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object) {
+        private convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty:string = '') {
             let reg = /{{\s*([\w\.]*)\s*}}/g;
             let related = false;
             if (reg.test(pattern)) {
@@ -150,7 +146,10 @@ namespace Pandyle {
             return result;
         }
 
-        private setRelation(property: string, element: JQuery<HTMLElement>) {
+        private setRelation(property: string, element: JQuery<HTMLElement>, parentProperty:string = '') {
+            if(parentProperty != ''){
+                property = parentProperty + '.' + property;
+            }
             let relation = this._relations.filter(value => value.property == property);
             if (relation.length == 0) {
                 this._relations.push({
