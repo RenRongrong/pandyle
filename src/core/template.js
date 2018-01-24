@@ -22,7 +22,7 @@ var Pandyle;
                 var relation = this_1._relations.filter(function (value) { return value.property == key; });
                 if (relation.length > 0) {
                     relation[0].elements.forEach(function (ele) {
-                        _this.setBind(ele, _this._data);
+                        _this.setBind(ele, _this._data, '');
                     });
                 }
             };
@@ -32,9 +32,9 @@ var Pandyle;
             }
         };
         VM.prototype.init = function () {
-            this.setBind(this._root, this._data);
+            this.setBind(this._root, this._data, '');
         };
-        VM.prototype.setBind = function (element, data) {
+        VM.prototype.setBind = function (element, data, parentProperty) {
             var _this = this;
             element.each(function (index, ele) {
                 if (!$(ele).data('context')) {
@@ -43,23 +43,23 @@ var Pandyle;
                 if (!$(ele).data('binding')) {
                     $(ele).data('binding', {});
                 }
-                _this.bindAttr(ele);
+                _this.bindAttr(ele, parentProperty);
                 if ($(ele).attr('p-each')) {
-                    _this.bindFor($(ele), data);
+                    _this.bindFor($(ele), data, parentProperty);
                 }
                 else if ($(ele).children().length > 0) {
                     for (var i = 0; i < $(ele).children().length; i++) {
                         var child = $($(ele).children()[i]);
                         child.data('context', data);
-                        _this.setBind(child, data);
+                        _this.setBind(child, data, parentProperty);
                     }
                 }
                 else {
-                    _this.bindText($(ele));
+                    _this.bindText($(ele), parentProperty);
                 }
             });
         };
-        VM.prototype.bindAttr = function (ele) {
+        VM.prototype.bindAttr = function (ele, parentProperty) {
             var related = true;
             if ($(ele).attr('p-bind')) {
                 var binds = $(ele).attr('p-bind').split('^');
@@ -79,11 +79,11 @@ var Pandyle;
             var data = $(ele).data('context');
             for (var a in bindings) {
                 if (a != 'text') {
-                    $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a].pattern, data));
+                    $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a].pattern, data, parentProperty));
                 }
             }
         };
-        VM.prototype.bindFor = function (element, data) {
+        VM.prototype.bindFor = function (element, data, parentProperty) {
             if (element.attr('p-each')) {
                 var property = element.attr('p-each').replace(/\s/g, '');
                 var nodes = property.split('.');
@@ -92,7 +92,7 @@ var Pandyle;
                 }, data);
                 if (!element.data('pattern')) {
                     element.data('pattern', element.html());
-                    this.setRelation(property, element);
+                    this.setRelation(property, element, parentProperty);
                 }
                 var htmlText = element.data('pattern');
                 var children = $('<div />').html(htmlText).children();
@@ -100,20 +100,24 @@ var Pandyle;
                 for (var i = 0; i < target.length; i++) {
                     var newChildren = children.clone(true, true);
                     element.append(newChildren);
-                    this.setBind(newChildren, target[i]);
+                    var fullProp = property;
+                    if (parentProperty != '') {
+                        fullProp = parentProperty + '.' + property;
+                    }
+                    this.setBind(newChildren, target[i], fullProp.concat('[', i.toString(), ']'));
                 }
             }
         };
-        VM.prototype.bindText = function (element) {
+        VM.prototype.bindText = function (element, parentProperty) {
             var data = element.data('context');
             var text = element.text();
             if (element.data('binding').text) {
                 text = element.data('binding').text.pattern;
             }
-            var result = this.convertFromPattern(element, 'text', text, data);
+            var result = this.convertFromPattern(element, 'text', text, data, parentProperty);
             element.text(result);
         };
-        VM.prototype.convertFromPattern = function (element, prop, pattern, data) {
+        VM.prototype.convertFromPattern = function (element, prop, pattern, data, parentProperty) {
             var _this = this;
             var reg = /{{\s*([\w\.]*)\s*}}/g;
             var related = false;
@@ -128,7 +132,7 @@ var Pandyle;
             }
             var result = pattern.replace(reg, function ($0, $1) {
                 if (!related) {
-                    _this.setRelation($1, element);
+                    _this.setRelation($1, element, parentProperty);
                     element.data('binding')[prop].related = true;
                 }
                 var nodes = $1.split('.');
@@ -138,7 +142,10 @@ var Pandyle;
             });
             return result;
         };
-        VM.prototype.setRelation = function (property, element) {
+        VM.prototype.setRelation = function (property, element, parentProperty) {
+            if (parentProperty != '') {
+                property = parentProperty + '.' + property;
+            }
             var relation = this._relations.filter(function (value) { return value.property == property; });
             if (relation.length == 0) {
                 this._relations.push({

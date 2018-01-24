@@ -15,8 +15,14 @@
     <div class="temp">
         <a p-bind="href:{{link}} ^ class:btn {{class}} {{type}}">百度</a>
         <div p-each="list" p-bind="class:{{class}}">
-            <p>id: {{id}}</p>
-            <p>name: {{name}}</p>
+            <div>
+                <p>id: {{id}}</p>
+                <p>name: {{name}}</p>
+                <div p-each="hobbies">
+                    <p>爱好：{{hobby}}</p>
+                    <p>种类：{{type}}</p>
+                </div>
+            </div>
         </div>
     </div>
     <button onclick="test()">click me</button>

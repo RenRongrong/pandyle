@@ -31,17 +31,17 @@ namespace Pandyle {
                 let relation = this._relations.filter(value => value.property == key);
                 if (relation.length > 0) {
                     relation[0].elements.forEach(ele => {
-                        this.setBind(ele, this._data);
+                        this.setBind(ele, this._data, '');
                     })
                 }
             }
         }
 
         private init() {
-            this.setBind(this._root, this._data);
+            this.setBind(this._root, this._data, '');
         }
 
-        private setBind(element: JQuery<HTMLElement>, data: object, parentProperty: string = '') {
+        private setBind(element: JQuery<HTMLElement>, data: object, parentProperty) {
             element.each((index, ele) => {
                 if(!$(ele).data('context')){
                     $(ele).data('context', data);
@@ -56,15 +56,15 @@ namespace Pandyle {
                     for (let i = 0; i < $(ele).children().length; i++) {
                         let child = $($(ele).children()[i]);
                         child.data('context', data);
-                        this.setBind(child, data);
+                        this.setBind(child, data, parentProperty);
                     }
                 } else {
-                    this.bindText($(ele))
+                    this.bindText($(ele), parentProperty);
                 }
             })
         }
 
-        private bindAttr(ele: HTMLElement, parentProperty:string = '') {
+        private bindAttr(ele: HTMLElement, parentProperty) {
             let related = true;
             if ($(ele).attr('p-bind')) {
                 let binds = $(ele).attr('p-bind').split('^');
@@ -84,12 +84,12 @@ namespace Pandyle {
             let data = $(ele).data('context');
             for (let a in bindings) {
                 if (a != 'text') {
-                    $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a].pattern, data));
+                    $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a].pattern, data, parentProperty));
                 }
             }
         }
 
-        private bindFor(element: JQuery<HTMLElement>, data: object, parentProperty:string = '') {
+        private bindFor(element: JQuery<HTMLElement>, data: object, parentProperty) {
             if (element.attr('p-each')) {
                 let property = element.attr('p-each').replace(/\s/g, '');
                 let nodes = property.split('.');
@@ -98,7 +98,7 @@ namespace Pandyle {
                 }, data);
                 if (!element.data('pattern')) {
                     element.data('pattern', element.html());
-                    this.setRelation(property, element);
+                    this.setRelation(property, element, parentProperty);
                 }
                 let htmlText = element.data('pattern');
                 let children = $('<div />').html(htmlText).children();
@@ -106,22 +106,26 @@ namespace Pandyle {
                 for (let i = 0; i < target.length; i++) {
                     let newChildren = children.clone(true, true);
                     element.append(newChildren);
-                    this.setBind(newChildren, target[i]);
+                    let fullProp = property;
+                    if(parentProperty != ''){
+                        fullProp = parentProperty + '.' + property;
+                    }
+                    this.setBind(newChildren, target[i], fullProp.concat('[', i.toString(), ']'));
                 }
             }
         }
 
-        private bindText(element: JQuery<HTMLElement>, parentProperty:string = '') {
+        private bindText(element: JQuery<HTMLElement>, parentProperty) {
             let data = element.data('context');
             let text = element.text();
             if(element.data('binding').text){
                 text = element.data('binding').text.pattern;
             }
-            let result = this.convertFromPattern(element, 'text', text, data);
+            let result = this.convertFromPattern(element, 'text', text, data, parentProperty);
             element.text(result);
         }
 
-        private convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty:string = '') {
+        private convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty) {
             let reg = /{{\s*([\w\.]*)\s*}}/g;
             let related = false;
             if (reg.test(pattern)) {
@@ -135,7 +139,7 @@ namespace Pandyle {
             }
             let result = pattern.replace(reg, ($0, $1) => {
                 if (!related) {
-                    this.setRelation($1, element);
+                    this.setRelation($1, element, parentProperty);
                     element.data('binding')[prop].related = true;
                 }
                 let nodes: string[] = $1.split('.');
@@ -146,7 +150,7 @@ namespace Pandyle {
             return result;
         }
 
-        private setRelation(property: string, element: JQuery<HTMLElement>, parentProperty:string = '') {
+        private setRelation(property: string, element: JQuery<HTMLElement>, parentProperty) {
             if(parentProperty != ''){
                 property = parentProperty + '.' + property;
             }

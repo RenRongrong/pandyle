@@ -9,15 +9,42 @@ $(document).ready(function() {
         type: 'test',
         list: [{
                 id: 101,
-                name: 'aaa'
+                name: 'aaa',
+                hobbies: [{
+                        hobby: '游泳',
+                        type: '体育'
+                    },
+                    {
+                        hobby: '看书',
+                        type: '文艺'
+                    }
+                ]
             },
             {
                 id: 102,
-                name: 'bbb'
+                name: 'bbb',
+                hobbies: [{
+                        hobby: '唱歌',
+                        type: '文艺'
+                    },
+                    {
+                        hobby: '游戏',
+                        type: '娱乐'
+                    }
+                ]
             },
             {
                 id: 103,
-                name: 'ccc'
+                name: 'ccc',
+                hobbies: [{
+                        hobby: '唱歌',
+                        type: '文艺'
+                    },
+                    {
+                        hobby: '游戏',
+                        type: '娱乐'
+                    }
+                ]
             }
         ],
         link: 'http://www.baidu.com',
@@ -30,15 +57,6 @@ function test() {
         "content.id": 3,
         "content.name.str": 'xxx',
         "type": 't2',
-        "list": [{
-                id: 201,
-                name: 'xxx'
-            },
-            {
-                id: 202,
-                name: 'yyy'
-            }
-        ],
         "link": "http://www.qq.com",
         "class": "foo"
     });
