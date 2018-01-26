@@ -1,6 +1,54 @@
 # pandyle
-pandyle是一个基于flex布局的样式库，其目的是在html中进行快速布局。
+pandyle是一个基于jquery的MVVM框架。正在开发中。。。
+
+文档也将随着开发进度更新。。。
+
+整体组成分为核心（core)、组件（components）、工具（utils）、布局（layout）。其中核心部分解决mvvm中的数据绑定问题，组件部分提供一些常用的组建（如轮播图等），工具部分主要封装一些日常工作中常用的操作，布局部分提供一个基于flex的布局样式库。工具和布局都是独立于框架之外的，可以根据需要使用。
 ## 使用方法
+
+npm install pandyle
+
+### **开始**
+    
+*代码示例：创建vm*
+    
+    var data = {
+        id: 1,
+        name: 'test',
+        hobbies: [
+            {
+                hobby_name: 'swim',
+                hobby_type: 'sport'
+            },
+            {
+                hobby_name: 'reading',
+                hobby_type: 'study'
+            }
+        ]
+    }
+    var vm = new Pandyle($('.#main'), data);
+
+
+### **模板语法**
+
+* 使用两对花括号{{}}进行文本值绑定
+* 使用p-bind进行属性绑定
+* 使用p-each进行循环操作
+
+*代码示例：模板语法*
+
+    <div class="main">
+        <p>user ID: {{id}}</p>
+        <p>user Name: {{name}}</p>
+        <p>user Hobbies:</p>
+        <div p-each="hobbies">
+            <div>
+                <p>{{hobby_name}}</p>
+                <p p-bind="class:{{hobby_type}}">{{hobby_type}</p>
+            </div>
+        </div>
+    </div>
+
 
 ### **布局**
 在需要布局的容器中加入class="flex"即可。通过x-和y-系列class可以改变对齐方式，通过data-gap属性可以设定每个子元素之间的间隔。
