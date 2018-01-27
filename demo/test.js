@@ -7,6 +7,8 @@ $(document).ready(function() {
             }
         },
         type: 'test',
+        show: false,
+        correct: true,
         list: [{
                 id: 101,
                 name: 'aaa',
@@ -54,6 +56,7 @@ $(document).ready(function() {
 
 function test() {
     vm.set({
+        "show": true,
         "content.id": 3,
         "content.name.str": 'xxx',
         "type": 't2',
@@ -87,4 +90,10 @@ function test() {
             },
         ]
     });
+}
+
+function test2() {
+    vm.set({
+        show: true
+    })
 }

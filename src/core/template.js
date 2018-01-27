@@ -79,6 +79,7 @@ var Pandyle;
                     $(ele).data('binding', {});
                 }
                 _this.bindAttr(ele, parentProperty);
+                _this.bindIf(ele, parentProperty);
                 if ($(ele).attr('p-each')) {
                     _this.renderEach($(ele), data, parentProperty);
                 }
@@ -95,7 +96,6 @@ var Pandyle;
             });
         };
         VM.prototype.bindAttr = function (ele, parentProperty) {
-            var related = true;
             if ($(ele).attr('p-bind')) {
                 var binds = $(ele).attr('p-bind').split('^');
                 binds.forEach(function (bindInfo, index) {
@@ -108,13 +108,40 @@ var Pandyle;
                     };
                 });
                 $(ele).removeAttr('p-bind');
-                related = false;
             }
             var bindings = $(ele).data('binding');
             var data = $(ele).data('context');
             for (var a in bindings) {
                 if (a != 'text') {
                     $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a].pattern, data, parentProperty));
+                }
+            }
+        };
+        VM.prototype.bindIf = function (ele, parentProperty) {
+            var _this = this;
+            var related = true;
+            if ($(ele).attr('p-if')) {
+                $(ele).data('if', $(ele).attr('p-if'));
+                $(ele).removeAttr('p-if');
+                related = false;
+            }
+            if ($(ele).data('if')) {
+                var expression = $(ele).data('if');
+                var data_1 = $(ele).data('context');
+                var convertedExpression = expression.replace(/\w+/g, function ($0) {
+                    if (!related) {
+                        _this.setRelation($0, $(ele), parentProperty);
+                    }
+                    return $0.split('.').reduce(function (obj, current) {
+                        return obj[current];
+                    }, data_1);
+                });
+                var judge = new Function('return ' + convertedExpression);
+                if (judge()) {
+                    $(ele).show();
+                }
+                else {
+                    $(ele).hide();
                 }
             }
         };

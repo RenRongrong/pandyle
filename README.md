@@ -34,12 +34,14 @@ npm install pandyle
 * 使用两对花括号{{}}进行文本值绑定
 * 使用p-bind进行属性绑定
 * 使用p-each进行循环操作
+* 使用p-if进行条件判断
 
 *代码示例：模板语法*
 
     <div class="main">
         <p>user ID: {{id}}</p>
         <p>user Name: {{name}}</p>
+        <p p-if="show">show it!</p>
         <p>user Hobbies:</p>
         <div p-each="hobbies">
             <div>

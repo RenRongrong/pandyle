@@ -13,7 +13,7 @@
 
 <body>
     <div class="temp">
-        <div p-each="list">
+        <div p-if="show && correct" p-each="list">
             <div p-each="hobbies">
                 <p>{{hobby}}</p>
             </div>

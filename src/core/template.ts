@@ -67,13 +67,13 @@ namespace Pandyle {
                 }
                 target[lastProperty] = newData[key];
                 if (isArray(target[lastProperty])) {
-                    for(let i = this._relations.length-1; i >= 0; i--){
-                        if(this.isChild(key, this._relations[i].property)){
+                    for (let i = this._relations.length - 1; i >= 0; i--) {
+                        if (this.isChild(key, this._relations[i].property)) {
                             this._relations.splice(i, 1);
                         }
                     }
                 }
-                let relation = this._relations.filter(value => this.isSelfOrChild(key, value.property));             
+                let relation = this._relations.filter(value => this.isSelfOrChild(key, value.property));
                 if (relation.length > 0) {
                     relation[0].elements.forEach(ele => {
                         this.render(ele, this._data, '');
@@ -95,6 +95,7 @@ namespace Pandyle {
                     $(ele).data('binding', {});
                 }
                 this.bindAttr(ele, parentProperty);
+                this.bindIf(ele, parentProperty);
                 if ($(ele).attr('p-each')) {
                     this.renderEach($(ele), data, parentProperty);
                 } else if ($(ele).children().length > 0) {
@@ -132,16 +133,31 @@ namespace Pandyle {
             }
         }
 
-        private bindIf(ele:HTMLElement, parentProperty){
+        private bindIf(ele: HTMLElement, parentProperty) {
             let related = true;
-            if($(ele).attr('p-if')){
-                $(ele).data('binding')['if'] = {
-                    pattern: $(ele).attr('p-if'),
-                    related: false
-                }
+            if ($(ele).attr('p-if')) {
+                $(ele).data('if', $(ele).attr('p-if'));
                 $(ele).removeAttr('p-if');
+                related = false;
             }
-            //TODO: if指令的处理
+            if ($(ele).data('if')) {
+                let expression:string = $(ele).data('if');
+                let data = $(ele).data('context');
+                let convertedExpression = expression.replace(/\w+/g, ($0) => {
+                    if(!related){
+                        this.setRelation($0, $(ele), parentProperty);
+                    }
+                    return $0.split('.').reduce((obj, current) => {
+                        return obj[current];
+                    }, data);
+                });
+                let judge = new Function('return ' + convertedExpression);
+                if (judge()) {
+                    $(ele).show();
+                } else {
+                    $(ele).hide();
+                }
+            }
         }
 
         private renderEach(element: JQuery<HTMLElement>, data: object, parentProperty) {
@@ -227,7 +243,7 @@ namespace Pandyle {
             return reg.test(subProperty);
         }
 
-        private isChild(property:string, subProperty:string){
+        private isChild(property: string, subProperty: string) {
             let reg = new RegExp('^' + property + '[\\[\\.]\\w+');
             return reg.test(subProperty);
         }
