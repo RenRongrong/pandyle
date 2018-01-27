@@ -58,6 +58,33 @@ function test() {
         "content.name.str": 'xxx',
         "type": 't2',
         "link": "http://www.qq.com",
-        "class": "foo"
+        "class": "foo",
+        "list": [{
+                id: 201,
+                name: 'xxx',
+                hobbies: [{
+                        hobby: '篮球',
+                        type: '体育'
+                    },
+                    {
+                        hobby: '音乐',
+                        type: '文艺'
+                    }
+                ]
+            },
+            {
+                id: 202,
+                name: 'yyy',
+                hobbies: [{
+                        hobby: '足球',
+                        type: '体育'
+                    },
+                    {
+                        hobby: '电影',
+                        type: '娱乐'
+                    }
+                ]
+            },
+        ]
     });
 }

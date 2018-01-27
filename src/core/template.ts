@@ -5,6 +5,44 @@ namespace Pandyle {
         elements: JQuery<HTMLElement>[];
     }
 
+    function getType(obj: any) {
+        let type: string = Object.prototype.toString.call(obj);
+        return type.replace(/^\[object\s(\w+)\]$/, '$1');
+    }
+
+    function isString(obj: any) {
+        return getType(obj) == 'String';
+    }
+
+    function isNumber(obj: any) {
+        return getType(obj) == 'Number';
+    }
+
+    function isBoolean(obj: any) {
+        return getType(obj) == 'Boolean';
+    }
+
+    function isArray(obj: any) {
+        return getType(obj) == 'Array';
+    }
+
+    function isObject(obj: any) {
+        return getType(obj) == 'Object';
+    }
+
+    function isFunction(obj: any) {
+        return getType(obj) == 'Function';
+    }
+
+    function isUndefined(obj: any) {
+        return getType(obj) == 'Undefined';
+    }
+
+    function isNull(obj: any) {
+        return getType(obj) == 'Null';
+    }
+
+
     export class VM {
         private _data: object;
         private _relations: relation[];
@@ -22,28 +60,35 @@ namespace Pandyle {
                 let properties = key.split('.');
                 let lastProperty = properties.pop();
                 let target = this._data;
-                if(properties.length > 0){
+                if (properties.length > 0) {
                     target = properties.reduce((obj, current) => {
                         return obj[current];
                     }, this._data);
                 }
                 target[lastProperty] = newData[key];
-                let relation = this._relations.filter(value => value.property == key);
+                if (isArray(target[lastProperty])) {
+                    for(let i = this._relations.length-1; i >= 0; i--){
+                        if(this.isChild(key, this._relations[i].property)){
+                            this._relations.splice(i, 1);
+                        }
+                    }
+                }
+                let relation = this._relations.filter(value => this.isSelfOrChild(key, value.property));             
                 if (relation.length > 0) {
                     relation[0].elements.forEach(ele => {
-                        this.setBind(ele, this._data, '');
+                        this.render(ele, this._data, '');
                     })
                 }
             }
         }
 
         private init() {
-            this.setBind(this._root, this._data, '');
+            this.render(this._root, this._data, '');
         }
 
-        private setBind(element: JQuery<HTMLElement>, data: object, parentProperty) {
+        private render(element: JQuery<HTMLElement>, data: object, parentProperty) {
             element.each((index, ele) => {
-                if(!$(ele).data('context')){
+                if (!$(ele).data('context')) {
                     $(ele).data('context', data);
                 }
                 if (!$(ele).data('binding')) {
@@ -51,21 +96,20 @@ namespace Pandyle {
                 }
                 this.bindAttr(ele, parentProperty);
                 if ($(ele).attr('p-each')) {
-                    this.bindFor($(ele), data, parentProperty);
+                    this.renderEach($(ele), data, parentProperty);
                 } else if ($(ele).children().length > 0) {
                     for (let i = 0; i < $(ele).children().length; i++) {
                         let child = $($(ele).children()[i]);
                         child.data('context', data);
-                        this.setBind(child, data, parentProperty);
+                        this.render(child, data, parentProperty);
                     }
                 } else {
-                    this.bindText($(ele), parentProperty);
+                    this.renderText($(ele), parentProperty);
                 }
             })
         }
 
         private bindAttr(ele: HTMLElement, parentProperty) {
-            let related = true;
             if ($(ele).attr('p-bind')) {
                 let binds = $(ele).attr('p-bind').split('^');
                 binds.forEach((bindInfo, index) => {
@@ -78,7 +122,6 @@ namespace Pandyle {
                     }
                 });
                 $(ele).removeAttr('p-bind');
-                related = false;
             }
             let bindings = $(ele).data('binding');
             let data = $(ele).data('context');
@@ -89,7 +132,19 @@ namespace Pandyle {
             }
         }
 
-        private bindFor(element: JQuery<HTMLElement>, data: object, parentProperty) {
+        private bindIf(ele:HTMLElement, parentProperty){
+            let related = true;
+            if($(ele).attr('p-if')){
+                $(ele).data('binding')['if'] = {
+                    pattern: $(ele).attr('p-if'),
+                    related: false
+                }
+                $(ele).removeAttr('p-if');
+            }
+            //TODO: if指令的处理
+        }
+
+        private renderEach(element: JQuery<HTMLElement>, data: object, parentProperty) {
             if (element.attr('p-each')) {
                 let property = element.attr('p-each').replace(/\s/g, '');
                 let nodes = property.split('.');
@@ -107,18 +162,18 @@ namespace Pandyle {
                     let newChildren = children.clone(true, true);
                     element.append(newChildren);
                     let fullProp = property;
-                    if(parentProperty != ''){
+                    if (parentProperty != '') {
                         fullProp = parentProperty + '.' + property;
                     }
-                    this.setBind(newChildren, target[i], fullProp.concat('[', i.toString(), ']'));
+                    this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'));
                 }
             }
         }
 
-        private bindText(element: JQuery<HTMLElement>, parentProperty) {
+        private renderText(element: JQuery<HTMLElement>, parentProperty) {
             let data = element.data('context');
             let text = element.text();
-            if(element.data('binding').text){
+            if (element.data('binding').text) {
                 text = element.data('binding').text.pattern;
             }
             let result = this.convertFromPattern(element, 'text', text, data, parentProperty);
@@ -151,7 +206,7 @@ namespace Pandyle {
         }
 
         private setRelation(property: string, element: JQuery<HTMLElement>, parentProperty) {
-            if(parentProperty != ''){
+            if (parentProperty != '') {
                 property = parentProperty + '.' + property;
             }
             let relation = this._relations.filter(value => value.property == property);
@@ -165,6 +220,16 @@ namespace Pandyle {
                     relation[0].elements.push(element);
                 }
             }
+        }
+
+        private isSelfOrChild(property: string, subProperty: string) {
+            let reg = new RegExp('^' + property + '$' + '|' + '^' + property + '[\\[\\.]\\w+');
+            return reg.test(subProperty);
+        }
+
+        private isChild(property:string, subProperty:string){
+            let reg = new RegExp('^' + property + '[\\[\\.]\\w+');
+            return reg.test(subProperty);
         }
     }
 }

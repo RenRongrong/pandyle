@@ -1,5 +1,33 @@
 var Pandyle;
 (function (Pandyle) {
+    function getType(obj) {
+        var type = Object.prototype.toString.call(obj);
+        return type.replace(/^\[object\s(\w+)\]$/, '$1');
+    }
+    function isString(obj) {
+        return getType(obj) == 'String';
+    }
+    function isNumber(obj) {
+        return getType(obj) == 'Number';
+    }
+    function isBoolean(obj) {
+        return getType(obj) == 'Boolean';
+    }
+    function isArray(obj) {
+        return getType(obj) == 'Array';
+    }
+    function isObject(obj) {
+        return getType(obj) == 'Object';
+    }
+    function isFunction(obj) {
+        return getType(obj) == 'Function';
+    }
+    function isUndefined(obj) {
+        return getType(obj) == 'Undefined';
+    }
+    function isNull(obj) {
+        return getType(obj) == 'Null';
+    }
     var VM = (function () {
         function VM(element, data) {
             this._data = data;
@@ -19,10 +47,17 @@ var Pandyle;
                     }, this_1._data);
                 }
                 target[lastProperty] = newData[key];
-                var relation = this_1._relations.filter(function (value) { return value.property == key; });
+                if (isArray(target[lastProperty])) {
+                    for (var i = this_1._relations.length - 1; i >= 0; i--) {
+                        if (this_1.isChild(key, this_1._relations[i].property)) {
+                            this_1._relations.splice(i, 1);
+                        }
+                    }
+                }
+                var relation = this_1._relations.filter(function (value) { return _this.isSelfOrChild(key, value.property); });
                 if (relation.length > 0) {
                     relation[0].elements.forEach(function (ele) {
-                        _this.setBind(ele, _this._data, '');
+                        _this.render(ele, _this._data, '');
                     });
                 }
             };
@@ -32,9 +67,9 @@ var Pandyle;
             }
         };
         VM.prototype.init = function () {
-            this.setBind(this._root, this._data, '');
+            this.render(this._root, this._data, '');
         };
-        VM.prototype.setBind = function (element, data, parentProperty) {
+        VM.prototype.render = function (element, data, parentProperty) {
             var _this = this;
             element.each(function (index, ele) {
                 if (!$(ele).data('context')) {
@@ -45,17 +80,17 @@ var Pandyle;
                 }
                 _this.bindAttr(ele, parentProperty);
                 if ($(ele).attr('p-each')) {
-                    _this.bindFor($(ele), data, parentProperty);
+                    _this.renderEach($(ele), data, parentProperty);
                 }
                 else if ($(ele).children().length > 0) {
                     for (var i = 0; i < $(ele).children().length; i++) {
                         var child = $($(ele).children()[i]);
                         child.data('context', data);
-                        _this.setBind(child, data, parentProperty);
+                        _this.render(child, data, parentProperty);
                     }
                 }
                 else {
-                    _this.bindText($(ele), parentProperty);
+                    _this.renderText($(ele), parentProperty);
                 }
             });
         };
@@ -83,7 +118,7 @@ var Pandyle;
                 }
             }
         };
-        VM.prototype.bindFor = function (element, data, parentProperty) {
+        VM.prototype.renderEach = function (element, data, parentProperty) {
             if (element.attr('p-each')) {
                 var property = element.attr('p-each').replace(/\s/g, '');
                 var nodes = property.split('.');
@@ -104,11 +139,11 @@ var Pandyle;
                     if (parentProperty != '') {
                         fullProp = parentProperty + '.' + property;
                     }
-                    this.setBind(newChildren, target[i], fullProp.concat('[', i.toString(), ']'));
+                    this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'));
                 }
             }
         };
-        VM.prototype.bindText = function (element, parentProperty) {
+        VM.prototype.renderText = function (element, parentProperty) {
             var data = element.data('context');
             var text = element.text();
             if (element.data('binding').text) {
@@ -158,6 +193,14 @@ var Pandyle;
                     relation[0].elements.push(element);
                 }
             }
+        };
+        VM.prototype.isSelfOrChild = function (property, subProperty) {
+            var reg = new RegExp('^' + property + '$' + '|' + '^' + property + '[\\[\\.]\\w+');
+            return reg.test(subProperty);
+        };
+        VM.prototype.isChild = function (property, subProperty) {
+            var reg = new RegExp('^' + property + '[\\[\\.]\\w+');
+            return reg.test(subProperty);
         };
         return VM;
     }());
