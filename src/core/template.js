@@ -66,6 +66,23 @@ var Pandyle;
                 _loop_1(key);
             }
         };
+        VM.prototype.get = function (param) {
+            var _this = this;
+            switch (getType(param)) {
+                case 'Array':
+                    return param.map(function (value) { return _this.get(value); });
+                case 'String':
+                    return this.getValue(param, this._data);
+                case 'Object':
+                    var result = {};
+                    for (var key in param) {
+                        result[key] = this.getValue(param[key], this._data);
+                    }
+                    return result;
+                default:
+                    return null;
+            }
+        };
         VM.prototype.init = function () {
             this.render(this._root, this._data, '');
         };
@@ -174,7 +191,7 @@ var Pandyle;
         };
         VM.prototype.convertFromPattern = function (element, prop, pattern, data, parentProperty) {
             var _this = this;
-            var reg = /{{\s*([\w\.]*)\s*}}/g;
+            var reg = /{{\s*([\w\.\[\]\(\)]*)\s*}}/g;
             var related = false;
             if (reg.test(pattern)) {
                 if (!element.data('binding')[prop]) {
@@ -190,10 +207,11 @@ var Pandyle;
                     _this.setRelation($1, element, parentProperty);
                     element.data('binding')[prop].related = true;
                 }
-                var nodes = $1.split('.');
-                return nodes.reduce(function (obj, current) {
-                    return obj[current];
-                }, data);
+                // let nodes: string[] = $1.split('.');
+                // return nodes.reduce((obj, current) => {
+                //     return obj[current];
+                // }, data);
+                return _this.getValue($1, data);
             });
             return result;
         };
@@ -221,6 +239,32 @@ var Pandyle;
         VM.prototype.isChild = function (property, subProperty) {
             var reg = new RegExp('^' + property + '[\\[\\.]\\w+');
             return reg.test(subProperty);
+        };
+        VM.prototype.getValue = function (property, data) {
+            var nodes = property.split('.');
+            return nodes.reduce(function (obj, current) {
+                var arr = /^(\w+)([\(|\[].*)*/.exec(current);
+                var property = arr[1];
+                var tempData = obj[property];
+                var symbols = arr[2];
+                if (symbols) {
+                    var arr_1 = symbols.match(/\[\d+\]|\(.*\)/g);
+                    return arr_1.reduce(function (obj2, current2) {
+                        if (/\[\d+\]/.test(current2)) {
+                            var arrayIndex = parseInt(current2.replace(/\[(\d+)\]/, '$1'));
+                            return obj2[arrayIndex];
+                        }
+                        else if (/\(.*\)/.test(current2)) {
+                            var param = current2.replace(/\((.*)\)/, '$1');
+                            var paramObj = (new Function('return ' + param))();
+                            return obj2(paramObj);
+                        }
+                    }, tempData);
+                }
+                else {
+                    return tempData;
+                }
+            }, data);
         };
         return VM;
     }());

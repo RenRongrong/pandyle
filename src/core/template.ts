@@ -90,7 +90,7 @@ namespace Pandyle {
                     return this.getValue(param, this._data);
                 case 'Object':
                     let result = {};
-                    for(let key in param){
+                    for (let key in param) {
                         result[key] = this.getValue(param[key], this._data);
                     }
                     return result;
@@ -208,7 +208,7 @@ namespace Pandyle {
         }
 
         private convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty) {
-            let reg = /{{\s*([\w\.]*)\s*}}/g;
+            let reg = /{{\s*([\w\.\[\]\(\)]*)\s*}}/g;
             let related = false;
             if (reg.test(pattern)) {
                 if (!element.data('binding')[prop]) {
@@ -224,10 +224,11 @@ namespace Pandyle {
                     this.setRelation($1, element, parentProperty);
                     element.data('binding')[prop].related = true;
                 }
-                let nodes: string[] = $1.split('.');
-                return nodes.reduce((obj, current) => {
-                    return obj[current];
-                }, data);
+                // let nodes: string[] = $1.split('.');
+                // return nodes.reduce((obj, current) => {
+                //     return obj[current];
+                // }, data);
+                return this.getValue($1, data);
             });
             return result;
         }
@@ -259,10 +260,28 @@ namespace Pandyle {
             return reg.test(subProperty);
         }
 
-        private getValue(property:string, data:object){
+        private getValue(property: string, data: any) {
             let nodes = property.split('.');
             return nodes.reduce((obj, current) => {
-                return obj[current];
+                let arr = /^(\w+)([\(|\[].*)*/.exec(current);
+                let property = arr[1];
+                let tempData = obj[property];
+                let symbols = arr[2];
+                if (symbols) {
+                    let arr = symbols.match(/\[\d+\]|\(.*\)/g);
+                    return arr.reduce((obj2, current2) => {
+                        if (/\[\d+\]/.test(current2)) {
+                            let arrayIndex = parseInt(current2.replace(/\[(\d+)\]/, '$1'));
+                            return obj2[arrayIndex];
+                        } else if (/\(.*\)/.test(current2)) {
+                            let param = current2.replace(/\((.*)\)/, '$1');
+                            let paramObj = (new Function('return ' + param))();
+                            return obj2(paramObj);
+                        }
+                    }, tempData);
+                }else {
+                    return tempData;
+                }
             }, data)
         }
     }

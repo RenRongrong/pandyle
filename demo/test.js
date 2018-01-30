@@ -1,4 +1,4 @@
-var x = 2;
+var x = 0;
 
 $(document).ready(function() {
     vm = new Pandyle.VM($('.temp'), {
@@ -52,7 +52,10 @@ $(document).ready(function() {
             }
         ],
         link: 'http://www.baidu.com',
-        class: 'link'
+        class: 'link',
+        add: function(num) {
+            return 3 + num;
+        }
     });
 })
 
@@ -98,4 +101,15 @@ function test2() {
     vm.set({
         show: true
     })
+}
+
+function test3() {
+    var value = vm.get({
+        myType: 'type',
+        myList: 'list',
+        myId: 'content.id',
+        myHobby: 'list[0].hobbies',
+        addResult: 'add(2)'
+    });
+    console.log(value);
 }
