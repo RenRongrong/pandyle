@@ -82,6 +82,23 @@ namespace Pandyle {
             }
         }
 
+        public get(param: any) {
+            switch (getType(param)) {
+                case 'Array':
+                    return param.map(value => this.get(value));
+                case 'String':
+                    return this.getValue(param, this._data);
+                case 'Object':
+                    let result = {};
+                    for(let key in param){
+                        result[key] = this.getValue(param[key], this._data);
+                    }
+                    return result;
+                default:
+                    return null;
+            }
+        }
+
         private init() {
             this.render(this._root, this._data, '');
         }
@@ -142,7 +159,7 @@ namespace Pandyle {
                 $(ele).removeAttr('p-if');
             }
             if ($(ele).data('binding')['if']) {
-                let expression:string = $(ele).data('binding')['if'].pattern;
+                let expression: string = $(ele).data('binding')['if'].pattern;
                 let data = $(ele).data('context');
                 let convertedExpression = this.convertFromPattern($(ele), 'if', expression, data, parentProperty);
                 let judge = new Function('return ' + convertedExpression);
@@ -240,6 +257,13 @@ namespace Pandyle {
         private isChild(property: string, subProperty: string) {
             let reg = new RegExp('^' + property + '[\\[\\.]\\w+');
             return reg.test(subProperty);
+        }
+
+        private getValue(property:string, data:object){
+            let nodes = property.split('.');
+            return nodes.reduce((obj, current) => {
+                return obj[current];
+            }, data)
         }
     }
 }
