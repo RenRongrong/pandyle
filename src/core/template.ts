@@ -127,30 +127,24 @@ namespace Pandyle {
             let bindings = $(ele).data('binding');
             let data = $(ele).data('context');
             for (let a in bindings) {
-                if (a != 'text') {
+                if (a != 'text' && a != 'if') {
                     $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a].pattern, data, parentProperty));
                 }
             }
         }
 
         private bindIf(ele: HTMLElement, parentProperty) {
-            let related = true;
             if ($(ele).attr('p-if')) {
-                $(ele).data('if', $(ele).attr('p-if'));
+                $(ele).data('binding')['if'] = {
+                    pattern: $(ele).attr('p-if'),
+                    related: false
+                };
                 $(ele).removeAttr('p-if');
-                related = false;
             }
-            if ($(ele).data('if')) {
-                let expression:string = $(ele).data('if');
+            if ($(ele).data('binding')['if']) {
+                let expression:string = $(ele).data('binding')['if'].pattern;
                 let data = $(ele).data('context');
-                let convertedExpression = expression.replace(/\w+/g, ($0) => {
-                    if(!related){
-                        this.setRelation($0, $(ele), parentProperty);
-                    }
-                    return $0.split('.').reduce((obj, current) => {
-                        return obj[current];
-                    }, data);
-                });
+                let convertedExpression = this.convertFromPattern($(ele), 'if', expression, data, parentProperty);
                 let judge = new Function('return ' + convertedExpression);
                 if (judge()) {
                     $(ele).show();

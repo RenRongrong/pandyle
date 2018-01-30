@@ -1,3 +1,5 @@
+var x = 2;
+
 $(document).ready(function() {
     vm = new Pandyle.VM($('.temp'), {
         content: {
@@ -7,7 +9,7 @@ $(document).ready(function() {
             }
         },
         type: 'test',
-        show: false,
+        show: true,
         correct: true,
         list: [{
                 id: 101,
