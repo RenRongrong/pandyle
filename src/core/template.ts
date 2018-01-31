@@ -224,10 +224,6 @@ namespace Pandyle {
                     this.setRelation($1, element, parentProperty);
                     element.data('binding')[prop].related = true;
                 }
-                // let nodes: string[] = $1.split('.');
-                // return nodes.reduce((obj, current) => {
-                //     return obj[current];
-                // }, data);
                 return this.getValue($1, data);
             });
             return result;
