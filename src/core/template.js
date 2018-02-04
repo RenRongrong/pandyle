@@ -1,39 +1,46 @@
 var Pandyle;
 (function (Pandyle) {
-    function getType(obj) {
-        var type = Object.prototype.toString.call(obj);
-        return type.replace(/^\[object\s(\w+)\]$/, '$1');
+    var _variables = {};
+    var _methods = {};
+    var _filters = {};
+    var _converters = {};
+    function getMethod(name) {
+        return _methods[name];
     }
-    function isString(obj) {
-        return getType(obj) == 'String';
+    function hasSuffix(target, suffix) {
+        var reg = new RegExp('/^\w+' + suffix + '$/');
+        return reg.test(target);
     }
-    function isNumber(obj) {
-        return getType(obj) == 'Number';
+    function register(name, value) {
+        if ($.isFunction(value)) {
+            if (hasSuffix(name, 'Filter')) {
+                _filters[name] = value;
+            }
+            else if (hasSuffix(name, 'Converter')) {
+                _converters[name] = value;
+            }
+            else {
+                _methods[name] = value;
+            }
+        }
+        else {
+            _variables[name] = value;
+        }
     }
-    function isBoolean(obj) {
-        return getType(obj) == 'Boolean';
-    }
-    function isArray(obj) {
-        return getType(obj) == 'Array';
-    }
-    function isObject(obj) {
-        return getType(obj) == 'Object';
-    }
-    function isFunction(obj) {
-        return getType(obj) == 'Function';
-    }
-    function isUndefined(obj) {
-        return getType(obj) == 'Undefined';
-    }
-    function isNull(obj) {
-        return getType(obj) == 'Null';
-    }
-    var VM = /** @class */ (function () {
-        function VM(element, data) {
+    Pandyle.register = register;
+    var VM = (function () {
+        function VM(element, data, autoRun) {
+            if (autoRun === void 0) { autoRun = false; }
             this._data = data;
             this._root = element;
             this._relations = [];
-            this.init();
+            this._methods = {};
+            this._filters = {};
+            this._converters = {};
+            this._variables = {};
+            if (autoRun) {
+                this.run();
+            }
         }
         VM.prototype.set = function (newData) {
             var _this = this;
@@ -47,7 +54,7 @@ var Pandyle;
                     }, this_1._data);
                 }
                 target[lastProperty] = newData[key];
-                if (isArray(target[lastProperty])) {
+                if ($.isArray(target[lastProperty])) {
                     for (var i = this_1._relations.length - 1; i >= 0; i--) {
                         if (this_1.isChild(key, this_1._relations[i].property)) {
                             this_1._relations.splice(i, 1);
@@ -68,12 +75,12 @@ var Pandyle;
         };
         VM.prototype.get = function (param) {
             var _this = this;
-            switch (getType(param)) {
-                case 'Array':
+            switch ($.type(param)) {
+                case 'array':
                     return param.map(function (value) { return _this.get(value); });
-                case 'String':
+                case 'string':
                     return this.getValue(param, this._data);
-                case 'Object':
+                case 'object':
                     var result = {};
                     for (var key in param) {
                         result[key] = this.getValue(param[key], this._data);
@@ -83,7 +90,7 @@ var Pandyle;
                     return null;
             }
         };
-        VM.prototype.init = function () {
+        VM.prototype.run = function () {
             this.render(this._root, this._data, '');
         };
         VM.prototype.render = function (element, data, parentProperty) {
@@ -191,7 +198,7 @@ var Pandyle;
         };
         VM.prototype.convertFromPattern = function (element, prop, pattern, data, parentProperty) {
             var _this = this;
-            var reg = /{{\s*([\w\.\[\]\(\)]*)\s*}}/g;
+            var reg = /{{\s*([\w\.\[\]\(\)\,\$\{\}\d\+\-\*\/\s]*)\s*}}/g;
             var related = false;
             if (reg.test(pattern)) {
                 if (!element.data('binding')[prop]) {
@@ -207,10 +214,6 @@ var Pandyle;
                     _this.setRelation($1, element, parentProperty);
                     element.data('binding')[prop].related = true;
                 }
-                // let nodes: string[] = $1.split('.');
-                // return nodes.reduce((obj, current) => {
-                //     return obj[current];
-                // }, data);
                 return _this.getValue($1, data);
             });
             return result;
@@ -241,7 +244,9 @@ var Pandyle;
             return reg.test(subProperty);
         };
         VM.prototype.getValue = function (property, data) {
-            var nodes = property.split('.');
+            var _this = this;
+            //let nodes = property.split('.');
+            var nodes = property.match(/\w+((?:\(.*?\))*|(?:\[.*?\])*)/g);
             return nodes.reduce(function (obj, current) {
                 var arr = /^(\w+)([\(|\[].*)*/.exec(current);
                 var property = arr[1];
@@ -255,9 +260,17 @@ var Pandyle;
                             return obj2[arrayIndex];
                         }
                         else if (/\(.*\)/.test(current2)) {
-                            var param = current2.replace(/\((.*)\)/, '$1');
-                            var paramObj = (new Function('return ' + param))();
-                            return obj2(paramObj);
+                            var params = current2.replace(/\((.*)\)/, '$1').replace(/\s/, '').split(',');
+                            var computedParams = params.map(function (p) {
+                                if (/^[A-Za-z_\$].*$/.test(p)) {
+                                    return _this.getValue(p, data);
+                                }
+                                else {
+                                    return (new Function('return ' + p))();
+                                }
+                            });
+                            var func = obj2 || _this.getMethod(property) || getMethod(property) || window[property];
+                            return func.apply(_this, computedParams);
                         }
                     }, tempData);
                 }
@@ -265,6 +278,25 @@ var Pandyle;
                     return tempData;
                 }
             }, data);
+        };
+        VM.prototype.getMethod = function (name) {
+            return this._methods[name];
+        };
+        VM.prototype.register = function (name, value) {
+            if ($.isFunction(value)) {
+                if (hasSuffix(name, 'Filter')) {
+                    this._filters[name] = value;
+                }
+                else if (hasSuffix(name, 'Converter')) {
+                    this._converters[name] = value;
+                }
+                else {
+                    this._methods[name] = value;
+                }
+            }
+            else {
+                this._variables[name] = value;
+            }
         };
         return VM;
     }());

@@ -1,4 +1,4 @@
-namespace Pandyle {
+export module Pandyle {
     const _variables: object = {};
     const _methods: object = {};
     const _filters: object = {};
@@ -14,7 +14,7 @@ namespace Pandyle {
     }
 
     export function register(name: string, value: any) {
-        if (isFunction(value)) {
+        if ($.isFunction(value)) {
             if (hasSuffix(name, 'Filter')) {
                 _filters[name] = value;
             } else if (hasSuffix(name, 'Converter')) {
@@ -32,44 +32,6 @@ namespace Pandyle {
         elements: JQuery<HTMLElement>[];
     }
 
-    function getType(obj: any) {
-        let type: string = Object.prototype.toString.call(obj);
-        return type.replace(/^\[object\s(\w+)\]$/, '$1');
-    }
-
-    function isString(obj: any) {
-        return getType(obj) == 'String';
-    }
-
-    function isNumber(obj: any) {
-        return getType(obj) == 'Number';
-    }
-
-    function isBoolean(obj: any) {
-        return getType(obj) == 'Boolean';
-    }
-
-    function isArray(obj: any) {
-        return getType(obj) == 'Array';
-    }
-
-    function isObject(obj: any) {
-        return getType(obj) == 'Object';
-    }
-
-    function isFunction(obj: any) {
-        return getType(obj) == 'Function';
-    }
-
-    function isUndefined(obj: any) {
-        return getType(obj) == 'Undefined';
-    }
-
-    function isNull(obj: any) {
-        return getType(obj) == 'Null';
-    }
-
-
     export class VM {
         private _data: object;
         private _relations: relation[];
@@ -79,7 +41,7 @@ namespace Pandyle {
         private _converters: object;
         private _variables: object;
 
-        constructor(element: JQuery<HTMLElement>, data: object) {
+        constructor(element: JQuery<HTMLElement>, data: object, autoRun: boolean = false) {
             this._data = data;
             this._root = element;
             this._relations = [];
@@ -87,7 +49,9 @@ namespace Pandyle {
             this._filters = {};
             this._converters = {};
             this._variables = {};
-            this.init();
+            if(autoRun){
+                this.run();
+            }
         }
 
         public set(newData: object) {
@@ -101,7 +65,7 @@ namespace Pandyle {
                     }, this._data);
                 }
                 target[lastProperty] = newData[key];
-                if (isArray(target[lastProperty])) {
+                if ($.isArray(target[lastProperty])) {
                     for (let i = this._relations.length - 1; i >= 0; i--) {
                         if (this.isChild(key, this._relations[i].property)) {
                             this._relations.splice(i, 1);
@@ -118,12 +82,12 @@ namespace Pandyle {
         }
 
         public get(param: any) {
-            switch (getType(param)) {
-                case 'Array':
+            switch ($.type(param)) {
+                case 'array':
                     return param.map(value => this.get(value));
-                case 'String':
+                case 'string':
                     return this.getValue(param, this._data);
-                case 'Object':
+                case 'object':
                     let result = {};
                     for (let key in param) {
                         result[key] = this.getValue(param[key], this._data);
@@ -134,7 +98,7 @@ namespace Pandyle {
             }
         }
 
-        private init() {
+        public run() {
             this.render(this._root, this._data, '');
         }
 
@@ -243,7 +207,7 @@ namespace Pandyle {
         }
 
         private convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty) {
-            let reg = /{{\s*([\w\.\[\]\(\)]*)\s*}}/g;
+            let reg = /{{\s*([\w\.\[\]\(\)\,\$\{\}\d\+\-\*\/\s]*)\s*}}/g;
             let related = false;
             if (reg.test(pattern)) {
                 if (!element.data('binding')[prop]) {
@@ -292,7 +256,8 @@ namespace Pandyle {
         }
 
         private getValue(property: string, data: any) {
-            let nodes = property.split('.');
+            //let nodes = property.split('.');
+        let nodes = property.match(/\w+((?:\(.*?\))*|(?:\[.*?\])*)/g);
             return nodes.reduce((obj, current) => {
                 let arr = /^(\w+)([\(|\[].*)*/.exec(current);
                 let property = arr[1];
@@ -314,7 +279,7 @@ namespace Pandyle {
                                 }
                             })
                             let func: Function = obj2 || this.getMethod(property) || getMethod(property) || window[property];
-                            return func.apply(computedParams);
+                            return func.apply(this, computedParams);
                         }
                     }, tempData);
                 } else {
@@ -328,7 +293,7 @@ namespace Pandyle {
         }
 
         private register(name: string, value: any) {
-            if (isFunction(value)) {
+            if ($.isFunction(value)) {
                 if (hasSuffix(name, 'Filter')) {
                     this._filters[name] = value;
                 } else if (hasSuffix(name, 'Converter')) {

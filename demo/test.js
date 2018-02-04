@@ -57,6 +57,11 @@ $(document).ready(function() {
             return 3 + num;
         }
     });
+    vm.register('hello', function(message) {
+        var name = this.get('content.name.str');
+        return 'hello ' + message + name;
+    });
+    vm.run();
 })
 
 function test() {
@@ -112,4 +117,8 @@ function test3() {
         addResult: 'add(2)'
     });
     console.log(value);
+}
+
+function goodbye(message, x) {
+    return 'goodbye ' + message + (x + 1);
 }
