@@ -1,4 +1,31 @@
 namespace Pandyle {
+    const _variables: object = {};
+    const _methods: object = {};
+    const _filters: object = {};
+    const _converters: object = {};
+
+    function getMethod(name: string): Function {
+        return _methods[name];
+    }
+
+    function hasSuffix(target: string, suffix: string) {
+        let reg = new RegExp('/^\w+' + suffix + '$/');
+        return reg.test(target);
+    }
+
+    export function register(name: string, value: any) {
+        if (isFunction(value)) {
+            if (hasSuffix(name, 'Filter')) {
+                _filters[name] = value;
+            } else if (hasSuffix(name, 'Converter')) {
+                _converters[name] = value;
+            } else {
+                _methods[name] = value;
+            }
+        } else {
+            _variables[name] = value;
+        }
+    }
 
     interface relation {
         property: string;
@@ -47,11 +74,19 @@ namespace Pandyle {
         private _data: object;
         private _relations: relation[];
         private _root: JQuery<HTMLElement>;
+        private _methods: object;
+        private _filters: object;
+        private _converters: object;
+        private _variables: object;
 
         constructor(element: JQuery<HTMLElement>, data: object) {
             this._data = data;
             this._root = element;
             this._relations = [];
+            this._methods = {};
+            this._filters = {};
+            this._converters = {};
+            this._variables = {};
             this.init();
         }
 
@@ -270,15 +305,40 @@ namespace Pandyle {
                             let arrayIndex = parseInt(current2.replace(/\[(\d+)\]/, '$1'));
                             return obj2[arrayIndex];
                         } else if (/\(.*\)/.test(current2)) {
-                            let param = current2.replace(/\((.*)\)/, '$1');
-                            let paramObj = (new Function('return ' + param))();
-                            return obj2(paramObj);
+                            let params = current2.replace(/\((.*)\)/, '$1').replace(/\s/, '').split(',');
+                            let computedParams = params.map(p => {
+                                if (/^[A-Za-z_\$].*$/.test(p)) {
+                                    return this.getValue(p, data);
+                                } else {
+                                    return (new Function('return ' + p))();
+                                }
+                            })
+                            let func: Function = obj2 || this.getMethod(property) || getMethod(property) || window[property];
+                            return func.apply(computedParams);
                         }
                     }, tempData);
-                }else {
+                } else {
                     return tempData;
                 }
             }, data)
+        }
+
+        private getMethod(name: string): Function {
+            return this._methods[name];
+        }
+
+        private register(name: string, value: any) {
+            if (isFunction(value)) {
+                if (hasSuffix(name, 'Filter')) {
+                    this._filters[name] = value;
+                } else if (hasSuffix(name, 'Converter')) {
+                    this._converters[name] = value;
+                } else {
+                    this._methods[name] = value;
+                }
+            } else {
+                this._variables[name] = value;
+            }
         }
     }
 }
