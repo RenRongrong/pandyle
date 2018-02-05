@@ -1,68 +1,56 @@
-import { Pandyle } from '../src/core/template';
+interface book{
+    id:number,
+    title:string,
+    author:{
+        name: string,
+        nation: string
+    }
+    price:number,
+}
+
+let x = 2;
+let vm:myVM;
 $(document).ready(function () {
-    let vm = new Pandyle.VM($('.temp',), {
-        content: {
-            id: 2,
-            name: {
-                str: 'rrr'
-            }
+    vm = new myVM($('.temp'), {
+        id: 2,
+        title: '百年孤独',
+        author: {
+            name: '马尔克斯',
+            nation: '哥伦比亚'
         },
-        type: 'test',
-        show: true,
-        correct: true,
-        list: [{
-            id: 101,
-            name: 'aaa',
-            hobbies: [{
-                hobby: '游泳',
-                type: '体育'
-            },
-            {
-                hobby: '看书',
-                type: '文艺'
-            }
-            ]
-        },
-        {
-            id: 102,
-            name: 'bbb',
-            hobbies: [{
-                hobby: '唱歌',
-                type: '文艺'
-            },
-            {
-                hobby: '游戏',
-                type: '娱乐'
-            }
-            ]
-        },
-        {
-            id: 103,
-            name: 'ccc',
-            hobbies: [{
-                hobby: '唱歌',
-                type: '文艺'
-            },
-            {
-                hobby: '游戏',
-                type: '娱乐'
-            }
-            ]
-        }
-        ],
-        link: 'http://www.baidu.com',
-        class: 'link',
-        add: function (num) {
-            return 3 + num;
-        }
-    }, false);
-    vm.register('hello',  function(message) {
-        var name = this.get('content.name.str');
-        return 'hello ' + message + name;
-    });
-    vm.run();
+        price: 89
+    })
 })
+
+function setName(){
+    let author = vm.author;
+    author.name = 'rrr';
+    console.log(vm.author);
+}
 
 function goodbye(message, x) {
     return 'goodbye ' + message + (x + 1);
+}
+
+class myVM extends Pandyle.VM<book>{
+    get title(){
+        return this.get('title');
+    }
+
+    set title(value:string){
+        this.set({
+            'title': value
+        })
+    }
+
+    get author(){
+        return this.get('author');
+    }
+    set author(value:any){
+        this.set({
+            'author': value
+        })
+    }
+
+
 }

@@ -1,6 +1,10 @@
 {
+    "compilerOptions": {
+        "target": "es5"
+    },
     "files": [
-        "src/core/template.ts"
+        "src/core/template.ts",
+        "demo/test2.ts"
     ],
     "exclude": [
         "node_modules",

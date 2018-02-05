@@ -13,17 +13,11 @@
 
 <body>
     <div class="temp">
-        <div p-if="{{show}} && {{content.id}} > x" p-each="list">
-            <div p-each="hobbies">
-                <p>{{hobby}}</p>
-            </div>
-        </div>
-        <div>
-            <p>{{list[0].name}}</p>
-            <p>{{goodbye(content.name.str, 4)}}</p>
-        </div>
+        <p>{{title}}</p>
+        <p>{{author.name}}</p>
+        <p>{{price}}</p>
     </div>
-    <button onclick="test3()">click me</button>
+    <button onclick="setName()">click me</button>
 </body>
 
 </html>

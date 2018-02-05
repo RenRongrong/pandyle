@@ -1,4 +1,4 @@
-export module Pandyle {
+namespace Pandyle {
     const _variables: object = {};
     const _methods: object = {};
     const _filters: object = {};
@@ -32,8 +32,8 @@ export module Pandyle {
         elements: JQuery<HTMLElement>[];
     }
 
-    export class VM {
-        private _data: object;
+    export class VM<T> {
+        protected _data: T;
         private _relations: relation[];
         private _root: JQuery<HTMLElement>;
         private _methods: object;
@@ -41,7 +41,7 @@ export module Pandyle {
         private _converters: object;
         private _variables: object;
 
-        constructor(element: JQuery<HTMLElement>, data: object, autoRun: boolean = true) {
+        constructor(element: JQuery<HTMLElement>, data: T, autoRun: boolean = true) {
             this._data = data;
             this._root = element;
             this._relations = [];
@@ -49,7 +49,7 @@ export module Pandyle {
             this._filters = {};
             this._converters = {};
             this._variables = {};
-            if(autoRun){
+            if (autoRun) {
                 this.run();
             }
         }
@@ -102,7 +102,7 @@ export module Pandyle {
             this.render(this._root, this._data, '');
         }
 
-        private render(element: JQuery<HTMLElement>, data: object, parentProperty) {
+        private render(element: JQuery<HTMLElement>, data: any, parentProperty) {
             element.each((index, ele) => {
                 if (!$(ele).data('context')) {
                     $(ele).data('context', data);
@@ -257,8 +257,8 @@ export module Pandyle {
 
         private getValue(property: string, data: any) {
             //let nodes = property.split('.');
-        let nodes = property.match(/\w+((?:\(.*?\))*|(?:\[.*?\])*)/g);
-            return nodes.reduce((obj, current) => {
+            let nodes = property.match(/\w+((?:\(.*?\))*|(?:\[.*?\])*)/g);
+            let result = nodes.reduce((obj, current) => {
                 let arr = /^(\w+)([\(|\[].*)*/.exec(current);
                 let property = arr[1];
                 let tempData = obj[property];
@@ -285,7 +285,32 @@ export module Pandyle {
                 } else {
                     return tempData;
                 }
-            }, data)
+            }, data);
+            let type = $.type(result);
+            if(type == 'string' || type == 'number' || type == 'boolean'){
+                return result;
+            }else{
+                return $.extend(this.toDefault(type), result);
+            }   
+        }
+
+        private toDefault(type:string){
+            switch(type){
+                case 'string':
+                    return '';
+                case 'number':
+                    return 0;
+                case 'boolean':
+                    return false;
+                case 'array':
+                    return [];
+                case 'object':
+                    return {};
+                case 'function': 
+                    return function(){};
+                default:
+                    return null;
+            }
         }
 
         private getMethod(name: string): Function {

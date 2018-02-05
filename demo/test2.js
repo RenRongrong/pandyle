@@ -1,69 +1,70 @@
-"use strict";
-exports.__esModule = true;
-var template_1 = require("../src/core/template");
-$(document).ready(function () {
-    var vm = new template_1.Pandyle.VM($('.temp'), {
-        content: {
-            id: 2,
-            name: {
-                str: 'rrr'
-            }
+var __extends = (this && this.__extends) || (function() {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] }
+            instanceof Array && function(d, b) { d.__proto__ = b; }) ||
+        function(d, b) { for (var p in b)
+                if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function(d, b) {
+        extendStatics(d, b);
+
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var x = 2;
+var vm;
+$(document).ready(function() {
+    vm = new myVM($('.temp'), {
+        id: 2,
+        title: '百年孤独',
+        author: {
+            name: '马尔克斯',
+            nation: '哥伦比亚'
         },
-        type: 'test',
-        show: true,
-        correct: true,
-        list: [{
-                id: 101,
-                name: 'aaa',
-                hobbies: [{
-                        hobby: '游泳',
-                        type: '体育'
-                    },
-                    {
-                        hobby: '看书',
-                        type: '文艺'
-                    }
-                ]
-            },
-            {
-                id: 102,
-                name: 'bbb',
-                hobbies: [{
-                        hobby: '唱歌',
-                        type: '文艺'
-                    },
-                    {
-                        hobby: '游戏',
-                        type: '娱乐'
-                    }
-                ]
-            },
-            {
-                id: 103,
-                name: 'ccc',
-                hobbies: [{
-                        hobby: '唱歌',
-                        type: '文艺'
-                    },
-                    {
-                        hobby: '游戏',
-                        type: '娱乐'
-                    }
-                ]
-            }
-        ],
-        link: 'http://www.baidu.com',
-        "class": 'link',
-        add: function (num) {
-            return 3 + num;
-        }
-    }, false);
-    vm.register('hello', function (message) {
-        var name = this.get('content.name.str');
-        return 'hello ' + message + name;
+        price: 89
     });
-    vm.run();
 });
+
+function setName() {
+    var author = vm.author;
+    author.name = 'rrr';
+    console.log(vm.author);
+    vm.author = author;
+    console.log(vm.author);
+}
+
 function goodbye(message, x) {
     return 'goodbye ' + message + (x + 1);
 }
+var myVM = /** @class */ (function(_super) {
+    __extends(myVM, _super);
+
+    function myVM() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Object.defineProperty(myVM.prototype, "title", {
+        get: function() {
+            return this.get('title');
+        },
+        set: function(value) {
+            this.set({
+                'title': value
+            });
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(myVM.prototype, "author", {
+        get: function() {
+            return this.get('author');
+        },
+        set: function(value) {
+            this.set({
+                'author': value
+            });
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return myVM;
+}(Pandyle.VM));

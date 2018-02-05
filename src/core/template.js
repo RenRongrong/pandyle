@@ -1,5 +1,3 @@
-"use strict";
-exports.__esModule = true;
 var Pandyle;
 (function (Pandyle) {
     var _variables = {};
@@ -249,7 +247,7 @@ var Pandyle;
             var _this = this;
             //let nodes = property.split('.');
             var nodes = property.match(/\w+((?:\(.*?\))*|(?:\[.*?\])*)/g);
-            return nodes.reduce(function (obj, current) {
+            var result = nodes.reduce(function (obj, current) {
                 var arr = /^(\w+)([\(|\[].*)*/.exec(current);
                 var property = arr[1];
                 var tempData = obj[property];
@@ -280,6 +278,31 @@ var Pandyle;
                     return tempData;
                 }
             }, data);
+            var type = $.type(result);
+            if (type == 'string' || type == 'number' || type == 'boolean') {
+                return result;
+            }
+            else {
+                return $.extend(this.toDefault(type), result);
+            }
+        };
+        VM.prototype.toDefault = function (type) {
+            switch (type) {
+                case 'string':
+                    return '';
+                case 'number':
+                    return 0;
+                case 'boolean':
+                    return false;
+                case 'array':
+                    return [];
+                case 'object':
+                    return {};
+                case 'function':
+                    return function () { };
+                default:
+                    return null;
+            }
         };
         VM.prototype.getMethod = function (name) {
             return this._methods[name];
@@ -303,4 +326,4 @@ var Pandyle;
         return VM;
     }());
     Pandyle.VM = VM;
-})(Pandyle = exports.Pandyle || (exports.Pandyle = {}));
+})(Pandyle || (Pandyle = {}));
