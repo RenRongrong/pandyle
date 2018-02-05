@@ -2,8 +2,10 @@ var __extends = (this && this.__extends) || (function() {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] }
             instanceof Array && function(d, b) { d.__proto__ = b; }) ||
-        function(d, b) { for (var p in b)
-                if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        function(d, b) {
+            for (var p in b)
+                if (b.hasOwnProperty(p)) d[p] = b[p];
+        };
     return function(d, b) {
         extendStatics(d, b);
 
@@ -28,6 +30,7 @@ $(document).ready(function() {
 function setName() {
     var author = vm.author;
     author.name = 'rrr';
+    vm.author.name = 'xxx';
     console.log(vm.author);
     vm.author = author;
     console.log(vm.author);

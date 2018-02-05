@@ -8,7 +8,6 @@ interface book{
     price:number,
 }
 
-let x = 2;
 let vm:myVM;
 $(document).ready(function () {
     vm = new myVM($('.temp'), {
@@ -28,10 +27,6 @@ function setName(){
     console.log(vm.author);
 }
 
-function goodbye(message, x) {
-    return 'goodbye ' + message + (x + 1);
-}
-
 class myVM extends Pandyle.VM<book>{
     get title(){
         return this.get('title');
@@ -46,7 +41,7 @@ class myVM extends Pandyle.VM<book>{
     get author(){
         return this.get('author');
     }
-    set author(value:any){
+    set author(value:{name:string, nation:string}){
         this.set({
             'author': value
         })
