@@ -41,7 +41,7 @@ export module Pandyle {
         private _converters: object;
         private _variables: object;
 
-        constructor(element: JQuery<HTMLElement>, data: object, autoRun: boolean = false) {
+        constructor(element: JQuery<HTMLElement>, data: object, autoRun: boolean = true) {
             this._data = data;
             this._root = element;
             this._relations = [];
@@ -292,7 +292,7 @@ export module Pandyle {
             return this._methods[name];
         }
 
-        private register(name: string, value: any) {
+        public register(name: string, value: any) {
             if ($.isFunction(value)) {
                 if (hasSuffix(name, 'Filter')) {
                     this._filters[name] = value;

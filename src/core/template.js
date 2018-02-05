@@ -1,3 +1,5 @@
+"use strict";
+exports.__esModule = true;
 var Pandyle;
 (function (Pandyle) {
     var _variables = {};
@@ -28,9 +30,9 @@ var Pandyle;
         }
     }
     Pandyle.register = register;
-    var VM = (function () {
+    var VM = /** @class */ (function () {
         function VM(element, data, autoRun) {
-            if (autoRun === void 0) { autoRun = false; }
+            if (autoRun === void 0) { autoRun = true; }
             this._data = data;
             this._root = element;
             this._relations = [];
@@ -301,4 +303,4 @@ var Pandyle;
         return VM;
     }());
     Pandyle.VM = VM;
-})(Pandyle || (Pandyle = {}));
+})(Pandyle = exports.Pandyle || (exports.Pandyle = {}));
