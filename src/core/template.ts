@@ -112,9 +112,9 @@ namespace Pandyle {
                 }
                 this.bindAttr(ele, parentProperty);
                 this.bindIf(ele, parentProperty);
-                if($(ele).attr('p-context')){
+                if ($(ele).attr('p-context')) {
                     this.renderContext(ele, parentProperty);
-                }else if ($(ele).attr('p-each')) {
+                } else if ($(ele).attr('p-each')) {
                     this.renderEach($(ele), data, parentProperty);
                 } else if ($(ele).children().length > 0) {
                     this.renderChild(ele, data, parentProperty);
@@ -231,7 +231,7 @@ namespace Pandyle {
         }
 
         private convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty) {
-            let reg = /{{\s*([\w\.\[\]\(\)\,\$\{\}\d\+\-\*\/\s]*)\s*}}/g;
+            let reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\s]*)\s*}}/g;
             let related = false;
             if (reg.test(pattern)) {
                 if (!element.data('binding')[prop]) {
@@ -253,9 +253,14 @@ namespace Pandyle {
         }
 
         private setRelation(property: string, element: JQuery<HTMLElement>, parentProperty) {
-            if (parentProperty != '') {
+            if (/^@root.*/.test(property)) {
+                property = property.replace(/@root\.?/, '');
+            } else if (/^@self.*/.test(property)) {
+                property = property.replace(/@self\.?/, parentProperty);
+            } else if (parentProperty != '') {
                 property = parentProperty + '.' + property;
             }
+
             let relation = this._relations.filter(value => value.property == property);
             if (relation.length == 0) {
                 this._relations.push({
@@ -280,12 +285,24 @@ namespace Pandyle {
         }
 
         private getValue(property: string, data: any) {
-            //let nodes = property.split('.');
-            let nodes = property.match(/\w+((?:\(.*?\))*|(?:\[.*?\])*)/g);
+            let nodes = property.match(/[@\w]+((?:\(.*?\))*|(?:\[.*?\])*)/g);
             let result = nodes.reduce((obj, current) => {
-                let arr = /^(\w+)([\(|\[].*)*/.exec(current);
+                let arr = /^([@\w]+)([\(|\[].*)*/.exec(current);
                 let property = arr[1];
-                let tempData = obj[property];
+                let tempData;
+                switch (property) {
+                    case '@root':
+                        tempData = this._data;
+                        break;
+                    case '@self':
+                        tempData = obj;
+                        break;
+                    case '@window':
+                        tempData = window;
+                        break;
+                    default:
+                        tempData = obj[property];
+                }
                 let symbols = arr[2];
                 if (symbols) {
                     let arr = symbols.match(/\[\d+\]|\(.*\)/g);

@@ -18,8 +18,12 @@
             <p>{{name}}</p>
             <p>{{nation}}</p>
         </div>
-        <p>{{author.name}}</p>
         <p>{{price}}</p>
+        <div p-each="tags">
+            <p>
+                <span>{{@self}}</span>:<span>{{@root.title}}</span>
+            </p>
+        </div>
     </div>
     <button onclick="setName()">click me</button>
 </body>

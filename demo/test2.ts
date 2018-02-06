@@ -6,6 +6,7 @@ interface book{
         nation: string
     }
     price:number,
+    tags:string[]
 }
 
 let vm:myVM;
@@ -17,7 +18,12 @@ $(document).ready(function () {
             name: '马尔克斯',
             nation: '哥伦比亚'
         },
-        price: 89
+        price: 89,
+        tags: [
+            '名著',
+            '文学',
+            '外国'
+        ]
     })
 })
 

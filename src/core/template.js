@@ -28,7 +28,7 @@ var Pandyle;
         }
     }
     Pandyle.register = register;
-    var VM = /** @class */ (function () {
+    var VM = (function () {
         function VM(element, data, autoRun) {
             if (autoRun === void 0) { autoRun = true; }
             this._data = data;
@@ -221,7 +221,7 @@ var Pandyle;
         };
         VM.prototype.convertFromPattern = function (element, prop, pattern, data, parentProperty) {
             var _this = this;
-            var reg = /{{\s*([\w\.\[\]\(\)\,\$\{\}\d\+\-\*\/\s]*)\s*}}/g;
+            var reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\s]*)\s*}}/g;
             var related = false;
             if (reg.test(pattern)) {
                 if (!element.data('binding')[prop]) {
@@ -242,7 +242,13 @@ var Pandyle;
             return result;
         };
         VM.prototype.setRelation = function (property, element, parentProperty) {
-            if (parentProperty != '') {
+            if (/^@root.*/.test(property)) {
+                property = property.replace(/@root\.?/, '');
+            }
+            else if (/^@self.*/.test(property)) {
+                property = property.replace(/@self\.?/, parentProperty);
+            }
+            else if (parentProperty != '') {
                 property = parentProperty + '.' + property;
             }
             var relation = this._relations.filter(function (value) { return value.property == property; });
@@ -268,12 +274,24 @@ var Pandyle;
         };
         VM.prototype.getValue = function (property, data) {
             var _this = this;
-            //let nodes = property.split('.');
-            var nodes = property.match(/\w+((?:\(.*?\))*|(?:\[.*?\])*)/g);
+            var nodes = property.match(/[@\w]+((?:\(.*?\))*|(?:\[.*?\])*)/g);
             var result = nodes.reduce(function (obj, current) {
-                var arr = /^(\w+)([\(|\[].*)*/.exec(current);
+                var arr = /^([@\w]+)([\(|\[].*)*/.exec(current);
                 var property = arr[1];
-                var tempData = obj[property];
+                var tempData;
+                switch (property) {
+                    case '@root':
+                        tempData = _this._data;
+                        break;
+                    case '@self':
+                        tempData = obj;
+                        break;
+                    case '@window':
+                        tempData = window;
+                        break;
+                    default:
+                        tempData = obj[property];
+                }
                 var symbols = arr[2];
                 if (symbols) {
                     var arr_1 = symbols.match(/\[\d+\]|\(.*\)/g);

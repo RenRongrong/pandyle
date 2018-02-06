@@ -17,13 +17,18 @@ $(document).ready(function () {
             name: '马尔克斯',
             nation: '哥伦比亚'
         },
-        price: 89
+        price: 89,
+        tags: [
+            '名著',
+            '文学',
+            '外国'
+        ]
     });
 });
 function setName() {
     vm.author = 'rrr';
 }
-var myVM = /** @class */ (function (_super) {
+var myVM = (function (_super) {
     __extends(myVM, _super);
     function myVM() {
         return _super !== null && _super.apply(this, arguments) || this;
