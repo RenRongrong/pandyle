@@ -104,15 +104,14 @@ var Pandyle;
                 }
                 _this.bindAttr(ele, parentProperty);
                 _this.bindIf(ele, parentProperty);
-                if ($(ele).attr('p-each')) {
+                if ($(ele).attr('p-context')) {
+                    _this.renderContext(ele, parentProperty);
+                }
+                else if ($(ele).attr('p-each')) {
                     _this.renderEach($(ele), data, parentProperty);
                 }
                 else if ($(ele).children().length > 0) {
-                    for (var i = 0; i < $(ele).children().length; i++) {
-                        var child = $($(ele).children()[i]);
-                        child.data('context', data);
-                        _this.render(child, data, parentProperty);
-                    }
+                    _this.renderChild(ele, data, parentProperty);
                 }
                 else {
                     _this.renderText($(ele), parentProperty);
@@ -159,6 +158,30 @@ var Pandyle;
                 }
                 else {
                     $(ele).hide();
+                }
+            }
+        };
+        VM.prototype.renderContext = function (ele, parentProperty) {
+            if ($(ele).attr('p-context')) {
+                var data = $(ele).data('context');
+                var property = $(ele).attr('p-context').replace(/\s/, '');
+                var nodes = property.split('.');
+                var target = nodes.reduce(function (obj, current) {
+                    return obj[current];
+                }, data);
+                var fullProp = property;
+                if (parentProperty != '') {
+                    fullProp = parentProperty + '.' + property;
+                }
+                this.renderChild(ele, target, fullProp);
+            }
+        };
+        VM.prototype.renderChild = function (ele, data, parentProperty) {
+            if ($(ele).children().length > 0) {
+                for (var i = 0; i < $(ele).children().length; i++) {
+                    var child = $($(ele).children()[i]);
+                    child.data('context', data);
+                    this.render(child, data, parentProperty);
                 }
             }
         };

@@ -1,21 +1,15 @@
-var __extends = (this && this.__extends) || (function() {
+var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] }
-            instanceof Array && function(d, b) { d.__proto__ = b; }) ||
-        function(d, b) {
-            for (var p in b)
-                if (b.hasOwnProperty(p)) d[p] = b[p];
-        };
-    return function(d, b) {
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
         extendStatics(d, b);
-
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var x = 2;
 var vm;
-$(document).ready(function() {
+$(document).ready(function () {
     vm = new myVM($('.temp'), {
         id: 2,
         title: '百年孤独',
@@ -26,30 +20,19 @@ $(document).ready(function() {
         price: 89
     });
 });
-
 function setName() {
-    var author = vm.author;
-    author.name = 'rrr';
-    vm.author.name = 'xxx';
-    console.log(vm.author);
-    vm.author = author;
-    console.log(vm.author);
+    vm.author = 'rrr';
 }
-
-function goodbye(message, x) {
-    return 'goodbye ' + message + (x + 1);
-}
-var myVM = /** @class */ (function(_super) {
+var myVM = /** @class */ (function (_super) {
     __extends(myVM, _super);
-
     function myVM() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     Object.defineProperty(myVM.prototype, "title", {
-        get: function() {
+        get: function () {
             return this.get('title');
         },
-        set: function(value) {
+        set: function (value) {
             this.set({
                 'title': value
             });
@@ -58,12 +41,12 @@ var myVM = /** @class */ (function(_super) {
         configurable: true
     });
     Object.defineProperty(myVM.prototype, "author", {
-        get: function() {
-            return this.get('author');
+        get: function () {
+            return this.get('author.name');
         },
-        set: function(value) {
+        set: function (value) {
             this.set({
-                'author': value
+                'author.name': value
             });
         },
         enumerable: true,

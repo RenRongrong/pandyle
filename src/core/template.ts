@@ -112,14 +112,12 @@ namespace Pandyle {
                 }
                 this.bindAttr(ele, parentProperty);
                 this.bindIf(ele, parentProperty);
-                if ($(ele).attr('p-each')) {
+                if($(ele).attr('p-context')){
+                    this.renderContext(ele, parentProperty);
+                }else if ($(ele).attr('p-each')) {
                     this.renderEach($(ele), data, parentProperty);
                 } else if ($(ele).children().length > 0) {
-                    for (let i = 0; i < $(ele).children().length; i++) {
-                        let child = $($(ele).children()[i]);
-                        child.data('context', data);
-                        this.render(child, data, parentProperty);
-                    }
+                    this.renderChild(ele, data, parentProperty);
                 } else {
                     this.renderText($(ele), parentProperty);
                 }
@@ -166,6 +164,32 @@ namespace Pandyle {
                     $(ele).show();
                 } else {
                     $(ele).hide();
+                }
+            }
+        }
+
+        private renderContext(ele: HTMLElement, parentProperty: string) {
+            if ($(ele).attr('p-context')) {
+                let data = $(ele).data('context');
+                let property = $(ele).attr('p-context').replace(/\s/, '');
+                let nodes = property.split('.');
+                let target: any = nodes.reduce((obj, current) => {
+                    return obj[current];
+                }, data);
+                let fullProp = property;
+                if (parentProperty != '') {
+                    fullProp = parentProperty + '.' + property;
+                }
+                this.renderChild(ele, target, fullProp);
+            }
+        }
+
+        private renderChild(ele: HTMLElement, data: any, parentProperty: string) {
+            if ($(ele).children().length > 0) {
+                for (let i = 0; i < $(ele).children().length; i++) {
+                    let child = $($(ele).children()[i]);
+                    child.data('context', data);
+                    this.render(child, data, parentProperty);
                 }
             }
         }
@@ -287,15 +311,15 @@ namespace Pandyle {
                 }
             }, data);
             let type = $.type(result);
-            if(type == 'string' || type == 'number' || type == 'boolean'){
+            if (type == 'string' || type == 'number' || type == 'boolean') {
                 return result;
-            }else{
+            } else {
                 return $.extend(this.toDefault(type), result);
-            }   
+            }
         }
 
-        private toDefault(type:string){
-            switch(type){
+        private toDefault(type: string) {
+            switch (type) {
                 case 'string':
                     return '';
                 case 'number':
@@ -306,8 +330,8 @@ namespace Pandyle {
                     return [];
                 case 'object':
                     return {};
-                case 'function': 
-                    return function(){};
+                case 'function':
+                    return function () { };
                 default:
                     return null;
             }

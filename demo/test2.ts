@@ -22,9 +22,7 @@ $(document).ready(function () {
 })
 
 function setName(){
-    let author = vm.author;
-    author.name = 'rrr';
-    console.log(vm.author);
+    vm.author = 'rrr';
 }
 
 class myVM extends Pandyle.VM<book>{
@@ -39,11 +37,11 @@ class myVM extends Pandyle.VM<book>{
     }
 
     get author(){
-        return this.get('author');
+        return this.get('author.name');
     }
-    set author(value:{name:string, nation:string}){
+    set author(value:string){
         this.set({
-            'author': value
+            'author.name': value
         })
     }
 
