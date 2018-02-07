@@ -1,8 +1,14 @@
 namespace Pandyle {
+    interface component {
+        name: string,
+        html: string
+    }
+
     const _variables: object = {};
     const _methods: object = {};
     const _filters: object = {};
     const _converters: object = {};
+    const _components: object = {};
 
     function getMethod(name: string): Function {
         return _methods[name];
@@ -11,6 +17,39 @@ namespace Pandyle {
     function hasSuffix(target: string, suffix: string) {
         let reg = new RegExp('/^\w+' + suffix + '$/');
         return reg.test(target);
+    }
+
+    function hasComponent(name: string) {
+        return typeof _components[name] != 'undefined';
+    }
+
+    export function addComponent(com: component) {
+        _components[com.name] = com.html;
+    }
+
+    export function getComponent(name: string) {
+        return _components[name];
+    }
+
+    export async function loadComponent(ele: HTMLElement) {
+        let name = $(ele).attr('p-com');
+        if (hasComponent(name)) {
+            $(ele).html(getComponent(name));
+        } else {
+            let url = '';
+            if (/.*\.html$/.test(name)) {
+                url = name;
+            } else {
+                url = '/components/' + name + '.html';
+            }
+            let res = await fetch(url);
+            let text = await res.text();
+            addComponent({
+                name: name,
+                html: text
+            });
+            $(ele).html(text);
+        }
     }
 
     export function register(name: string, value: any) {
@@ -54,7 +93,7 @@ namespace Pandyle {
             }
         }
 
-        public set(newData: object) {
+        public set(newData: any) {
             for (let key in newData) {
                 let properties = key.split('.');
                 let lastProperty = properties.pop();
@@ -75,7 +114,7 @@ namespace Pandyle {
                 let relation = this._relations.filter(value => this.isSelfOrChild(key, value.property));
                 if (relation.length > 0) {
                     relation[0].elements.forEach(ele => {
-                        this.render(ele, this._data, '');
+                        this.render(ele);
                     })
                 }
             }
@@ -102,26 +141,34 @@ namespace Pandyle {
             this.render(this._root, this._data, '');
         }
 
-        private render(element: JQuery<HTMLElement>, data: any, parentProperty) {
+        public render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string) {
             element.each((index, ele) => {
-                if (!$(ele).data('context')) {
-                    $(ele).data('context', data);
-                }
-                if (!$(ele).data('binding')) {
-                    $(ele).data('binding', {});
-                }
-                this.bindAttr(ele, parentProperty);
-                this.bindIf(ele, parentProperty);
-                if ($(ele).attr('p-context')) {
-                    this.renderContext(ele, parentProperty);
-                } else if ($(ele).attr('p-each')) {
-                    this.renderEach($(ele), data, parentProperty);
-                } else if ($(ele).children().length > 0) {
-                    this.renderChild(ele, data, parentProperty);
-                } else {
-                    this.renderText($(ele), parentProperty);
-                }
+                this.renderSingle(ele, data, parentProperty);
             })
+        }
+
+        private async renderSingle(ele:HTMLElement, data:any, parentProperty:string){
+            if (!$(ele).data('context')) {
+                $(ele).data('context', data);
+            }
+            if (!$(ele).data('binding')) {
+                $(ele).data('binding', {});
+            }
+            data = $(ele).data('context');
+            this.bindAttr(ele, parentProperty);
+            this.bindIf(ele, parentProperty);
+            if ($(ele)[0].tagName == 'C') {
+                await loadComponent(ele);
+            }
+            if ($(ele).attr('p-context')) {
+                this.renderContext(ele, parentProperty);
+            } else if ($(ele).attr('p-each')) {
+                this.renderEach($(ele), data, parentProperty);
+            } else if ($(ele).children().length > 0) {
+                this.renderChild(ele, data, parentProperty);
+            } else {
+                this.renderText($(ele), parentProperty);
+            }
         }
 
         private bindAttr(ele: HTMLElement, parentProperty) {
@@ -194,7 +241,7 @@ namespace Pandyle {
             }
         }
 
-        private renderEach(element: JQuery<HTMLElement>, data: object, parentProperty) {
+        private renderEach(element: JQuery<HTMLElement>, data: any, parentProperty) {
             if (element.attr('p-each')) {
                 let property = element.attr('p-each').replace(/\s/g, '');
                 let nodes = property.split('.');

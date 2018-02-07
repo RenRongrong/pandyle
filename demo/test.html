@@ -17,6 +17,9 @@
         <div p-context="author">
             <p>{{name}}</p>
             <p>{{nation}}</p>
+            <div p-each="honors">
+                <span>{{@self}} </span>
+            </div>
         </div>
         <p>{{price}}</p>
         <div p-each="tags">
@@ -24,6 +27,10 @@
                 <span>{{@self}}</span>:<span>{{@root.title}}</span>
             </p>
         </div>
+        <p class="local">{{@window.uid}}</p>
+        <c p-com="components/book.html"></c>
+        <c p-com="components/book.html"></c>
+        <c p-com="components/book.html"></c>
     </div>
     <button onclick="setName()">click me</button>
 </body>
