@@ -48,7 +48,7 @@ var Pandyle;
         return reg.test(target);
     }
     function hasComponent(name) {
-        return typeof _components[name] != 'undefined';
+        return typeof _components[name] !== 'undefined';
     }
     function addComponent(com) {
         _components[com.name] = com.html;
@@ -196,7 +196,7 @@ var Pandyle;
                             data = $(ele).data('context');
                             this.bindAttr(ele, parentProperty);
                             this.bindIf(ele, parentProperty);
-                            if (!($(ele)[0].tagName == 'C')) return [3 /*break*/, 2];
+                            if (!($(ele)[0].tagName === 'C')) return [3 /*break*/, 2];
                             return [4 /*yield*/, loadComponent(ele)];
                         case 1:
                             _a.sent();
@@ -236,7 +236,7 @@ var Pandyle;
             var bindings = $(ele).data('binding');
             var data = $(ele).data('context');
             for (var a in bindings) {
-                if (a != 'text' && a != 'if') {
+                if (a !== 'text' && a !== 'if') {
                     $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a].pattern, data, parentProperty));
                 }
             }
@@ -271,7 +271,7 @@ var Pandyle;
                     return obj[current];
                 }, data);
                 var fullProp = property;
-                if (parentProperty != '') {
+                if (parentProperty !== '') {
                     fullProp = parentProperty + '.' + property;
                 }
                 this.renderChild(ele, target, fullProp);
@@ -279,11 +279,30 @@ var Pandyle;
         };
         VM.prototype.renderChild = function (ele, data, parentProperty) {
             if ($(ele).children().length > 0) {
-                for (var i = 0; i < $(ele).children().length; i++) {
-                    var child = $($(ele).children()[i]);
-                    child.data('context', data);
-                    this.render(child, data, parentProperty);
-                }
+                // for (let i = 0; i < $(ele).children().length; i++) {
+                //     let child = $($(ele).children()[i]);
+                //     child.data('context', data);
+                //     this.render(child, data, parentProperty);
+                // }
+                var _this_1 = this;
+                var f_1 = function (child) {
+                    return __awaiter(this, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    child.data('context', data);
+                                    return [4 /*yield*/, _this_1.renderSingle(child[0], data, parentProperty)];
+                                case 1:
+                                    _a.sent();
+                                    if (child.next().length > 0) {
+                                        f_1(child.next());
+                                    }
+                                    return [2 /*return*/];
+                            }
+                        });
+                    });
+                };
+                f_1($(ele).children().first());
             }
         };
         VM.prototype.renderEach = function (element, data, parentProperty) {
@@ -304,7 +323,7 @@ var Pandyle;
                     var newChildren = children.clone(true, true);
                     element.append(newChildren);
                     var fullProp = property;
-                    if (parentProperty != '') {
+                    if (parentProperty !== '') {
                         fullProp = parentProperty + '.' + property;
                     }
                     this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'));
@@ -352,7 +371,7 @@ var Pandyle;
             else if (parentProperty != '') {
                 property = parentProperty + '.' + property;
             }
-            var relation = this._relations.filter(function (value) { return value.property == property; });
+            var relation = this._relations.filter(function (value) { return value.property === property; });
             if (relation.length == 0) {
                 this._relations.push({
                     property: property,
@@ -421,7 +440,7 @@ var Pandyle;
                 }
             }, data);
             var type = $.type(result);
-            if (type == 'string' || type == 'number' || type == 'boolean') {
+            if (type === 'string' || type === 'number' || type === 'boolean') {
                 return result;
             }
             else {

@@ -233,11 +233,15 @@ namespace Pandyle {
 
         private renderChild(ele: HTMLElement, data: any, parentProperty: string) {
             if ($(ele).children().length > 0) {
-                for (let i = 0; i < $(ele).children().length; i++) {
-                    let child = $($(ele).children()[i]);
+                let _this = this;
+                let f = async function(child:JQuery<HTMLElement>){
                     child.data('context', data);
-                    this.render(child, data, parentProperty);
+                    await _this.renderSingle(child[0], data, parentProperty);
+                    if(child.next().length > 0){
+                        f(child.next());
+                    }
                 }
+                f($(ele).children().first());
             }
         }
 
