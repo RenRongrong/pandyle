@@ -20,7 +20,7 @@ namespace Pandyle {
     }
 
     function hasComponent(name: string) {
-        return typeof _components[name] != 'undefined';
+        return typeof _components[name] !== 'undefined';
     }
 
     export function addComponent(com: component) {
@@ -157,7 +157,7 @@ namespace Pandyle {
             data = $(ele).data('context');
             this.bindAttr(ele, parentProperty);
             this.bindIf(ele, parentProperty);
-            if ($(ele)[0].tagName == 'C') {
+            if ($(ele)[0].tagName === 'C') {
                 await loadComponent(ele);
             }
             if ($(ele).attr('p-context')) {
@@ -188,7 +188,7 @@ namespace Pandyle {
             let bindings = $(ele).data('binding');
             let data = $(ele).data('context');
             for (let a in bindings) {
-                if (a != 'text' && a != 'if') {
+                if (a !== 'text' && a !== 'if') {
                     $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a].pattern, data, parentProperty));
                 }
             }
@@ -224,7 +224,7 @@ namespace Pandyle {
                     return obj[current];
                 }, data);
                 let fullProp = property;
-                if (parentProperty != '') {
+                if (parentProperty !== '') {
                     fullProp = parentProperty + '.' + property;
                 }
                 this.renderChild(ele, target, fullProp);
@@ -259,7 +259,7 @@ namespace Pandyle {
                     let newChildren = children.clone(true, true);
                     element.append(newChildren);
                     let fullProp = property;
-                    if (parentProperty != '') {
+                    if (parentProperty !== '') {
                         fullProp = parentProperty + '.' + property;
                     }
                     this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'));
@@ -308,7 +308,7 @@ namespace Pandyle {
                 property = parentProperty + '.' + property;
             }
 
-            let relation = this._relations.filter(value => value.property == property);
+            let relation = this._relations.filter(value => value.property === property);
             if (relation.length == 0) {
                 this._relations.push({
                     property: property,
@@ -375,7 +375,7 @@ namespace Pandyle {
                 }
             }, data);
             let type = $.type(result);
-            if (type == 'string' || type == 'number' || type == 'boolean') {
+            if (type === 'string' || type === 'number' || type === 'boolean') {
                 return result;
             } else {
                 return $.extend(this.toDefault(type), result);
