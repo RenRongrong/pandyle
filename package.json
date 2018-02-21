@@ -22,6 +22,7 @@
         "url": "git+https://github.com/RenRongrong/pandyle.git"
     },
     "scripts": {
-        "build": "tsc"
+        "build": "tsc",
+        "demo": "tsc demo/test2.ts"
     }
 }

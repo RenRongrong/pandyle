@@ -1,76 +1,7 @@
+/// <reference path="statics.ts" />
+/// <reference path="component.ts" />
+
 namespace Pandyle {
-    interface component {
-        name: string,
-        html: string
-    }
-
-    const _variables: object = {};
-    const _methods: object = {};
-    const _filters: object = {};
-    const _converters: object = {};
-    const _components: object = {};
-
-    function getMethod(name: string): Function {
-        return _methods[name];
-    }
-
-    function hasSuffix(target: string, suffix: string) {
-        let reg = new RegExp('/^\w+' + suffix + '$/');
-        return reg.test(target);
-    }
-
-    function hasComponent(name: string) {
-        return typeof _components[name] !== 'undefined';
-    }
-
-    export function addComponent(com: component) {
-        _components[com.name] = com.html;
-    }
-
-    export function getComponent(name: string) {
-        return _components[name];
-    }
-
-    export async function loadComponent(ele: HTMLElement) {
-        let name = $(ele).attr('p-com');
-        if (hasComponent(name)) {
-            $(ele).html(getComponent(name));
-        } else {
-            let url = '';
-            if (/.*\.html$/.test(name)) {
-                url = name;
-            } else {
-                url = '/components/' + name + '.html';
-            }
-            let res = await fetch(url);
-            let text = await res.text();
-            addComponent({
-                name: name,
-                html: text
-            });
-            $(ele).html(text);
-        }
-    }
-
-    export function register(name: string, value: any) {
-        if ($.isFunction(value)) {
-            if (hasSuffix(name, 'Filter')) {
-                _filters[name] = value;
-            } else if (hasSuffix(name, 'Converter')) {
-                _converters[name] = value;
-            } else {
-                _methods[name] = value;
-            }
-        } else {
-            _variables[name] = value;
-        }
-    }
-
-    interface relation {
-        property: string;
-        elements: JQuery<HTMLElement>[];
-    }
-
     export class VM<T> {
         protected _data: T;
         private _relations: relation[];

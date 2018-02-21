@@ -1,15 +1,16 @@
 {
     "compilerOptions": {
         "target": "es5",
+        "outFile": "dist/pandyle.bundle.js",
+        "removeComments": true,
         "lib": [
             "dom",
             "dom.iterable",
             "es2015"
         ]
     },
-    "files": [
-        "src/core/template.ts",
-        "demo/test2.ts"
+    "include": [
+        "src/core/*"
     ],
     "exclude": [
         "node_modules",

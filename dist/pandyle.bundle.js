@@ -7,8 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
-    return { next: verb(0), "throw": verb(1), "return": verb(2) };
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -35,27 +35,50 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var Pandyle;
 (function (Pandyle) {
-    var _variables = {};
-    var _methods = {};
-    var _filters = {};
-    var _converters = {};
-    var _components = {};
+    Pandyle._variables = {};
+    Pandyle._methods = {};
+    Pandyle._filters = {};
+    Pandyle._converters = {};
+    Pandyle._components = {};
     function getMethod(name) {
-        return _methods[name];
+        return Pandyle._methods[name];
     }
+    Pandyle.getMethod = getMethod;
     function hasSuffix(target, suffix) {
         var reg = new RegExp('/^\w+' + suffix + '$/');
         return reg.test(target);
     }
-    function hasComponent(name) {
-        return typeof _components[name] !== 'undefined';
+    Pandyle.hasSuffix = hasSuffix;
+    function register(name, value) {
+        if ($.isFunction(value)) {
+            if (hasSuffix(name, 'Filter')) {
+                Pandyle._filters[name] = value;
+            }
+            else if (hasSuffix(name, 'Converter')) {
+                Pandyle._converters[name] = value;
+            }
+            else {
+                Pandyle._methods[name] = value;
+            }
+        }
+        else {
+            Pandyle._variables[name] = value;
+        }
     }
+    Pandyle.register = register;
+})(Pandyle || (Pandyle = {}));
+var Pandyle;
+(function (Pandyle) {
+    function hasComponent(name) {
+        return typeof Pandyle._components[name] !== 'undefined';
+    }
+    Pandyle.hasComponent = hasComponent;
     function addComponent(com) {
-        _components[com.name] = com.html;
+        Pandyle._components[com.name] = com.html;
     }
     Pandyle.addComponent = addComponent;
     function getComponent(name) {
-        return _components[name];
+        return Pandyle._components[name];
     }
     Pandyle.getComponent = getComponent;
     function loadComponent(ele) {
@@ -65,9 +88,9 @@ var Pandyle;
                 switch (_a.label) {
                     case 0:
                         name = $(ele).attr('p-com');
-                        if (!hasComponent(name)) return [3 /*break*/, 1];
+                        if (!hasComponent(name)) return [3, 1];
                         $(ele).html(getComponent(name));
-                        return [3 /*break*/, 4];
+                        return [3, 4];
                     case 1:
                         url = '';
                         if (/.*\.html$/.test(name)) {
@@ -76,41 +99,28 @@ var Pandyle;
                         else {
                             url = '/components/' + name + '.html';
                         }
-                        return [4 /*yield*/, fetch(url)];
+                        return [4, fetch(url)];
                     case 2:
                         res = _a.sent();
-                        return [4 /*yield*/, res.text()];
+                        return [4, res.text()];
                     case 3:
                         text = _a.sent();
+                        text = text.replace(/<script>.*?<\/script>/g, '');
                         addComponent({
                             name: name,
                             html: text
                         });
                         $(ele).html(text);
                         _a.label = 4;
-                    case 4: return [2 /*return*/];
+                    case 4: return [2];
                 }
             });
         });
     }
     Pandyle.loadComponent = loadComponent;
-    function register(name, value) {
-        if ($.isFunction(value)) {
-            if (hasSuffix(name, 'Filter')) {
-                _filters[name] = value;
-            }
-            else if (hasSuffix(name, 'Converter')) {
-                _converters[name] = value;
-            }
-            else {
-                _methods[name] = value;
-            }
-        }
-        else {
-            _variables[name] = value;
-        }
-    }
-    Pandyle.register = register;
+})(Pandyle || (Pandyle = {}));
+var Pandyle;
+(function (Pandyle) {
     var VM = (function () {
         function VM(element, data, autoRun) {
             if (autoRun === void 0) { autoRun = true; }
@@ -196,8 +206,8 @@ var Pandyle;
                             data = $(ele).data('context');
                             this.bindAttr(ele, parentProperty);
                             this.bindIf(ele, parentProperty);
-                            if (!($(ele)[0].tagName === 'C')) return [3 /*break*/, 2];
-                            return [4 /*yield*/, loadComponent(ele)];
+                            if (!($(ele)[0].tagName === 'C')) return [3, 2];
+                            return [4, Pandyle.loadComponent(ele)];
                         case 1:
                             _a.sent();
                             _a.label = 2;
@@ -214,7 +224,7 @@ var Pandyle;
                             else {
                                 this.renderText($(ele), parentProperty);
                             }
-                            return [2 /*return*/];
+                            return [2];
                     }
                 });
             });
@@ -279,11 +289,6 @@ var Pandyle;
         };
         VM.prototype.renderChild = function (ele, data, parentProperty) {
             if ($(ele).children().length > 0) {
-                // for (let i = 0; i < $(ele).children().length; i++) {
-                //     let child = $($(ele).children()[i]);
-                //     child.data('context', data);
-                //     this.render(child, data, parentProperty);
-                // }
                 var _this_1 = this;
                 var f_1 = function (child) {
                     return __awaiter(this, void 0, void 0, function () {
@@ -291,13 +296,13 @@ var Pandyle;
                             switch (_a.label) {
                                 case 0:
                                     child.data('context', data);
-                                    return [4 /*yield*/, _this_1.renderSingle(child[0], data, parentProperty)];
+                                    return [4, _this_1.renderSingle(child[0], data, parentProperty)];
                                 case 1:
                                     _a.sent();
                                     if (child.next().length > 0) {
                                         f_1(child.next());
                                     }
-                                    return [2 /*return*/];
+                                    return [2];
                             }
                         });
                     });
@@ -430,7 +435,7 @@ var Pandyle;
                                     return (new Function('return ' + p))();
                                 }
                             });
-                            var func = obj2 || _this.getMethod(property) || getMethod(property) || window[property];
+                            var func = obj2 || _this.getMethod(property) || Pandyle.getMethod(property) || window[property];
                             return func.apply(_this, computedParams);
                         }
                     }, tempData);
@@ -470,10 +475,10 @@ var Pandyle;
         };
         VM.prototype.register = function (name, value) {
             if ($.isFunction(value)) {
-                if (hasSuffix(name, 'Filter')) {
+                if (Pandyle.hasSuffix(name, 'Filter')) {
                     this._filters[name] = value;
                 }
-                else if (hasSuffix(name, 'Converter')) {
+                else if (Pandyle.hasSuffix(name, 'Converter')) {
                     this._converters[name] = value;
                 }
                 else {

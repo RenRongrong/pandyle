@@ -1,3 +1,4 @@
+///<reference path="../src/core/vm.ts" />
 interface book{
     id:number,
     title:string,
