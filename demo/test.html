@@ -8,7 +8,7 @@
     <title>Document</title>
     <script src="../node_modules/jquery/dist/jquery.min.js"></script>
     <script src="../dist/pandyle.bundle.js"></script>
-    <script src="test2.js"></script>
+    <script src="test.js"></script>
 </head>
 
 <body>
@@ -28,9 +28,7 @@
             </p>
         </div>
         <p class="local">{{@window.uid}}</p>
-        <c p-com="components/book.html"></c>
-        <c p-com="components/book.html"></c>
-        <c p-com="components/book.html"></c>
+        <c p-com="components/book.html" p-context="next|book"></c>
     </div>
     <button onclick="setName()">click me</button>
 </body>

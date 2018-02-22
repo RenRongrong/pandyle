@@ -78,7 +78,7 @@ namespace Pandyle {
             })
         }
 
-        private async renderSingle(ele:HTMLElement, data:any, parentProperty:string){
+        private async renderSingle(ele: HTMLElement, data: any, parentProperty: string) {
             if (!$(ele).data('context')) {
                 $(ele).data('context', data);
             }
@@ -149,15 +149,22 @@ namespace Pandyle {
         private renderContext(ele: HTMLElement, parentProperty: string) {
             if ($(ele).attr('p-context')) {
                 let data = $(ele).data('context');
-                let property = $(ele).attr('p-context').replace(/\s/, '');
+                let expression = $(ele).attr('p-context');
+                let divided = this.dividePipe(expression);
+                let property = divided.property;
+                let method = divided.method;
                 let nodes = property.split('.');
                 let target: any = nodes.reduce((obj, current) => {
                     return obj[current];
                 }, data);
+                if(method){
+                    target = this.convert(method, target);
+                }
                 let fullProp = property;
                 if (parentProperty !== '') {
                     fullProp = parentProperty + '.' + property;
                 }
+                this.setRelation(property, $(ele), parentProperty);
                 this.renderChild(ele, target, fullProp);
             }
         }
@@ -165,10 +172,10 @@ namespace Pandyle {
         private renderChild(ele: HTMLElement, data: any, parentProperty: string) {
             if ($(ele).children().length > 0) {
                 let _this = this;
-                let f = async function(child:JQuery<HTMLElement>){
+                let f = async function (child: JQuery<HTMLElement>) {
                     child.data('context', data);
                     await _this.renderSingle(child[0], data, parentProperty);
-                    if(child.next().length > 0){
+                    if (child.next().length > 0) {
                         f(child.next());
                     }
                 }
@@ -338,6 +345,23 @@ namespace Pandyle {
 
         private getMethod(name: string): Function {
             return this._methods[name];
+        }
+
+        private dividePipe(expression: string) {
+            let array = expression.split('|');
+            let property = array[0].replace(/\s/g, '');
+            let method = array[1] ? array[1].replace(/\s/g, '') : null;
+            return {
+                property: property,
+                method: method
+            }
+        }
+
+        private convert(method:string, data:any){
+            if(!hasSuffix(method, 'Converter')){
+                method += 'Converter';
+            }
+            return this._converters[method](data);
         }
 
         public register(name: string, value: any) {

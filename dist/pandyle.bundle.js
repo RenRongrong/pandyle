@@ -45,7 +45,7 @@ var Pandyle;
     }
     Pandyle.getMethod = getMethod;
     function hasSuffix(target, suffix) {
-        var reg = new RegExp('/^\w+' + suffix + '$/');
+        var reg = new RegExp('^\\w+' + suffix + '$');
         return reg.test(target);
     }
     Pandyle.hasSuffix = hasSuffix;
@@ -105,7 +105,10 @@ var Pandyle;
                         return [4, res.text()];
                     case 3:
                         text = _a.sent();
-                        text = text.replace(/<script>.*?<\/script>/g, '');
+                        text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, function ($0, $1) {
+                            (new Function($1))();
+                            return '';
+                        });
                         addComponent({
                             name: name,
                             html: text
@@ -275,15 +278,22 @@ var Pandyle;
         VM.prototype.renderContext = function (ele, parentProperty) {
             if ($(ele).attr('p-context')) {
                 var data = $(ele).data('context');
-                var property = $(ele).attr('p-context').replace(/\s/, '');
+                var expression = $(ele).attr('p-context');
+                var divided = this.dividePipe(expression);
+                var property = divided.property;
+                var method = divided.method;
                 var nodes = property.split('.');
                 var target = nodes.reduce(function (obj, current) {
                     return obj[current];
                 }, data);
+                if (method) {
+                    target = this.convert(method, target);
+                }
                 var fullProp = property;
                 if (parentProperty !== '') {
                     fullProp = parentProperty + '.' + property;
                 }
+                this.setRelation(property, $(ele), parentProperty);
                 this.renderChild(ele, target, fullProp);
             }
         };
@@ -472,6 +482,21 @@ var Pandyle;
         };
         VM.prototype.getMethod = function (name) {
             return this._methods[name];
+        };
+        VM.prototype.dividePipe = function (expression) {
+            var array = expression.split('|');
+            var property = array[0].replace(/\s/g, '');
+            var method = array[1] ? array[1].replace(/\s/g, '') : null;
+            return {
+                property: property,
+                method: method
+            };
+        };
+        VM.prototype.convert = function (method, data) {
+            if (!Pandyle.hasSuffix(method, 'Converter')) {
+                method += 'Converter';
+            }
+            return this._converters[method](data);
         };
         VM.prototype.register = function (name, value) {
             if ($.isFunction(value)) {

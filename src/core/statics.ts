@@ -11,7 +11,7 @@ namespace Pandyle{
     }
 
     export function hasSuffix(target: string, suffix: string) {
-        let reg = new RegExp('/^\w+' + suffix + '$/');
+        let reg = new RegExp('^\\w+' + suffix + '$');
         return reg.test(target);
     }
 

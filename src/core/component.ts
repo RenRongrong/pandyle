@@ -30,7 +30,10 @@ namespace Pandyle {
             }
             let res = await fetch(url);
             let text = await res.text();
-            text = text.replace(/<script>.*?<\/script>/g, '');
+            text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, ($0, $1)=>{
+                (new Function($1))();
+                return '';
+            });
             addComponent({
                 name: name,
                 html: text
