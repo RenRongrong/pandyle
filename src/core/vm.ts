@@ -157,7 +157,7 @@ namespace Pandyle {
                 let target: any = nodes.reduce((obj, current) => {
                     return obj[current];
                 }, data);
-                if(method){
+                if (method) {
                     target = this.convert(method, target);
                 }
                 let fullProp = property;
@@ -357,11 +357,22 @@ namespace Pandyle {
             }
         }
 
-        private convert(method:string, data:any){
-            if(!hasSuffix(method, 'Converter')){
-                method += 'Converter';
+        private convert(method: string, data: any) {
+            if (/^{.*}$/.test(method)) {
+                let pairs = method.replace(/{|}/g, '').split(',');
+                return pairs.reduce((pre, current) => {
+                    let pair = current.split(':');
+                    pre[pair[0]] = pair[1].split('.').reduce((predata, property) => {
+                        return predata[property];
+                    }, data);
+                    return pre;
+                }, {})
+            } else {
+                if (!hasSuffix(method, 'Converter')) {
+                    method += 'Converter';
+                }
+                return this._converters[method](data);
             }
-            return this._converters[method](data);
         }
 
         public register(name: string, value: any) {

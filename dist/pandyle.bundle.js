@@ -493,10 +493,22 @@ var Pandyle;
             };
         };
         VM.prototype.convert = function (method, data) {
-            if (!Pandyle.hasSuffix(method, 'Converter')) {
-                method += 'Converter';
+            if (/^{.*}$/.test(method)) {
+                var pairs = method.replace(/{|}/g, '').split(',');
+                return pairs.reduce(function (pre, current) {
+                    var pair = current.split(':');
+                    pre[pair[0]] = pair[1].split('.').reduce(function (predata, property) {
+                        return predata[property];
+                    }, data);
+                    return pre;
+                }, {});
             }
-            return this._converters[method](data);
+            else {
+                if (!Pandyle.hasSuffix(method, 'Converter')) {
+                    method += 'Converter';
+                }
+                return this._converters[method](data);
+            }
         };
         VM.prototype.register = function (name, value) {
             if ($.isFunction(value)) {

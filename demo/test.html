@@ -28,7 +28,7 @@
             </p>
         </div>
         <p class="local">{{@window.uid}}</p>
-        <c p-com="components/book.html" p-context="next|book"></c>
+        <c p-com="components/book.html" p-context="next|{title: t, author: a, price: p}"></c>
     </div>
     <button onclick="setName()">click me</button>
 </body>
