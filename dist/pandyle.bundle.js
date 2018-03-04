@@ -7,8 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
+    return { next: verb(0), "throw": verb(1), "return": verb(2) };
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -88,9 +88,9 @@ var Pandyle;
                 switch (_a.label) {
                     case 0:
                         name = $(ele).attr('p-com');
-                        if (!hasComponent(name)) return [3, 1];
+                        if (!hasComponent(name)) return [3 /*break*/, 1];
                         $(ele).html(getComponent(name));
-                        return [3, 4];
+                        return [3 /*break*/, 4];
                     case 1:
                         url = '';
                         if (/.*\.html$/.test(name)) {
@@ -99,10 +99,10 @@ var Pandyle;
                         else {
                             url = '/components/' + name + '.html';
                         }
-                        return [4, fetch(url)];
+                        return [4 /*yield*/, fetch(url)];
                     case 2:
                         res = _a.sent();
-                        return [4, res.text()];
+                        return [4 /*yield*/, res.text()];
                     case 3:
                         text = _a.sent();
                         text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, function ($0, $1) {
@@ -115,12 +115,49 @@ var Pandyle;
                         });
                         $(ele).html(text);
                         _a.label = 4;
-                    case 4: return [2];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
     }
     Pandyle.loadComponent = loadComponent;
+})(Pandyle || (Pandyle = {}));
+var Pandyle;
+(function (Pandyle) {
+    var Inputs = (function () {
+        function Inputs(element) {
+            this._data = {};
+            this.initData(element);
+            this.bindChange(element);
+        }
+        Object.defineProperty(Inputs.prototype, "data", {
+            get: function () {
+                return $.extend({}, this._data);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Inputs.prototype.initData = function (element) {
+            var _this = this;
+            element.find('input,textarea,select').each(function (index, ele) {
+                var name = $(ele).prop('name');
+                if (!_this._data[name]) {
+                    _this._data[name] = $(ele).val();
+                }
+            });
+        };
+        Inputs.prototype.bindChange = function (element) {
+            var _this = this;
+            element.on('change', 'input,textarea,select', function (e) {
+                var ele = $(e.currentTarget);
+                var name = ele.prop('name');
+                var value = ele.val();
+                _this._data[name] = value;
+            });
+        };
+        return Inputs;
+    }());
+    Pandyle.Inputs = Inputs;
 })(Pandyle || (Pandyle = {}));
 var Pandyle;
 (function (Pandyle) {
@@ -209,8 +246,8 @@ var Pandyle;
                             data = $(ele).data('context');
                             this.bindAttr(ele, parentProperty);
                             this.bindIf(ele, parentProperty);
-                            if (!($(ele)[0].tagName === 'C')) return [3, 2];
-                            return [4, Pandyle.loadComponent(ele)];
+                            if (!($(ele)[0].tagName === 'C')) return [3 /*break*/, 2];
+                            return [4 /*yield*/, Pandyle.loadComponent(ele)];
                         case 1:
                             _a.sent();
                             _a.label = 2;
@@ -227,7 +264,7 @@ var Pandyle;
                             else {
                                 this.renderText($(ele), parentProperty);
                             }
-                            return [2];
+                            return [2 /*return*/];
                     }
                 });
             });
@@ -306,13 +343,13 @@ var Pandyle;
                             switch (_a.label) {
                                 case 0:
                                     child.data('context', data);
-                                    return [4, _this_1.renderSingle(child[0], data, parentProperty)];
+                                    return [4 /*yield*/, _this_1.renderSingle(child[0], data, parentProperty)];
                                 case 1:
                                     _a.sent();
                                     if (child.next().length > 0) {
                                         f_1(child.next());
                                     }
-                                    return [2];
+                                    return [2 /*return*/];
                             }
                         });
                     });

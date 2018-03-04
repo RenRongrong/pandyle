@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../dist/pandyle.bundle.js"></script>
+</head>
+
+<body>
+    <div class="main">
+        <input type="hidden" name="id" value="123456">
+        <input type="hidden" name="uid" value="17">
+        <p>
+            <span>姓名：</span><input type="text" name="name">
+        </p>
+        <p>
+            <span>身份证号：</span><input type="text" name="card">
+        </p>
+        <button onclick="test()">test</button>
+    </div>
+
+    <script>
+        var inputs = new Pandyle.Inputs($('.main'));
+
+        function test() {
+            console.log(inputs.data);
+        }
+    </script>
+</body>
