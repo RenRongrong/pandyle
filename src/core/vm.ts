@@ -290,7 +290,7 @@ namespace Pandyle {
                         tempData = window;
                         break;
                     default:
-                        tempData = obj[property];
+                        tempData = obj[property]; 
                 }
                 let symbols = arr[2];
                 if (symbols) {
