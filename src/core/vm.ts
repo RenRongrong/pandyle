@@ -10,6 +10,7 @@ namespace Pandyle {
         private _filters: object;
         private _converters: object;
         private _variables: object;
+        private _defaultAlias: object;
 
         constructor(element: JQuery<HTMLElement>, data: T, autoRun: boolean = true) {
             this._data = data;
@@ -19,6 +20,16 @@ namespace Pandyle {
             this._filters = {};
             this._converters = {};
             this._variables = {};
+            this._defaultAlias = {
+                root: {
+                    data: this._data,
+                    property: ''
+                },
+                window: {
+                    data: window,
+                    property: '@window.'
+                }
+            }
             if (autoRun) {
                 this.run();
             }
@@ -56,11 +67,11 @@ namespace Pandyle {
                 case 'array':
                     return param.map(value => this.get(value));
                 case 'string':
-                    return this.getValue(param, this._data);
+                    return this.getValue(this._root, param, this._data);
                 case 'object':
                     let result = {};
                     for (let key in param) {
-                        result[key] = this.getValue(param[key], this._data);
+                        result[key] = this.getValue(this._root, param[key], this._data);
                     }
                     return result;
                 default:
@@ -69,36 +80,43 @@ namespace Pandyle {
         }
 
         public run() {
-            this.render(this._root, this._data, '');
+            this.render(this._root, this._data, '', this._defaultAlias);
         }
 
-        public render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string) {
+        public render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string, alias?: any) {
             element.each((index, ele) => {
-                this.renderSingle(ele, data, parentProperty);
+                this.renderSingle(ele, data, parentProperty, $.extend({}, alias));
             })
         }
 
-        private async renderSingle(ele: HTMLElement, data: any, parentProperty: string) {
-            if (!$(ele).data('context')) {
-                $(ele).data('context', data);
+        private async renderSingle(ele: HTMLElement, data: any, parentProperty: string, alias?: any) {
+            let element = $(ele);
+            if (!element.data('context')) {
+                element.data('context', data);
             }
-            if (!$(ele).data('binding')) {
-                $(ele).data('binding', {});
+            if (!element.data('binding')) {
+                element.data('binding', {});
             }
-            data = $(ele).data('context');
+            if (alias) {
+                element.data('alias', alias);
+            }
+            data = element.data('context');
             this.bindAttr(ele, parentProperty);
             this.bindIf(ele, parentProperty);
-            if ($(ele)[0].tagName === 'C') {
+            if (element[0].tagName === 'C') {
                 await loadComponent(ele);
             }
-            if ($(ele).attr('p-context')) {
+            if (element.attr('p-context')) {
                 this.renderContext(ele, parentProperty);
-            } else if ($(ele).attr('p-each')) {
-                this.renderEach($(ele), data, parentProperty);
-            } else if ($(ele).children().length > 0) {
+            } else if (element.attr('p-each')) {
+                this.setAlias(element, parentProperty, data);
+                this.renderEach(element, data, parentProperty);
+            } else if (element.children().length > 0) {
+                this.setAlias(element, parentProperty);
                 this.renderChild(ele, data, parentProperty);
             } else {
-                this.renderText($(ele), parentProperty);
+                this.setAlias(element, parentProperty, data);
+                this.renderText(element, parentProperty);
             }
         }
 
@@ -147,9 +165,10 @@ namespace Pandyle {
         }
 
         private renderContext(ele: HTMLElement, parentProperty: string) {
-            if ($(ele).attr('p-context')) {
-                let data = $(ele).data('context');
-                let expression = $(ele).attr('p-context');
+            let element = $(ele);
+            if (element.attr('p-context')) {
+                let data = element.data('context');
+                let expression = element.attr('p-context');
                 let divided = this.dividePipe(expression);
                 let property = divided.property;
                 let method = divided.method;
@@ -164,6 +183,7 @@ namespace Pandyle {
                 if (parentProperty !== '') {
                     fullProp = parentProperty + '.' + property;
                 }
+                this.setAlias(element, fullProp, target);
                 this.setRelation(property, $(ele), parentProperty);
                 this.renderChild(ele, target, fullProp);
             }
@@ -172,14 +192,16 @@ namespace Pandyle {
         private renderChild(ele: HTMLElement, data: any, parentProperty: string) {
             if ($(ele).children().length > 0) {
                 let _this = this;
-                let f = async function (child: JQuery<HTMLElement>) {
+                let f = async function (child: JQuery<HTMLElement>, alias: any) {
                     child.data('context', data);
-                    await _this.renderSingle(child[0], data, parentProperty);
+                    await _this.renderSingle(child[0], data, parentProperty, $.extend({}, alias));
                     if (child.next().length > 0) {
-                        f(child.next());
+                        f(child.next(), alias);
                     }
                 }
-                f($(ele).children().first());
+                let first = $(ele).children().first();
+                let alias = first.data('alias');
+                f($(ele).children().first(), alias);
             }
         }
 
@@ -193,17 +215,17 @@ namespace Pandyle {
                 if (!element.data('pattern')) {
                     element.data('pattern', element.html());
                     this.setRelation(property, element, parentProperty);
-                }
+                };
+                let fullProp = property;
+                if (parentProperty !== '') {
+                    fullProp = parentProperty + '.' + property;
+                };
                 let htmlText = element.data('pattern');
                 let children = $('<div />').html(htmlText).children();
                 element.children().remove();
                 for (let i = 0; i < target.length; i++) {
                     let newChildren = children.clone(true, true);
                     element.append(newChildren);
-                    let fullProp = property;
-                    if (parentProperty !== '') {
-                        fullProp = parentProperty + '.' + property;
-                    }
                     this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'));
                 }
             }
@@ -236,20 +258,19 @@ namespace Pandyle {
                     this.setRelation($1, element, parentProperty);
                     element.data('binding')[prop].related = true;
                 }
-                return this.getValue($1, data);
+                return this.getValue(element, $1, data);
             });
             return result;
         }
 
         private setRelation(property: string, element: JQuery<HTMLElement>, parentProperty) {
-            if (/^@root.*/.test(property)) {
-                property = property.replace(/@root\.?/, '');
-            } else if (/^@self.*/.test(property)) {
-                property = property.replace(/@self\.?/, parentProperty);
+            if (/^@.*/.test(property)) {
+                property = property.replace(/@\(w+)\.?/, ($0, $1) => {
+                    return this.getAliasProperty(element, $1);
+                })
             } else if (parentProperty != '') {
                 property = parentProperty + '.' + property;
             }
-
             let relation = this._relations.filter(value => value.property === property);
             if (relation.length == 0) {
                 this._relations.push({
@@ -273,24 +294,16 @@ namespace Pandyle {
             return reg.test(subProperty);
         }
 
-        private getValue(property: string, data: any) {
+        private getValue(element:JQuery<HTMLElement>, property: string, data: any) {
             let nodes = property.match(/[@\w]+((?:\(.*?\))*|(?:\[.*?\])*)/g);
             let result = nodes.reduce((obj, current) => {
                 let arr = /^([@\w]+)([\(|\[].*)*/.exec(current);
                 let property = arr[1];
                 let tempData;
-                switch (property) {
-                    case '@root':
-                        tempData = this._data;
-                        break;
-                    case '@self':
-                        tempData = obj;
-                        break;
-                    case '@window':
-                        tempData = window;
-                        break;
-                    default:
-                        tempData = obj[property]; 
+                if(/^@.*/.test(property)){
+                    tempData = this.getAliasData(element, property.substr(1));
+                }else{
+                    tempData = obj[property];
                 }
                 let symbols = arr[2];
                 if (symbols) {
@@ -303,7 +316,7 @@ namespace Pandyle {
                             let params = current2.replace(/\((.*)\)/, '$1').replace(/\s/, '').split(',');
                             let computedParams = params.map(p => {
                                 if (/^[A-Za-z_\$].*$/.test(p)) {
-                                    return this.getValue(p, data);
+                                    return this.getValue(element, p, data);
                                 } else {
                                     return (new Function('return ' + p))();
                                 }
@@ -341,6 +354,28 @@ namespace Pandyle {
                 default:
                     return null;
             }
+        }
+
+        private setAlias(element: JQuery<HTMLElement>, property: string, data?: any) {
+            let targetData = data || element.data('context');
+            element.data('alias').self = targetData;
+            if (element.attr('p-as')) {
+                let alias = element.attr('p-as');
+                element.data('alias')[alias] = {
+                    data: targetData,
+                    property: property + '.'
+                }
+            }
+        }
+
+        private getAliasData(element: JQuery<HTMLElement>, alias: string) {
+            let data = element.data('alias');
+            return data[alias].data;
+        }
+
+        private getAliasProperty(element: JQuery<HTMLElement>, alias: string) {
+            let data = element.data('alias');
+            return data[alias].property;
         }
 
         private getMethod(name: string): Function {
