@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../dist/pandyle.bundle.js"></script>
+    <script src="data.js"></script>
+</head>
+
+<body>
+    <div id="main">
+        <div p-context="info">
+            <div p-each="hobbies" p-as='fo'>
+                <span>{{@fo.tel}}</span>
+                <span>{{name}}</span>
+                <span>{{type}}</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        var vm = new Pandyle.VM($('#main'), data);
+    </script>
+</body>

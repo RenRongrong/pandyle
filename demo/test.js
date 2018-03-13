@@ -1,3 +1,4 @@
+var uid = 17;
 $(document).ready(function() {
     vm = new Pandyle.VM($('.temp'), {
         id: 2,
