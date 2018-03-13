@@ -27,7 +27,7 @@ namespace Pandyle {
                 },
                 window: {
                     data: window,
-                    property: '@window.'
+                    property: '@window'
                 }
             }
             if (autoRun) {
@@ -272,6 +272,9 @@ namespace Pandyle {
                 })
             } else if (parentProperty != '') {
                 property = parentProperty + '.' + property;
+            }
+            if(/^\./.test(property)){
+                property = property.substr(1);
             }
             let relation = this._relations.filter(value => value.property === property);
             if (relation.length == 0) {

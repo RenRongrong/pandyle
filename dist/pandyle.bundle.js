@@ -279,7 +279,7 @@ var Pandyle;
                 },
                 window: {
                     data: window,
-                    property: '@window.'
+                    property: '@window'
                 }
             };
             if (autoRun) {
@@ -549,6 +549,9 @@ var Pandyle;
             }
             else if (parentProperty != '') {
                 property = parentProperty + '.' + property;
+            }
+            if (/^\./.test(property)) {
+                property = property.substr(1);
             }
             var relation = this._relations.filter(function (value) { return value.property === property; });
             if (relation.length == 0) {
