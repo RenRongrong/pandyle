@@ -18,6 +18,18 @@ $(document).ready(function() {
             t: '三国演义',
             a: '罗贯中',
             p: 35
+        },
+        list: {
+            name: 'type',
+            selects: [{
+                    content: '类型1',
+                    value: 1
+                },
+                {
+                    content: '类型2',
+                    value: 2
+                }
+            ]
         }
     }, false);
     vm.register('bookConverter', function(data) {

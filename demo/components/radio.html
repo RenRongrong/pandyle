@@ -1,6 +1,51 @@
-<div class="radio">
+<div class="radio" p-as="group">
     <div p-each="selects">
-        <span class="radioButton unchecked" p-bind="name:{{name}}"></span>
+        <label class="radioLabel">
+            <div class="radioButton">
+                <span></span>
+            </div>
+            <span>{{content}}</span>
+            <input type="radio" class="hidden" p-bind="name:{{@group.name}} ^ value:{{value}}">
+        </label>
     </div>
-    <span>{{content}}</span>
 </div>
+
+<style>
+    .radioButton {
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        border: 1px solid blue;
+        border-radius: 50%;
+        display: inline-block;
+        text-align: center;
+    }
+    
+    .radioButton>span {
+        width: 16px;
+        height: 16px;
+        background-color: blue;
+        border-radius: 50%;
+        display: inline-block;
+        margin-top: 2px;
+        opacity: 0;
+    }
+    
+    .radioButton.checked>span {
+        opacity: 1;
+    }
+    
+    .hidden {
+        display: none;
+    }
+</style>
+
+<script>
+    $(document).on('click', '.radioLabel', function() {
+        var button = $(this).children('.radioButton');
+        if (!button.hasClass('checked')) {
+            button.addClass('checked');
+            $(this).siblings().children('.radioButton').removeClass('checked');
+        }
+    })
+</script>

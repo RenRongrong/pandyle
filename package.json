@@ -15,7 +15,8 @@
     "description": "基于flex布局的样式库",
     "dependencies": {
         "@types/jquery": "^3.2.16",
-        "jquery": "^3.2.1"
+        "jquery": "^3.2.1",
+        "whatwg-fetch": "^2.0.3"
     },
     "repository": {
         "type": "git",
