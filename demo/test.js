@@ -1,6 +1,9 @@
 var uid = 17;
+Pandyle.config({
+    comPath: '/demo/components/'
+})
 $(document).ready(function() {
-    vm = new Pandyle.VM($('.temp'), {
+    var data = {
         id: 2,
         title: '百年孤独',
         author: {
@@ -31,7 +34,8 @@ $(document).ready(function() {
                 }
             ]
         }
-    }, false);
+    }
+    vm = $('.temp').vm(data, false);
     vm.register('bookConverter', function(data) {
         return {
             title: data.t,

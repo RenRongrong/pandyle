@@ -18,6 +18,7 @@ namespace Pandyle {
     }
 
     export async function loadComponent(ele: HTMLElement) {
+        let path = Pandyle._config.comPath || '/components/';
         let name = $(ele).attr('p-com');
         if (hasComponent(name)) {
             $(ele).html(getComponent(name));
@@ -26,7 +27,7 @@ namespace Pandyle {
             if (/.*\.html$/.test(name)) {
                 url = name;
             } else {
-                url = '/components/' + name + '.html';
+                url = path + name + '.html';
             }
             let res = await fetch(url);
             let text = await res.text();

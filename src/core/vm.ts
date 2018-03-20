@@ -13,7 +13,7 @@ namespace Pandyle {
         private _defaultAlias: object;
 
         constructor(element: JQuery<HTMLElement>, data: T, autoRun: boolean = true) {
-            this._data = data;
+            this._data = $.extend({}, data);
             this._root = element;
             this._relations = [];
             this._methods = {};

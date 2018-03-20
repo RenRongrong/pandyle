@@ -15,37 +15,37 @@
         <input type="hidden" name="id" value="123456">
         <input type="hidden" name="uid" value="17">
         <p>
-            <span>姓名：</span><input type="text" name="name">
+            <span>姓名：</span><input type="text" name="base.name">
         </p>
         <p>
-            <span>身份证号：</span><input type="text" name="card">
+            <span>身份证号：</span><input type="text" name="base.card">
         </p>
         <p>
             <span>性别：</span>
             <label>
-                <input type="radio" name="sex" value="1">
+                <input type="radio" name="base.sex" value="1">
                 <span>男</span>
-                <input type="radio" name="sex" value="2">
+                <input type="radio" name="base.sex" value="2">
                 <span>女</span>
             </label>
         </p>
         <p>
             <span>爱好：</span>
-            <input type="checkbox" name="hobbies" value="football">
+            <input type="checkbox" name="other.attr.hobbies" value="football">
             <span>足球</span>
-            <input type="checkbox" name="hobbies" value="sing">
+            <input type="checkbox" name="other.attr.hobbies" value="sing">
             <span>唱歌</span>
-            <input type="checkbox" name="hobbies" value="swim">
+            <input type="checkbox" name="other.attr.hobbies" value="swim">
             <span>游泳</span>
         </p>
         <button onclick="test()">test</button>
     </div>
 
     <script>
-        var inputs = new Pandyle.Inputs($('.main'));
+        $('.main').inputs();
 
         function test() {
-            console.log(inputs.data);
+            console.log($('.main').inputs().data);
         }
     </script>
 </body>

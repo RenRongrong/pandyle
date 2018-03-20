@@ -7,8 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
-    return { next: verb(0), "throw": verb(1), "return": verb(2) };
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -40,6 +40,7 @@ var Pandyle;
     Pandyle._filters = {};
     Pandyle._converters = {};
     Pandyle._components = {};
+    Pandyle._config = {};
     function getMethod(name) {
         return Pandyle._methods[name];
     }
@@ -66,6 +67,12 @@ var Pandyle;
         }
     }
     Pandyle.register = register;
+    function config(options) {
+        for (var item in options) {
+            Pandyle._config[item] = options[item];
+        }
+    }
+    Pandyle.config = config;
 })(Pandyle || (Pandyle = {}));
 var Pandyle;
 (function (Pandyle) {
@@ -83,26 +90,27 @@ var Pandyle;
     Pandyle.getComponent = getComponent;
     function loadComponent(ele) {
         return __awaiter(this, void 0, void 0, function () {
-            var name, url, res, text;
+            var path, name, url, res, text;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        path = Pandyle._config.comPath || '/components/';
                         name = $(ele).attr('p-com');
-                        if (!hasComponent(name)) return [3 /*break*/, 1];
+                        if (!hasComponent(name)) return [3, 1];
                         $(ele).html(getComponent(name));
-                        return [3 /*break*/, 4];
+                        return [3, 4];
                     case 1:
                         url = '';
                         if (/.*\.html$/.test(name)) {
                             url = name;
                         }
                         else {
-                            url = '/components/' + name + '.html';
+                            url = path + name + '.html';
                         }
-                        return [4 /*yield*/, fetch(url)];
+                        return [4, fetch(url)];
                     case 2:
                         res = _a.sent();
-                        return [4 /*yield*/, res.text()];
+                        return [4, res.text()];
                     case 3:
                         text = _a.sent();
                         text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, function ($0, $1) {
@@ -120,20 +128,46 @@ var Pandyle;
                         });
                         $(ele).html(text);
                         _a.label = 4;
-                    case 4: return [2 /*return*/];
+                    case 4: return [2];
                 }
             });
         });
     }
     Pandyle.loadComponent = loadComponent;
 })(Pandyle || (Pandyle = {}));
+(function ($) {
+    $.fn.vm = function (data, autoRun) {
+        if (autoRun === void 0) { autoRun = false; }
+        var element = this;
+        if (element.data('vm')) {
+            return element.data('vm');
+        }
+        else {
+            var vm = new Pandyle.VM(element, data, autoRun);
+            element.data('vm', vm);
+            return vm;
+        }
+    };
+    $.fn.inputs = function () {
+        var element = this;
+        if (element.data('inputs')) {
+            return element.data('inputs');
+        }
+        else {
+            var inputs = new Pandyle.Inputs(element);
+            element.data('inputs', inputs);
+            return inputs;
+        }
+    };
+})(jQuery);
 var Pandyle;
 (function (Pandyle) {
     var Inputs = (function () {
         function Inputs(element) {
             this._data = {};
-            this.initData(element);
-            this.bindChange(element);
+            this._root = element;
+            this.initData();
+            this.bindChange();
         }
         Object.defineProperty(Inputs.prototype, "data", {
             get: function () {
@@ -142,11 +176,13 @@ var Pandyle;
             enumerable: true,
             configurable: true
         });
-        Inputs.prototype.initData = function (element) {
+        Inputs.prototype.initData = function () {
             var _this = this;
-            element.find('input,textarea,select').each(function (index, ele) {
+            this._root.find('input,textarea,select').each(function (index, ele) {
                 var target = $(ele);
                 var tag = target.prop('tagName');
+                var name = target.prop('name');
+                _this.initName(name);
                 switch (tag) {
                     case 'INPUT':
                         _this.initData_input(target);
@@ -178,31 +214,31 @@ var Pandyle;
         Inputs.prototype.initData_radio = function (element) {
             var name = element.prop('name');
             var value = element.val();
-            if (!this._data[name]) {
-                this._data[name] = '';
+            if ($.isEmptyObject(this.getDataByName(name))) {
+                this.setData(name, '');
             }
             if (element.prop('checked')) {
-                this._data[name] = value;
+                this.setData(name, value);
             }
         };
         Inputs.prototype.initData_check = function (element) {
             var name = element.prop('name');
             var value = element.val();
-            if (!this._data[name]) {
-                this._data[name] = [];
+            if ($.isEmptyObject(this.getDataByName(name))) {
+                this.setData(name, []);
             }
             if (element.prop('checked')) {
-                this._data[name].push(value);
+                this.getDataByName(name).push(value);
             }
         };
         Inputs.prototype.initData_normal = function (element) {
             var name = element.prop('name');
             var value = element.val();
-            this._data[name] = value;
+            this.setData(name, value);
         };
-        Inputs.prototype.bindChange = function (element) {
+        Inputs.prototype.bindChange = function () {
             var _this = this;
-            element.on('change', 'input,textarea,select', function (e) {
+            this._root.on('change', 'input,textarea,select', function (e) {
                 var ele = $(e.currentTarget);
                 var tagName = ele.prop('tagName');
                 switch (tagName) {
@@ -221,7 +257,7 @@ var Pandyle;
         Inputs.prototype.onChange_normal = function (element) {
             var name = element.prop('name');
             var value = element.val();
-            this._data[name] = value;
+            this.setData(name, value);
         };
         Inputs.prototype.onChange_input = function (element) {
             switch (element.prop('type')) {
@@ -240,21 +276,45 @@ var Pandyle;
             var name = element.prop('name');
             var value = element.val();
             if (element.prop('checked')) {
-                this._data[name] = value;
+                this.setData(name, value);
             }
         };
         Inputs.prototype.onChange_check = function (element) {
             var name = element.prop('name');
             var value = element.val();
             if (element.prop('checked')) {
-                this._data[name].push(value);
+                this.getDataByName(name).push(value);
             }
             else {
-                var index = this._data[name].indexOf(value);
-                this._data[name].splice(index, 1);
+                var index = this.getDataByName(name).indexOf(value);
+                this.getDataByName(name).splice(index, 1);
             }
         };
         Inputs.prototype.onChange_select = function (element) {
+        };
+        Inputs.prototype.initName = function (name) {
+            name.split('.').reduce(function (obj, current) {
+                if (obj[current]) {
+                    return obj[current];
+                }
+                else {
+                    obj[current] = {};
+                    return obj[current];
+                }
+            }, this._data);
+        };
+        Inputs.prototype.getDataByName = function (name) {
+            return name.split('.').reduce(function (obj, current) {
+                return obj[current];
+            }, this._data);
+        };
+        Inputs.prototype.setData = function (name, value) {
+            var nodes = name.split('.');
+            var property = nodes.pop();
+            var data = nodes.reduce(function (obj, current) {
+                return obj[current];
+            }, this._data);
+            data[property] = value;
         };
         return Inputs;
     }());
@@ -265,7 +325,7 @@ var Pandyle;
     var VM = (function () {
         function VM(element, data, autoRun) {
             if (autoRun === void 0) { autoRun = true; }
-            this._data = data;
+            this._data = $.extend({}, data);
             this._root = element;
             this._relations = [];
             this._methods = {};
@@ -362,8 +422,8 @@ var Pandyle;
                             data = element.data('context');
                             this.bindAttr(ele, parentProperty);
                             this.bindIf(ele, parentProperty);
-                            if (!(element[0].tagName === 'C')) return [3 /*break*/, 2];
-                            return [4 /*yield*/, Pandyle.loadComponent(ele)];
+                            if (!(element[0].tagName === 'C')) return [3, 2];
+                            return [4, Pandyle.loadComponent(ele)];
                         case 1:
                             _a.sent();
                             _a.label = 2;
@@ -383,7 +443,7 @@ var Pandyle;
                                 this.setAlias(element, parentProperty, data);
                                 this.renderText(element, parentProperty);
                             }
-                            return [2 /*return*/];
+                            return [2];
                     }
                 });
             });
@@ -465,13 +525,13 @@ var Pandyle;
                             switch (_a.label) {
                                 case 0:
                                     child.data('context', data);
-                                    return [4 /*yield*/, _this_1.renderSingle(child[0], data, parentProperty, $.extend({}, alias))];
+                                    return [4, _this_1.renderSingle(child[0], data, parentProperty, $.extend({}, alias))];
                                 case 1:
                                     _a.sent();
                                     if (child.next().length > 0) {
                                         f_1(child.next(), alias);
                                     }
-                                    return [2 /*return*/];
+                                    return [2];
                             }
                         });
                     });

@@ -4,21 +4,25 @@ namespace Pandyle {
     export class Inputs {
         private _data: any;
         private _relations: relation[];
+        private _root:JQuery<HTMLElement>;
 
         constructor(element: JQuery<HTMLElement>) {
             this._data = {};
-            this.initData(element);
-            this.bindChange(element);
+            this._root = element;
+            this.initData();
+            this.bindChange();
         }
 
         public get data() {
             return $.extend({}, this._data);
         }
 
-        private initData(element: JQuery<HTMLElement>) {
-            element.find('input,textarea,select').each((index, ele) => {
+        private initData() {
+            this._root.find('input,textarea,select').each((index, ele) => {
                 let target = $(ele);
                 let tag = target.prop('tagName');
+                let name = target.prop('name');
+                this.initName(name);
                 switch(tag){
                     case 'INPUT':
                         this.initData_input(target);
@@ -52,33 +56,33 @@ namespace Pandyle {
         private initData_radio(element:JQuery<HTMLElement>){
             let name = element.prop('name');
             let value = element.val();
-            if(!this._data[name]){
-                this._data[name] = '';
+            if($.isEmptyObject(this.getDataByName(name))){
+                this.setData(name, '');
             }
             if(element.prop('checked')){
-                this._data[name] = value;
+                this.setData(name, value);
             }
         }
 
         private initData_check(element: JQuery<HTMLElement>){
             let name = element.prop('name');
             let value = element.val();
-            if(!this._data[name]){
-                this._data[name] = [];
+            if($.isEmptyObject(this.getDataByName(name))){
+                this.setData(name, []);
             }
             if(element.prop('checked')){
-                this._data[name].push(value);
+                this.getDataByName(name).push(value);
             }
         }
 
         private initData_normal(element:JQuery<HTMLElement>){
             let name = element.prop('name');
             let value = element.val();
-            this._data[name] = value;
+            this.setData(name, value);
         }
 
-        private bindChange(element: JQuery<HTMLElement>) {
-            element.on('change', 'input,textarea,select', e => {
+        private bindChange() {
+            this._root.on('change', 'input,textarea,select', e => {
                 let ele = $(e.currentTarget);
                 let tagName = ele.prop('tagName');
                 switch (tagName) {
@@ -98,7 +102,7 @@ namespace Pandyle {
         private onChange_normal(element: JQuery<HTMLElement>) {
             let name = element.prop('name');
             let value = element.val();
-            this._data[name] = value;
+            this.setData(name, value);
         }
 
         private onChange_input(element: JQuery<HTMLElement>) {
@@ -119,7 +123,7 @@ namespace Pandyle {
             let name = element.prop('name');
             let value = element.val();
             if (element.prop('checked')) {
-                this._data[name] = value;
+                this.setData(name, value);
             }
         }
 
@@ -127,15 +131,41 @@ namespace Pandyle {
             let name = element.prop('name');
             let value = element.val();
             if (element.prop('checked')) {
-                this._data[name].push(value);
+                this.getDataByName(name).push(value);
             } else {
-                let index = this._data[name].indexOf(value);
-                this._data[name].splice(index, 1);
+                let index = this.getDataByName(name).indexOf(value);
+                this.getDataByName(name).splice(index, 1);
             }
         }
 
         private onChange_select(element:JQuery<HTMLElement>){
             
+        }
+
+        private initName(name:string) {
+            name.split('.').reduce((obj, current) => {
+                if(obj[current]){
+                    return obj[current];
+                }else{
+                    obj[current] = {};
+                    return obj[current];
+                }
+            }, this._data);
+        }
+
+        private getDataByName(name:string){
+            return name.split('.').reduce((obj, current) => {
+                return obj[current];
+            }, this._data);
+        }
+
+        private setData(name:string, value:any){
+            let nodes = name.split('.');
+            let property = nodes.pop();
+            let data = nodes.reduce((obj, current) => {
+                return obj[current];
+            }, this._data);
+            data[property] = value;
         }
     }
 }

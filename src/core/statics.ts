@@ -1,10 +1,11 @@
 namespace Pandyle{
     
-    export const _variables: object = {};
-    export const _methods: object = {};
-    export const _filters: object = {};
-    export const _converters: object = {};
-    export const _components: object = {};
+    export const _variables: any = {};
+    export const _methods: any = {};
+    export const _filters: any = {};
+    export const _converters: any = {};
+    export const _components: any = {};
+    export const _config: any = {};
 
     export function getMethod(name: string): Function {
         return _methods[name];
@@ -32,5 +33,11 @@ namespace Pandyle{
     export interface relation {
         property: string;
         elements: JQuery<HTMLElement>[];
+    }
+
+    export function config(options:JSON){
+        for(let item in options){
+            _config[item] = options[item];
+        }
     }
 }

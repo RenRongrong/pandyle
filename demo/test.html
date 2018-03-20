@@ -28,8 +28,8 @@
             </p>
         </div>
         <p class="local">{{@window.uid}}</p>
-        <c p-com="components/book.html" p-context="next|{title: t, author: a, price: p}"></c>
-        <c p-com="components/radio.html" p-context="list"></c>
+        <c p-com="book" p-context="next|{title: t, author: a, price: p}"></c>
+        <c p-com="radio" p-context="list"></c>
     </div>
     <button onclick="setName()">click me</button>
 </body>
