@@ -1,5 +1,5 @@
 (function($:any){
-    $.fn.vm = function(data, autoRun=false){
+    $.fn.vm = function(data, autoRun=true){
         let element:JQuery<HTMLElement> = this;
         if(element.data('vm')){
             return element.data('vm');

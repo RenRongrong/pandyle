@@ -46,12 +46,48 @@
                 <option value="3">超级vip用户</option>
             </select>
         </p>
+        <div p-each="@window.radios">
+            <p>
+                <span>{{name}}：</span>
+                <c p-com="radio" p-context="@self"></c>
+            </p>
+        </div>
         <button onclick="test()">test</button>
         <button onclick="update()">update</button>
     </div>
 
     <script>
-        $('.main').inputs();
+        var radios = [{
+            name: 'level',
+            selects: [{
+                content: '一级',
+                value: '1'
+            }, {
+                content: '二级',
+                value: '2'
+            }, {
+                content: '三级',
+                value: '3'
+            }]
+        }, {
+            name: 'job',
+            selects: [{
+                content: '学生',
+                value: 'student'
+            }, {
+                content: '就业',
+                value: 'work'
+            }, {
+                content: '失业',
+                value: 'nowork'
+            }]
+        }]
+
+        Pandyle.config({
+            comPath: '/demo/components/'
+        })
+
+        $('.main').vm({});
 
         function test() {
             console.log($('.main').inputs().data);

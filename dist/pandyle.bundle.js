@@ -137,7 +137,7 @@ var Pandyle;
 })(Pandyle || (Pandyle = {}));
 (function ($) {
     $.fn.vm = function (data, autoRun) {
-        if (autoRun === void 0) { autoRun = false; }
+        if (autoRun === void 0) { autoRun = true; }
         var element = this;
         if (element.data('vm')) {
             return element.data('vm');
@@ -575,9 +575,7 @@ var Pandyle;
                 var property = divided.property;
                 var method = divided.method;
                 var nodes = property.split('.');
-                var target = nodes.reduce(function (obj, current) {
-                    return obj[current];
-                }, data);
+                var target = this.calcu(property, element, data);
                 if (method) {
                     target = this.convert(method, target);
                 }
@@ -620,9 +618,7 @@ var Pandyle;
             if (element.attr('p-each')) {
                 var property = element.attr('p-each').replace(/\s/g, '');
                 var nodes = property.split('.');
-                var target = nodes.reduce(function (obj, current) {
-                    return obj[current];
-                }, data);
+                var target = this.calcu(property, element, data);
                 if (!element.data('pattern')) {
                     element.data('pattern', element.html());
                     this.setRelation(property, element, parentProperty);
@@ -710,6 +706,16 @@ var Pandyle;
             return reg.test(subProperty);
         };
         VM.prototype.getValue = function (element, property, data) {
+            var result = this.calcu(property, element, data);
+            var type = $.type(result);
+            if (type === 'string' || type === 'number' || type === 'boolean') {
+                return result;
+            }
+            else {
+                return $.extend(this.toDefault(type), result);
+            }
+        };
+        VM.prototype.calcu = function (property, element, data) {
             var _this = this;
             var nodes = property.match(/[@\w]+((?:\(.*?\))*|(?:\[.*?\])*)/g);
             var result = nodes.reduce(function (obj, current) {
@@ -734,7 +740,7 @@ var Pandyle;
                             var params = current2.replace(/\((.*)\)/, '$1').replace(/\s/, '').split(',');
                             var computedParams = params.map(function (p) {
                                 if (/^[A-Za-z_\$].*$/.test(p)) {
-                                    return _this.getValue(element, p, data);
+                                    return _this.calcu(p, element, data);
                                 }
                                 else {
                                     return (new Function('return ' + p))();
@@ -749,13 +755,7 @@ var Pandyle;
                     return tempData;
                 }
             }, data);
-            var type = $.type(result);
-            if (type === 'string' || type === 'number' || type === 'boolean') {
-                return result;
-            }
-            else {
-                return $.extend(this.toDefault(type), result);
-            }
+            return result;
         };
         VM.prototype.toDefault = function (type) {
             switch (type) {

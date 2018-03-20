@@ -173,9 +173,7 @@ namespace Pandyle {
                 let property = divided.property;
                 let method = divided.method;
                 let nodes = property.split('.');
-                let target: any = nodes.reduce((obj, current) => {
-                    return obj[current];
-                }, data);
+                let target: any = this.calcu(property, element, data);
                 if (method) {
                     target = this.convert(method, target);
                 }
@@ -210,9 +208,7 @@ namespace Pandyle {
             if (element.attr('p-each')) {
                 let property = element.attr('p-each').replace(/\s/g, '');
                 let nodes = property.split('.');
-                let target: any[] = nodes.reduce((obj, current) => {
-                    return obj[current];
-                }, data);
+                let target: any[] = this.calcu(property, element, data);
                 if (!element.data('pattern')) {
                     element.data('pattern', element.html());
                     this.setRelation(property, element, parentProperty);
@@ -230,6 +226,17 @@ namespace Pandyle {
                     element.append(newChildren);
                     this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'), alias);
                 }
+                // let _this = this;
+                // let f = async function(i:number){
+                //     let newChildren = children.clone(true, true);
+                //     element.append(newChildren);
+                //     await _this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'), alias);
+                //     if(i < target.length){
+                //         let j = i++
+                //         f(j);
+                //     }
+                // }
+                // f(0);
             }
         }
 
@@ -300,14 +307,25 @@ namespace Pandyle {
         }
 
         private getValue(element:JQuery<HTMLElement>, property: string, data: any) {
+            let result = this.calcu(property, element, data);
+            let type = $.type(result);
+            if (type === 'string' || type === 'number' || type === 'boolean') {
+                return result;
+            } else {
+                return $.extend(this.toDefault(type), result);
+            }
+        }
+
+        private calcu(property: string, element: JQuery<HTMLElement>, data: any) {
             let nodes = property.match(/[@\w]+((?:\(.*?\))*|(?:\[.*?\])*)/g);
             let result = nodes.reduce((obj, current) => {
                 let arr = /^([@\w]+)([\(|\[].*)*/.exec(current);
                 let property = arr[1];
                 let tempData;
-                if(/^@.*/.test(property)){
+                if (/^@.*/.test(property)) {
                     tempData = this.getAliasData(element, property.substr(1));
-                }else{
+                }
+                else {
                     tempData = obj[property];
                 }
                 let symbols = arr[2];
@@ -317,29 +335,27 @@ namespace Pandyle {
                         if (/\[\d+\]/.test(current2)) {
                             let arrayIndex = parseInt(current2.replace(/\[(\d+)\]/, '$1'));
                             return obj2[arrayIndex];
-                        } else if (/\(.*\)/.test(current2)) {
+                        }
+                        else if (/\(.*\)/.test(current2)) {
                             let params = current2.replace(/\((.*)\)/, '$1').replace(/\s/, '').split(',');
                             let computedParams = params.map(p => {
                                 if (/^[A-Za-z_\$].*$/.test(p)) {
-                                    return this.getValue(element, p, data);
-                                } else {
+                                    return this.calcu(p, element, data);
+                                }
+                                else {
                                     return (new Function('return ' + p))();
                                 }
-                            })
+                            });
                             let func: Function = obj2 || this.getMethod(property) || getMethod(property) || window[property];
                             return func.apply(this, computedParams);
                         }
                     }, tempData);
-                } else {
+                }
+                else {
                     return tempData;
                 }
             }, data);
-            let type = $.type(result);
-            if (type === 'string' || type === 'number' || type === 'boolean') {
-                return result;
-            } else {
-                return $.extend(this.toDefault(type), result);
-            }
+            return result;
         }
 
         private toDefault(type: string) {
