@@ -176,6 +176,14 @@ var Pandyle;
             enumerable: true,
             configurable: true
         });
+        Inputs.prototype.set = function (data) {
+            for (var key in data) {
+                this.setData(key, data[key]);
+                var elements = this._root.find('[name="' + key + '"]');
+                this.updateDom(elements, data[key]);
+                elements.trigger('modelChange', data[key]);
+            }
+        };
         Inputs.prototype.initData = function () {
             var _this = this;
             this._root.find('input,textarea,select').each(function (index, ele) {
@@ -191,6 +199,7 @@ var Pandyle;
                         _this.initData_normal(target);
                         break;
                     case 'SELECT':
+                        _this.initData_select(target);
                         break;
                     default:
                         break;
@@ -234,6 +243,11 @@ var Pandyle;
         Inputs.prototype.initData_normal = function (element) {
             var name = element.prop('name');
             var value = element.val();
+            this.setData(name, value);
+        };
+        Inputs.prototype.initData_select = function (element) {
+            var name = element.prop('name');
+            var value = element.val() || '';
             this.setData(name, value);
         };
         Inputs.prototype.bindChange = function () {
@@ -291,6 +305,9 @@ var Pandyle;
             }
         };
         Inputs.prototype.onChange_select = function (element) {
+            var name = element.prop('name');
+            var value = element.val();
+            this.setData(name, value);
         };
         Inputs.prototype.initName = function (name) {
             name.split('.').reduce(function (obj, current) {
@@ -315,6 +332,64 @@ var Pandyle;
                 return obj[current];
             }, this._data);
             data[property] = value;
+        };
+        Inputs.prototype.updateDom = function (element, value) {
+            var tag = element.prop('tagName');
+            switch (tag) {
+                case 'INPUT':
+                    this.updateDom_input(element, value);
+                    break;
+                case 'TEXTAREA':
+                    this.updateDom_normal(element, value);
+                    break;
+                case 'SELECT':
+                    this.updateDom_select(element, value);
+                    break;
+                default:
+                    this.updateDom_normal(element, value);
+            }
+        };
+        Inputs.prototype.updateDom_input = function (element, value) {
+            var type = element.prop('type');
+            switch (type) {
+                case 'radio':
+                    this.updateDom_radio(element, value);
+                    break;
+                case 'checkbox':
+                    this.updateDom_check(element, value);
+                    break;
+                default:
+                    this.updateDom_normal(element, value);
+                    break;
+            }
+        };
+        Inputs.prototype.updateDom_radio = function (element, value) {
+            element.each(function (index, ele) {
+                var target = $(ele);
+                if (target.val() == value) {
+                    target.prop('checked', 'checked');
+                }
+                else {
+                    target.removeProp('checked');
+                }
+            });
+        };
+        Inputs.prototype.updateDom_check = function (element, value) {
+            element.each(function (index, ele) {
+                var target = $(ele);
+                if (value.indexOf(target.val()) > -1) {
+                    target.prop('checked', 'checked');
+                }
+                else {
+                    target.removeProp('checked');
+                }
+            });
+        };
+        Inputs.prototype.updateDom_normal = function (element, value) {
+            element.val(value);
+        };
+        Inputs.prototype.updateDom_select = function (element, value) {
+            element.val(value);
         };
         return Inputs;
     }());

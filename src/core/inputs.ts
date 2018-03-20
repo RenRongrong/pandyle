@@ -17,6 +17,15 @@ namespace Pandyle {
             return $.extend({}, this._data);
         }
 
+        public set(data:any){
+            for(let key in data){
+                this.setData(key, data[key]);
+                let elements = this._root.find('[name="' + key + '"]');
+                this.updateDom(elements, data[key]);
+                elements.trigger('modelChange', data[key]);
+            }
+        }
+
         private initData() {
             this._root.find('input,textarea,select').each((index, ele) => {
                 let target = $(ele);
@@ -31,6 +40,7 @@ namespace Pandyle {
                         this.initData_normal(target);
                         break;
                     case 'SELECT':
+                        this.initData_select(target);
                         break;
                     default:
                         break;
@@ -78,6 +88,12 @@ namespace Pandyle {
         private initData_normal(element:JQuery<HTMLElement>){
             let name = element.prop('name');
             let value = element.val();
+            this.setData(name, value);
+        }
+
+        private initData_select(element:JQuery<HTMLElement>){
+            let name = element.prop('name');
+            let value = element.val() || '';
             this.setData(name, value);
         }
 
@@ -139,7 +155,9 @@ namespace Pandyle {
         }
 
         private onChange_select(element:JQuery<HTMLElement>){
-            
+            let name = element.prop('name');
+            let value = element.val();
+            this.setData(name, value);
         }
 
         private initName(name:string) {
@@ -166,6 +184,68 @@ namespace Pandyle {
                 return obj[current];
             }, this._data);
             data[property] = value;
+        }
+
+        private updateDom(element:JQuery<HTMLElement>, value:any){
+            let tag = element.prop('tagName');
+            switch(tag){
+                case 'INPUT':
+                    this.updateDom_input(element, value);
+                    break;
+                case 'TEXTAREA':
+                    this.updateDom_normal(element, value);
+                    break;
+                case 'SELECT':
+                    this.updateDom_select(element, value);
+                    break;
+                default:
+                    this.updateDom_normal(element, value);
+            }
+        }
+
+        private updateDom_input(element:JQuery<HTMLElement>, value:any){
+            let type = element.prop('type');
+            switch(type){
+                case 'radio':
+                    this.updateDom_radio(element, value);
+                    break;
+                case 'checkbox':
+                    this.updateDom_check(element, value);
+                    break;
+                default:
+                    this.updateDom_normal(element, value);
+                    break;
+            }
+        }
+
+        private updateDom_radio(element:JQuery<HTMLElement>, value:any){
+            element.each((index, ele) => {
+                let target = $(ele);
+                if(target.val() == value){
+                    target.prop('checked', 'checked');
+                }else{
+                    target.removeProp('checked');
+                }
+            })
+        }
+
+        private updateDom_check(element:JQuery<HTMLElement>, value:any[]){
+            element.each((index, ele) => {
+                let target = $(ele);
+                if(value.indexOf(target.val()) > -1){
+                    target.prop('checked', 'checked');
+                }else{
+                    target.removeProp('checked');
+                }
+            })
+        }
+
+        private updateDom_normal(element:JQuery<HTMLElement>, value:any){
+            element.val(value);
+        }
+
+        private updateDom_select(element:JQuery<HTMLElement>, value:any){
+            element.val(value);
         }
     }
 }

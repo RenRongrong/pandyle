@@ -38,7 +38,16 @@
             <input type="checkbox" name="other.attr.hobbies" value="swim">
             <span>游泳</span>
         </p>
+        <p>
+            <span>用户类型：</span>
+            <select name="other.attr.type">
+                <option value="1" selected>普通用户</option>
+                <option value="2">vip用户</option>
+                <option value="3">超级vip用户</option>
+            </select>
+        </p>
         <button onclick="test()">test</button>
+        <button onclick="update()">update</button>
     </div>
 
     <script>
@@ -46,6 +55,15 @@
 
         function test() {
             console.log($('.main').inputs().data);
+        }
+
+        function update() {
+            $('.main').inputs().set({
+                'base.name': 'rrr',
+                'base.sex': '1',
+                'other.attr.hobbies': ['swim', 'sing'],
+                'other.attr.type': '2'
+            })
         }
     </script>
 </body>
