@@ -2,6 +2,7 @@
     "compilerOptions": {
         "target": "es5",
         "outFile": "dist/pandyle.bundle.js",
+        "sourceMap": true,
         "removeComments": true,
         "lib": [
             "dom",

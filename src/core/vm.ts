@@ -221,22 +221,23 @@ namespace Pandyle {
                 let htmlText = element.data('pattern');
                 let children = $('<div />').html(htmlText).children();
                 element.children().remove();
-                for (let i = 0; i < target.length; i++) {
-                    let newChildren = children.clone(true, true);
-                    element.append(newChildren);
-                    this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'), alias);
-                }
-                // let _this = this;
-                // let f = async function(i:number){
+                // for (let i = 0; i < target.length; i++) {
                 //     let newChildren = children.clone(true, true);
                 //     element.append(newChildren);
-                //     await _this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'), alias);
-                //     if(i < target.length){
-                //         let j = i++
-                //         f(j);
-                //     }
+                //     this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'), alias);
                 // }
-                // f(0);
+                let _this = this;
+                let f = async function(i:number){
+                    if(i >= target.length){
+                        return;
+                    }
+                    let newChildren = children.clone(true, true);
+                    element.append(newChildren);
+                    await _this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'), alias);
+                    let j = i+1;
+                    f(j);
+                }
+                f(0);
             }
         }
 

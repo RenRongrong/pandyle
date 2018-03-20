@@ -618,26 +618,44 @@ var Pandyle;
             if (element.attr('p-each')) {
                 var property = element.attr('p-each').replace(/\s/g, '');
                 var nodes = property.split('.');
-                var target = this.calcu(property, element, data);
+                var target_1 = this.calcu(property, element, data);
                 if (!element.data('pattern')) {
                     element.data('pattern', element.html());
                     this.setRelation(property, element, parentProperty);
                 }
                 ;
-                var fullProp = property;
+                var fullProp_1 = property;
                 if (parentProperty !== '') {
-                    fullProp = parentProperty + '.' + property;
+                    fullProp_1 = parentProperty + '.' + property;
                 }
                 ;
-                var alias = element.data('alias');
+                var alias_1 = element.data('alias');
                 var htmlText = element.data('pattern');
-                var children = $('<div />').html(htmlText).children();
+                var children_1 = $('<div />').html(htmlText).children();
                 element.children().remove();
-                for (var i = 0; i < target.length; i++) {
-                    var newChildren = children.clone(true, true);
-                    element.append(newChildren);
-                    this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'), alias);
-                }
+                var _this_2 = this;
+                var f_2 = function (i) {
+                    return __awaiter(this, void 0, void 0, function () {
+                        var newChildren, j;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    if (i >= target_1.length) {
+                                        return [2];
+                                    }
+                                    newChildren = children_1.clone(true, true);
+                                    element.append(newChildren);
+                                    return [4, _this_2.render(newChildren, target_1[i], fullProp_1.concat('[', i.toString(), ']'), alias_1)];
+                                case 1:
+                                    _a.sent();
+                                    j = i + 1;
+                                    f_2(j);
+                                    return [2];
+                            }
+                        });
+                    });
+                };
+                f_2(0);
             }
         };
         VM.prototype.renderText = function (element, parentProperty) {
@@ -847,3 +865,4 @@ var Pandyle;
     }());
     Pandyle.VM = VM;
 })(Pandyle || (Pandyle = {}));
+//# sourceMappingURL=pandyle.bundle.js.map
