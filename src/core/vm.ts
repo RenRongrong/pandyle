@@ -187,13 +187,13 @@ namespace Pandyle {
             }
         }
 
-        private renderChild(ele: HTMLElement, data: any, parentProperty: string) {
+        private async renderChild(ele: HTMLElement, data: any, parentProperty: string) {
             let element = $(ele);
             if (element.children().length > 0) {
                 let _this = this;
                 let f = async function (child: JQuery<HTMLElement>, alias: any) {
                     child.data('context', data);
-                    await _this.renderSingle(child[0], data, parentProperty, $.extend({}, alias));
+                    _this.renderSingle(child[0], data, parentProperty, $.extend({}, alias));
                     if (child.next().length > 0) {
                         f(child.next(), alias);
                     }
@@ -204,7 +204,7 @@ namespace Pandyle {
             }
         }
 
-        private renderEach(element: JQuery<HTMLElement>, data: any, parentProperty) {
+        private async renderEach(element: JQuery<HTMLElement>, data: any, parentProperty) {
             if (element.attr('p-each')) {
                 let property = element.attr('p-each').replace(/\s/g, '');
                 let nodes = property.split('.');
@@ -233,7 +233,7 @@ namespace Pandyle {
                     }
                     let newChildren = children.clone(true, true);
                     element.append(newChildren);
-                    await _this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'), alias);
+                    _this.renderSingle(newChildren[0], target[i], fullProp.concat('[', i.toString(), ']'), alias);
                     let j = i+1;
                     f(j);
                 }
