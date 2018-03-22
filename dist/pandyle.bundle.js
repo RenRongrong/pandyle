@@ -92,18 +92,16 @@ var Pandyle;
         var _this = this;
         if (async === void 0) { async = false; }
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var path, name_1, url, res, text, error_1;
+            var path, name_1, url;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 5, , 6]);
-                        path = Pandyle._config.comPath || '/components/';
-                        name_1 = $(ele).attr('p-com');
-                        if (!hasComponent(name_1)) return [3, 1];
+                try {
+                    path = Pandyle._config.comPath || '/components/';
+                    name_1 = $(ele).attr('p-com');
+                    if (hasComponent(name_1)) {
                         $(ele).html(getComponent(name_1));
                         resolve();
-                        return [3, 4];
-                    case 1:
+                    }
+                    else {
                         url = '';
                         if (/.*\.html$/.test(name_1)) {
                             url = name_1;
@@ -111,25 +109,23 @@ var Pandyle;
                         else {
                             url = path + name_1 + '.html';
                         }
-                        return [4, fetch(url)];
-                    case 2:
-                        res = _a.sent();
-                        return [4, res.text()];
-                    case 3:
-                        text = _a.sent();
-                        insertToDom(text);
-                        resolve();
-                        _a.label = 4;
-                    case 4: return [3, 6];
-                    case 5:
-                        error_1 = _a.sent();
-                        reject(error_1.message);
-                        return [3, 6];
-                    case 6: return [2];
+                        $.ajax({
+                            url: url,
+                            dataType: 'html',
+                            success: function (res) {
+                                insertToDom(res, name_1);
+                                resolve();
+                            }
+                        });
+                    }
                 }
+                catch (error) {
+                    reject(error.message);
+                }
+                return [2];
             });
         }); });
-        function insertToDom(text) {
+        function insertToDom(text, name) {
             text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, function ($0, $1) {
                 (new Function($1))();
                 return '';
@@ -496,7 +492,7 @@ var Pandyle;
                 var _this = this;
                 return __generator(this, function (_a) {
                     return [2, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                            var element, error_2;
+                            var element, error_1;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
@@ -545,8 +541,8 @@ var Pandyle;
                                         resolve();
                                         return [3, 10];
                                     case 9:
-                                        error_2 = _a.sent();
-                                        reject(error_2);
+                                        error_1 = _a.sent();
+                                        reject(error_1);
                                         return [3, 10];
                                     case 10: return [2];
                                 }
@@ -601,7 +597,7 @@ var Pandyle;
         VM.prototype.renderContext = function (ele, parentProperty) {
             var _this = this;
             return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                var element, data, expression, divided, property, method, nodes, target, fullProp, error_3;
+                var element, data, expression, divided, property, method, nodes, target, fullProp, error_2;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
@@ -630,8 +626,8 @@ var Pandyle;
                             _a.label = 2;
                         case 2: return [3, 4];
                         case 3:
-                            error_3 = _a.sent();
-                            reject(error_3.message);
+                            error_2 = _a.sent();
+                            reject(error_2.message);
                             return [3, 4];
                         case 4: return [2];
                     }

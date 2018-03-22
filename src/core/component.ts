@@ -32,17 +32,21 @@ namespace Pandyle {
                     } else {
                         url = path + name + '.html';
                     }
-                    let res = await fetch(url);
-                    let text = await res.text();
-                    insertToDom(text);
-                    resolve();
+                    $.ajax({
+                        url: url,
+                        dataType: 'html',
+                        success: res => {
+                            insertToDom(res, name);
+                            resolve();
+                        }
+                    })
                 }
             } catch (error) {
                 reject(error.message);
             }
         })
 
-        function insertToDom(text: string) {
+        function insertToDom(text: string, name:string) {
             text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, ($0, $1) => {
                 (new Function($1))();
                 return '';
