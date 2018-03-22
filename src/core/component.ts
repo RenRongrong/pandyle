@@ -17,20 +17,32 @@ namespace Pandyle {
         return _components[name];
     }
 
-    export async function loadComponent(ele: HTMLElement) {
-        let path = Pandyle._config.comPath || '/components/';
-        let name = $(ele).attr('p-com');
-        if (hasComponent(name)) {
-            $(ele).html(getComponent(name));
-        } else {
-            let url = '';
-            if (/.*\.html$/.test(name)) {
-                url = name;
-            } else {
-                url = path + name + '.html';
+    export function loadComponent(ele: HTMLElement, async: boolean = false) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let path = Pandyle._config.comPath || '/components/';
+                let name = $(ele).attr('p-com');
+                if (hasComponent(name)) {
+                    $(ele).html(getComponent(name));
+                    resolve();
+                } else {
+                    let url = '';
+                    if (/.*\.html$/.test(name)) {
+                        url = name;
+                    } else {
+                        url = path + name + '.html';
+                    }
+                    let res = await fetch(url);
+                    let text = await res.text();
+                    insertToDom(text);
+                    resolve();
+                }
+            } catch (error) {
+                reject(error.message);
             }
-            let res = await fetch(url);
-            let text = await res.text();
+        })
+
+        function insertToDom(text: string) {
             text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, ($0, $1) => {
                 (new Function($1))();
                 return '';

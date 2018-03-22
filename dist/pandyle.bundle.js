@@ -88,24 +88,28 @@ var Pandyle;
         return Pandyle._components[name];
     }
     Pandyle.getComponent = getComponent;
-    function loadComponent(ele) {
-        return __awaiter(this, void 0, void 0, function () {
-            var path, name, url, res, text;
+    function loadComponent(ele, async) {
+        var _this = this;
+        if (async === void 0) { async = false; }
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var path, name_1, url, res, text, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        _a.trys.push([0, 5, , 6]);
                         path = Pandyle._config.comPath || '/components/';
-                        name = $(ele).attr('p-com');
-                        if (!hasComponent(name)) return [3, 1];
-                        $(ele).html(getComponent(name));
+                        name_1 = $(ele).attr('p-com');
+                        if (!hasComponent(name_1)) return [3, 1];
+                        $(ele).html(getComponent(name_1));
+                        resolve();
                         return [3, 4];
                     case 1:
                         url = '';
-                        if (/.*\.html$/.test(name)) {
-                            url = name;
+                        if (/.*\.html$/.test(name_1)) {
+                            url = name_1;
                         }
                         else {
-                            url = path + name + '.html';
+                            url = path + name_1 + '.html';
                         }
                         return [4, fetch(url)];
                     case 2:
@@ -113,25 +117,34 @@ var Pandyle;
                         return [4, res.text()];
                     case 3:
                         text = _a.sent();
-                        text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, function ($0, $1) {
-                            (new Function($1))();
-                            return '';
-                        });
-                        text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, function ($0, $1) {
-                            var style = $('<style></style>').html($1);
-                            $('head').append(style);
-                            return '';
-                        });
-                        addComponent({
-                            name: name,
-                            html: text
-                        });
-                        $(ele).html(text);
+                        insertToDom(text);
+                        resolve();
                         _a.label = 4;
-                    case 4: return [2];
+                    case 4: return [3, 6];
+                    case 5:
+                        error_1 = _a.sent();
+                        reject(error_1.message);
+                        return [3, 6];
+                    case 6: return [2];
                 }
             });
-        });
+        }); });
+        function insertToDom(text) {
+            text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, function ($0, $1) {
+                (new Function($1))();
+                return '';
+            });
+            text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, function ($0, $1) {
+                var style = $('<style></style>').html($1);
+                $('head').append(style);
+                return '';
+            });
+            addComponent({
+                name: name,
+                html: text
+            });
+            $(ele).html(text);
+        }
     }
     Pandyle.loadComponent = loadComponent;
 })(Pandyle || (Pandyle = {}));
@@ -480,46 +493,65 @@ var Pandyle;
         };
         VM.prototype.renderSingle = function (ele, data, parentProperty, alias) {
             return __awaiter(this, void 0, void 0, function () {
-                var element;
+                var _this = this;
                 return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            element = $(ele);
-                            if (!element.data('context')) {
-                                element.data('context', data);
-                            }
-                            if (!element.data('binding')) {
-                                element.data('binding', {});
-                            }
-                            if (alias) {
-                                element.data('alias', alias);
-                            }
-                            data = element.data('context');
-                            this.bindAttr(ele, parentProperty);
-                            this.bindIf(ele, parentProperty);
-                            if (!(element[0].tagName === 'C')) return [3, 2];
-                            return [4, Pandyle.loadComponent(ele)];
-                        case 1:
-                            _a.sent();
-                            _a.label = 2;
-                        case 2:
-                            if (element.attr('p-context')) {
-                                this.renderContext(ele, parentProperty);
-                            }
-                            else if (element.attr('p-each')) {
-                                this.setAlias(element, parentProperty, data);
-                                this.renderEach(element, data, parentProperty);
-                            }
-                            else if (element.children().length > 0) {
-                                this.setAlias(element, parentProperty, data);
-                                this.renderChild(ele, data, parentProperty);
-                            }
-                            else {
-                                this.setAlias(element, parentProperty, data);
-                                this.renderText(element, parentProperty);
-                            }
-                            return [2];
-                    }
+                    return [2, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                            var element, error_2;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        _a.trys.push([0, 9, , 10]);
+                                        element = $(ele);
+                                        if (!element.data('context')) {
+                                            element.data('context', data);
+                                        }
+                                        if (!element.data('binding')) {
+                                            element.data('binding', {});
+                                        }
+                                        if (alias) {
+                                            element.data('alias', alias);
+                                        }
+                                        data = element.data('context');
+                                        this.bindAttr(ele, parentProperty);
+                                        this.bindIf(ele, parentProperty);
+                                        if (!(element[0].tagName === 'C')) return [3, 2];
+                                        return [4, Pandyle.loadComponent(ele)];
+                                    case 1:
+                                        _a.sent();
+                                        _a.label = 2;
+                                    case 2:
+                                        if (!element.attr('p-context')) return [3, 3];
+                                        this.renderContext(ele, parentProperty);
+                                        return [3, 8];
+                                    case 3:
+                                        if (!element.attr('p-each')) return [3, 5];
+                                        this.setAlias(element, parentProperty, data);
+                                        return [4, this.renderEach(element, data, parentProperty)];
+                                    case 4:
+                                        _a.sent();
+                                        return [3, 8];
+                                    case 5:
+                                        if (!(element.children().length > 0)) return [3, 7];
+                                        this.setAlias(element, parentProperty, data);
+                                        return [4, this.renderChild(ele, data, parentProperty)];
+                                    case 6:
+                                        _a.sent();
+                                        return [3, 8];
+                                    case 7:
+                                        this.setAlias(element, parentProperty, data);
+                                        this.renderText(element, parentProperty);
+                                        _a.label = 8;
+                                    case 8:
+                                        resolve();
+                                        return [3, 10];
+                                    case 9:
+                                        error_2 = _a.sent();
+                                        reject(error_2);
+                                        return [3, 10];
+                                    case 10: return [2];
+                                }
+                            });
+                        }); })];
                 });
             });
         };
@@ -567,96 +599,150 @@ var Pandyle;
             }
         };
         VM.prototype.renderContext = function (ele, parentProperty) {
-            var element = $(ele);
-            if (element.attr('p-context')) {
-                var data = element.data('context');
-                var expression = element.attr('p-context');
-                var divided = this.dividePipe(expression);
-                var property = divided.property;
-                var method = divided.method;
-                var nodes = property.split('.');
-                var target = this.calcu(property, element, data);
-                if (method) {
-                    target = this.convert(method, target);
-                }
-                var fullProp = property;
-                if (parentProperty !== '') {
-                    fullProp = parentProperty + '.' + property;
-                }
-                this.setAlias(element, fullProp, target);
-                this.setRelation(property, $(ele), parentProperty);
-                this.renderChild(ele, target, fullProp);
-            }
+            var _this = this;
+            return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                var element, data, expression, divided, property, method, nodes, target, fullProp, error_3;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            _a.trys.push([0, 3, , 4]);
+                            element = $(ele);
+                            if (!element.attr('p-context')) return [3, 2];
+                            data = element.data('context');
+                            expression = element.attr('p-context');
+                            divided = this.dividePipe(expression);
+                            property = divided.property;
+                            method = divided.method;
+                            nodes = property.split('.');
+                            target = this.calcu(property, element, data);
+                            if (method) {
+                                target = this.convert(method, target);
+                            }
+                            fullProp = property;
+                            if (parentProperty !== '') {
+                                fullProp = parentProperty + '.' + property;
+                            }
+                            this.setAlias(element, fullProp, target);
+                            this.setRelation(property, $(ele), parentProperty);
+                            return [4, this.renderChild(ele, target, fullProp)];
+                        case 1:
+                            _a.sent();
+                            _a.label = 2;
+                        case 2: return [3, 4];
+                        case 3:
+                            error_3 = _a.sent();
+                            reject(error_3.message);
+                            return [3, 4];
+                        case 4: return [2];
+                    }
+                });
+            }); });
         };
         VM.prototype.renderChild = function (ele, data, parentProperty) {
-            var element = $(ele);
-            if (element.children().length > 0) {
-                var _this_1 = this;
-                var f_1 = function (child, alias) {
-                    return __awaiter(this, void 0, void 0, function () {
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0:
-                                    child.data('context', data);
-                                    return [4, _this_1.renderSingle(child[0], data, parentProperty, $.extend({}, alias))];
-                                case 1:
-                                    _a.sent();
-                                    if (child.next().length > 0) {
-                                        f_1(child.next(), alias);
+            return __awaiter(this, void 0, void 0, function () {
+                var _this = this;
+                var $this;
+                return __generator(this, function (_a) {
+                    $this = this;
+                    return [2, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                            var element, f_1, first, alias;
+                            return __generator(this, function (_a) {
+                                try {
+                                    element = $(ele);
+                                    if (element.children().length > 0) {
+                                        f_1 = function (child, alias) {
+                                            return __awaiter(this, void 0, void 0, function () {
+                                                return __generator(this, function (_a) {
+                                                    switch (_a.label) {
+                                                        case 0:
+                                                            child.data('context', data);
+                                                            return [4, $this.renderSingle(child[0], data, parentProperty, $.extend({}, alias))];
+                                                        case 1:
+                                                            _a.sent();
+                                                            if (child.next().length > 0) {
+                                                                f_1(child.next(), alias);
+                                                            }
+                                                            return [2];
+                                                    }
+                                                });
+                                            });
+                                        };
+                                        first = element.children().first();
+                                        alias = element.data('alias');
+                                        f_1(first, alias);
                                     }
-                                    return [2];
-                            }
-                        });
-                    });
-                };
-                var first = element.children().first();
-                var alias = element.data('alias');
-                f_1(first, alias);
-            }
+                                    resolve();
+                                }
+                                catch (error) {
+                                    reject(error.message);
+                                }
+                                return [2];
+                            });
+                        }); })];
+                });
+            });
         };
         VM.prototype.renderEach = function (element, data, parentProperty) {
-            if (element.attr('p-each')) {
-                var property = element.attr('p-each').replace(/\s/g, '');
-                var nodes = property.split('.');
-                var target_1 = this.calcu(property, element, data);
-                if (!element.data('pattern')) {
-                    element.data('pattern', element.html());
-                    this.setRelation(property, element, parentProperty);
-                }
-                ;
-                var fullProp_1 = property;
-                if (parentProperty !== '') {
-                    fullProp_1 = parentProperty + '.' + property;
-                }
-                ;
-                var alias_1 = element.data('alias');
-                var htmlText = element.data('pattern');
-                var children_1 = $('<div />').html(htmlText).children();
-                element.children().remove();
-                var _this_2 = this;
-                var f_2 = function (i) {
-                    return __awaiter(this, void 0, void 0, function () {
-                        var newChildren, j;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0:
-                                    if (i >= target_1.length) {
-                                        return [2];
+            return __awaiter(this, void 0, void 0, function () {
+                var _this = this;
+                var $this;
+                return __generator(this, function (_a) {
+                    $this = this;
+                    return [2, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                            var property, nodes, target_1, fullProp_1, alias_1, htmlText, children_1, f_2;
+                            return __generator(this, function (_a) {
+                                try {
+                                    if (element.attr('p-each')) {
+                                        property = element.attr('p-each').replace(/\s/g, '');
+                                        nodes = property.split('.');
+                                        target_1 = this.calcu(property, element, data);
+                                        if (!element.data('pattern')) {
+                                            element.data('pattern', element.html());
+                                            this.setRelation(property, element, parentProperty);
+                                        }
+                                        ;
+                                        fullProp_1 = property;
+                                        if (parentProperty !== '') {
+                                            fullProp_1 = parentProperty + '.' + property;
+                                        }
+                                        ;
+                                        alias_1 = element.data('alias');
+                                        htmlText = element.data('pattern');
+                                        children_1 = $('<div />').html(htmlText).children();
+                                        element.children().remove();
+                                        f_2 = function (i) {
+                                            return __awaiter(this, void 0, void 0, function () {
+                                                var newChildren, j;
+                                                return __generator(this, function (_a) {
+                                                    switch (_a.label) {
+                                                        case 0:
+                                                            if (i >= target_1.length) {
+                                                                return [2];
+                                                            }
+                                                            newChildren = children_1.clone(true, true);
+                                                            element.append(newChildren);
+                                                            return [4, $this.renderSingle(newChildren[0], target_1[i], fullProp_1.concat('[', i.toString(), ']'), alias_1)];
+                                                        case 1:
+                                                            _a.sent();
+                                                            j = i + 1;
+                                                            f_2(j);
+                                                            return [2];
+                                                    }
+                                                });
+                                            });
+                                        };
+                                        f_2(0);
                                     }
-                                    newChildren = children_1.clone(true, true);
-                                    element.append(newChildren);
-                                    return [4, _this_2.render(newChildren, target_1[i], fullProp_1.concat('[', i.toString(), ']'), alias_1)];
-                                case 1:
-                                    _a.sent();
-                                    j = i + 1;
-                                    f_2(j);
-                                    return [2];
-                            }
-                        });
-                    });
-                };
-                f_2(0);
-            }
+                                    resolve();
+                                }
+                                catch (error) {
+                                    reject(error.message);
+                                }
+                                return [2];
+                            });
+                        }); })];
+                });
+            });
         };
         VM.prototype.renderText = function (element, parentProperty) {
             var data = element.data('context');
