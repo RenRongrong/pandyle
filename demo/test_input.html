@@ -12,9 +12,9 @@
 
 <body>
     <div class="main">
-        <!-- <input type="hidden" name="id" value="123456">
-        <input type="hidden" name="uid" value="17"> -->
-        <!-- <p>
+        <input type="hidden" name="id" value="123456">
+        <input type="hidden" name="uid" value="17">
+        <p>
             <span>姓名：</span><input type="text" name="base.name">
         </p>
         <p>
@@ -45,15 +45,15 @@
                 <option value="2">vip用户</option>
                 <option value="3">超级vip用户</option>
             </select>
-        </p> -->
+        </p>
         <div p-each="@window.radios">
             <p>
                 <span>{{name}}：</span>
                 <c p-com="radio" p-context="@self"></c>
             </p>
         </div>
-        <!-- <button onclick="test()">test</button>
-        <button onclick="update()">update</button> -->
+        <button onclick="test()">test</button>
+        <button onclick="update()">update</button>
     </div>
 
     <script>
@@ -98,7 +98,9 @@
                 'base.name': 'rrr',
                 'base.sex': '1',
                 'other.attr.hobbies': ['swim', 'sing'],
-                'other.attr.type': '2'
+                'other.attr.type': '2',
+                'job': 'student',
+                'level': '1'
             })
         }
     </script>

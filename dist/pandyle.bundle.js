@@ -1,38 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 var Pandyle;
 (function (Pandyle) {
     Pandyle._variables = {};
@@ -88,43 +53,29 @@ var Pandyle;
         return Pandyle._components[name];
     }
     Pandyle.getComponent = getComponent;
-    function loadComponent(ele, async) {
-        var _this = this;
-        if (async === void 0) { async = false; }
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var path, name_1, url;
-            return __generator(this, function (_a) {
-                try {
-                    path = Pandyle._config.comPath || '/components/';
-                    name_1 = $(ele).attr('p-com');
-                    if (hasComponent(name_1)) {
-                        $(ele).html(getComponent(name_1));
-                        resolve();
-                    }
-                    else {
-                        url = '';
-                        if (/.*\.html$/.test(name_1)) {
-                            url = name_1;
-                        }
-                        else {
-                            url = path + name_1 + '.html';
-                        }
-                        $.ajax({
-                            url: url,
-                            dataType: 'html',
-                            success: function (res) {
-                                insertToDom(res, name_1);
-                                resolve();
-                            }
-                        });
-                    }
+    function loadComponent(ele) {
+        var path = Pandyle._config.comPath || '/components/';
+        var name = $(ele).attr('p-com');
+        if (hasComponent(name)) {
+            $(ele).html(getComponent(name));
+        }
+        else {
+            var url = '';
+            if (/.*\.html$/.test(name)) {
+                url = name;
+            }
+            else {
+                url = path + name + '.html';
+            }
+            $.ajax({
+                url: url,
+                dataType: 'html',
+                async: false,
+                success: function (res) {
+                    insertToDom(res, name);
                 }
-                catch (error) {
-                    reject(error.message);
-                }
-                return [2];
             });
-        }); });
+        }
         function insertToDom(text, name) {
             text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, function ($0, $1) {
                 (new Function($1))();
@@ -488,68 +439,37 @@ var Pandyle;
             });
         };
         VM.prototype.renderSingle = function (ele, data, parentProperty, alias) {
-            return __awaiter(this, void 0, void 0, function () {
-                var _this = this;
-                return __generator(this, function (_a) {
-                    return [2, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                            var element, error_1;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        _a.trys.push([0, 9, , 10]);
-                                        element = $(ele);
-                                        if (!element.data('context')) {
-                                            element.data('context', data);
-                                        }
-                                        if (!element.data('binding')) {
-                                            element.data('binding', {});
-                                        }
-                                        if (alias) {
-                                            element.data('alias', alias);
-                                        }
-                                        data = element.data('context');
-                                        this.bindAttr(ele, parentProperty);
-                                        this.bindIf(ele, parentProperty);
-                                        if (!(element[0].tagName === 'C')) return [3, 2];
-                                        return [4, Pandyle.loadComponent(ele)];
-                                    case 1:
-                                        _a.sent();
-                                        _a.label = 2;
-                                    case 2:
-                                        if (!element.attr('p-context')) return [3, 3];
-                                        this.renderContext(ele, parentProperty);
-                                        return [3, 8];
-                                    case 3:
-                                        if (!element.attr('p-each')) return [3, 5];
-                                        this.setAlias(element, parentProperty, data);
-                                        return [4, this.renderEach(element, data, parentProperty)];
-                                    case 4:
-                                        _a.sent();
-                                        return [3, 8];
-                                    case 5:
-                                        if (!(element.children().length > 0)) return [3, 7];
-                                        this.setAlias(element, parentProperty, data);
-                                        return [4, this.renderChild(ele, data, parentProperty)];
-                                    case 6:
-                                        _a.sent();
-                                        return [3, 8];
-                                    case 7:
-                                        this.setAlias(element, parentProperty, data);
-                                        this.renderText(element, parentProperty);
-                                        _a.label = 8;
-                                    case 8:
-                                        resolve();
-                                        return [3, 10];
-                                    case 9:
-                                        error_1 = _a.sent();
-                                        reject(error_1);
-                                        return [3, 10];
-                                    case 10: return [2];
-                                }
-                            });
-                        }); })];
-                });
-            });
+            var element = $(ele);
+            if (!element.data('context')) {
+                element.data('context', data);
+            }
+            if (!element.data('binding')) {
+                element.data('binding', {});
+            }
+            if (alias) {
+                element.data('alias', alias);
+            }
+            data = element.data('context');
+            this.bindAttr(ele, parentProperty);
+            this.bindIf(ele, parentProperty);
+            if (element[0].tagName === 'C') {
+                Pandyle.loadComponent(ele);
+            }
+            if (element.attr('p-context')) {
+                this.renderContext(ele, parentProperty);
+            }
+            else if (element.attr('p-each')) {
+                this.setAlias(element, parentProperty, data);
+                this.renderEach(element, data, parentProperty);
+            }
+            else if (element.children().length > 0) {
+                this.setAlias(element, parentProperty, data);
+                this.renderChild(ele, data, parentProperty);
+            }
+            else {
+                this.setAlias(element, parentProperty, data);
+                this.renderText(element, parentProperty);
+            }
         };
         VM.prototype.bindAttr = function (ele, parentProperty) {
             if ($(ele).attr('p-bind')) {
@@ -595,150 +515,75 @@ var Pandyle;
             }
         };
         VM.prototype.renderContext = function (ele, parentProperty) {
-            var _this = this;
-            return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                var element, data, expression, divided, property, method, nodes, target, fullProp, error_2;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            _a.trys.push([0, 3, , 4]);
-                            element = $(ele);
-                            if (!element.attr('p-context')) return [3, 2];
-                            data = element.data('context');
-                            expression = element.attr('p-context');
-                            divided = this.dividePipe(expression);
-                            property = divided.property;
-                            method = divided.method;
-                            nodes = property.split('.');
-                            target = this.calcu(property, element, data);
-                            if (method) {
-                                target = this.convert(method, target);
-                            }
-                            fullProp = property;
-                            if (parentProperty !== '') {
-                                fullProp = parentProperty + '.' + property;
-                            }
-                            this.setAlias(element, fullProp, target);
-                            this.setRelation(property, $(ele), parentProperty);
-                            return [4, this.renderChild(ele, target, fullProp)];
-                        case 1:
-                            _a.sent();
-                            _a.label = 2;
-                        case 2: return [3, 4];
-                        case 3:
-                            error_2 = _a.sent();
-                            reject(error_2.message);
-                            return [3, 4];
-                        case 4: return [2];
-                    }
-                });
-            }); });
+            var element = $(ele);
+            if (element.attr('p-context')) {
+                var data = element.data('context');
+                var expression = element.attr('p-context');
+                var divided = this.dividePipe(expression);
+                var property = divided.property;
+                var method = divided.method;
+                var nodes = property.split('.');
+                var target = this.calcu(property, element, data);
+                if (method) {
+                    target = this.convert(method, target);
+                }
+                var fullProp = property;
+                if (parentProperty !== '') {
+                    fullProp = parentProperty + '.' + property;
+                }
+                this.setAlias(element, fullProp, target);
+                this.setRelation(property, $(ele), parentProperty);
+                this.renderChild(ele, target, fullProp);
+            }
         };
         VM.prototype.renderChild = function (ele, data, parentProperty) {
-            return __awaiter(this, void 0, void 0, function () {
-                var _this = this;
-                var $this;
-                return __generator(this, function (_a) {
-                    $this = this;
-                    return [2, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                            var element, f_1, first, alias;
-                            return __generator(this, function (_a) {
-                                try {
-                                    element = $(ele);
-                                    if (element.children().length > 0) {
-                                        f_1 = function (child, alias) {
-                                            return __awaiter(this, void 0, void 0, function () {
-                                                return __generator(this, function (_a) {
-                                                    switch (_a.label) {
-                                                        case 0:
-                                                            child.data('context', data);
-                                                            return [4, $this.renderSingle(child[0], data, parentProperty, $.extend({}, alias))];
-                                                        case 1:
-                                                            _a.sent();
-                                                            if (child.next().length > 0) {
-                                                                f_1(child.next(), alias);
-                                                            }
-                                                            return [2];
-                                                    }
-                                                });
-                                            });
-                                        };
-                                        first = element.children().first();
-                                        alias = element.data('alias');
-                                        f_1(first, alias);
-                                    }
-                                    resolve();
-                                }
-                                catch (error) {
-                                    reject(error.message);
-                                }
-                                return [2];
-                            });
-                        }); })];
-                });
-            });
+            var $this = this;
+            var element = $(ele);
+            if (element.children().length > 0) {
+                var f_1 = function (child, alias) {
+                    child.data('context', data);
+                    $this.renderSingle(child[0], data, parentProperty, $.extend({}, alias));
+                    if (child.next().length > 0) {
+                        f_1(child.next(), alias);
+                    }
+                };
+                var first = element.children().first();
+                var alias = element.data('alias');
+                f_1(first, alias);
+            }
         };
         VM.prototype.renderEach = function (element, data, parentProperty) {
-            return __awaiter(this, void 0, void 0, function () {
-                var _this = this;
-                var $this;
-                return __generator(this, function (_a) {
-                    $this = this;
-                    return [2, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                            var property, nodes, target_1, fullProp_1, alias_1, htmlText, children_1, f_2;
-                            return __generator(this, function (_a) {
-                                try {
-                                    if (element.attr('p-each')) {
-                                        property = element.attr('p-each').replace(/\s/g, '');
-                                        nodes = property.split('.');
-                                        target_1 = this.calcu(property, element, data);
-                                        if (!element.data('pattern')) {
-                                            element.data('pattern', element.html());
-                                            this.setRelation(property, element, parentProperty);
-                                        }
-                                        ;
-                                        fullProp_1 = property;
-                                        if (parentProperty !== '') {
-                                            fullProp_1 = parentProperty + '.' + property;
-                                        }
-                                        ;
-                                        alias_1 = element.data('alias');
-                                        htmlText = element.data('pattern');
-                                        children_1 = $('<div />').html(htmlText).children();
-                                        element.children().remove();
-                                        f_2 = function (i) {
-                                            return __awaiter(this, void 0, void 0, function () {
-                                                var newChildren, j;
-                                                return __generator(this, function (_a) {
-                                                    switch (_a.label) {
-                                                        case 0:
-                                                            if (i >= target_1.length) {
-                                                                return [2];
-                                                            }
-                                                            newChildren = children_1.clone(true, true);
-                                                            element.append(newChildren);
-                                                            return [4, $this.renderSingle(newChildren[0], target_1[i], fullProp_1.concat('[', i.toString(), ']'), alias_1)];
-                                                        case 1:
-                                                            _a.sent();
-                                                            j = i + 1;
-                                                            f_2(j);
-                                                            return [2];
-                                                    }
-                                                });
-                                            });
-                                        };
-                                        f_2(0);
-                                    }
-                                    resolve();
-                                }
-                                catch (error) {
-                                    reject(error.message);
-                                }
-                                return [2];
-                            });
-                        }); })];
-                });
-            });
+            var $this = this;
+            if (element.attr('p-each')) {
+                var property = element.attr('p-each').replace(/\s/g, '');
+                var nodes = property.split('.');
+                var target_1 = this.calcu(property, element, data);
+                if (!element.data('pattern')) {
+                    element.data('pattern', element.html());
+                    this.setRelation(property, element, parentProperty);
+                }
+                ;
+                var fullProp_1 = property;
+                if (parentProperty !== '') {
+                    fullProp_1 = parentProperty + '.' + property;
+                }
+                ;
+                var alias_1 = element.data('alias');
+                var htmlText = element.data('pattern');
+                var children_1 = $('<div />').html(htmlText).children();
+                element.children().remove();
+                var f_2 = function (i) {
+                    if (i >= target_1.length) {
+                        return;
+                    }
+                    var newChildren = children_1.clone(true, true);
+                    element.append(newChildren);
+                    $this.renderSingle(newChildren[0], target_1[i], fullProp_1.concat('[', i.toString(), ']'), alias_1);
+                    var j = i + 1;
+                    f_2(j);
+                };
+                f_2(0);
+            }
         };
         VM.prototype.renderText = function (element, parentProperty) {
             var data = element.data('context');

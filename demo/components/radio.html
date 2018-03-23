@@ -5,7 +5,7 @@
                 <span></span>
             </div>
             <span>{{content}}</span>
-            <input type="radio" class="hidden" p-bind="name:{{@group.name}} ^ value:{{value}}">
+            <input type="radio" class="hidden p-radio" p-bind="name:{{@group.name}} ^ value:{{value}}">
         </label>
     </div>
 </div>
@@ -15,24 +15,27 @@
         width: 14px;
         height: 14px;
         line-height: 14px;
-        border: 1px solid blue;
+        border: 1px solid rgb(92, 117, 91);
         border-radius: 50%;
         display: inline-block;
         text-align: center;
     }
     
     .radioButton>span {
-        width: 16px;
-        height: 16px;
-        background-color: blue;
+        width: 10px;
+        height: 10px;
+        background-color: rgb(92, 117, 91);
         border-radius: 50%;
         display: inline-block;
-        margin-top: 2px;
+        margin-bottom: 1px;
         opacity: 0;
+        transition: all .1s;
+        transform: scale(0);
     }
     
     .radioButton.checked>span {
         opacity: 1;
+        transform: scale(1);
     }
     
     .hidden {
@@ -41,11 +44,11 @@
 </style>
 
 <script>
-    $(document).on('click', '.radioLabel', function() {
-        var button = $(this).children('.radioButton');
+    $(document).on('change modelChange', '.p-radio', function() {
+        var button = $(this).siblings('.radioButton');
         if (!button.hasClass('checked')) {
             button.addClass('checked');
-            $(this).siblings().children('.radioButton').removeClass('checked');
+            $(this).parent().siblings().children('.radioButton').removeClass('checked');
         }
     })
 </script>

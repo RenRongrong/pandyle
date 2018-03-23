@@ -89,42 +89,35 @@ namespace Pandyle {
             })
         }
 
-        private async renderSingle(ele: HTMLElement, data: any, parentProperty: string, alias?: any) {
-            return new Promise(async (resolve, reject) => {
-                try {
-                    let element = $(ele);
-                    if (!element.data('context')) {
-                        element.data('context', data);
-                    }
-                    if (!element.data('binding')) {
-                        element.data('binding', {});
-                    }
-                    if (alias) {
-                        element.data('alias', alias);
-                    }
-                    data = element.data('context');
-                    this.bindAttr(ele, parentProperty);
-                    this.bindIf(ele, parentProperty);
-                    if (element[0].tagName === 'C') {
-                        await loadComponent(ele);
-                    }
-                    if (element.attr('p-context')) {
-                        this.renderContext(ele, parentProperty);
-                    } else if (element.attr('p-each')) {
-                        this.setAlias(element, parentProperty, data);
-                        await this.renderEach(element, data, parentProperty);
-                    } else if (element.children().length > 0) {
-                        this.setAlias(element, parentProperty, data);
-                        await this.renderChild(ele, data, parentProperty);
-                    } else {
-                        this.setAlias(element, parentProperty, data);
-                        this.renderText(element, parentProperty);
-                    }
-                    resolve();
-                } catch (error) {
-                    reject(error);
-                }
-            })
+        private renderSingle(ele: HTMLElement, data: any, parentProperty: string, alias?: any) {
+            let element = $(ele);
+            if (!element.data('context')) {
+                element.data('context', data);
+            }
+            if (!element.data('binding')) {
+                element.data('binding', {});
+            }
+            if (alias) {
+                element.data('alias', alias);
+            }
+            data = element.data('context');
+            this.bindAttr(ele, parentProperty);
+            this.bindIf(ele, parentProperty);
+            if (element[0].tagName === 'C') {
+                loadComponent(ele);
+            }
+            if (element.attr('p-context')) {
+                this.renderContext(ele, parentProperty);
+            } else if (element.attr('p-each')) {
+                this.setAlias(element, parentProperty, data);
+                this.renderEach(element, data, parentProperty);
+            } else if (element.children().length > 0) {
+                this.setAlias(element, parentProperty, data);
+                this.renderChild(ele, data, parentProperty);
+            } else {
+                this.setAlias(element, parentProperty, data);
+                this.renderText(element, parentProperty);
+            }
 
         }
 
@@ -173,98 +166,76 @@ namespace Pandyle {
         }
 
         private renderContext(ele: HTMLElement, parentProperty: string) {
-            return new Promise(async (resolve, reject) => {
-                try {
-                    let element = $(ele);
-                    if (element.attr('p-context')) {
-                        let data = element.data('context');
-                        let expression = element.attr('p-context');
-                        let divided = this.dividePipe(expression);
-                        let property = divided.property;
-                        let method = divided.method;
-                        let nodes = property.split('.');
-                        let target: any = this.calcu(property, element, data);
-                        if (method) {
-                            target = this.convert(method, target);
-                        }
-                        let fullProp = property;
-                        if (parentProperty !== '') {
-                            fullProp = parentProperty + '.' + property;
-                        }
-                        this.setAlias(element, fullProp, target);
-                        this.setRelation(property, $(ele), parentProperty);
-                        await this.renderChild(ele, target, fullProp);
-                    }
-                } catch (error) {
-                    reject(error.message);
+            let element = $(ele);
+            if (element.attr('p-context')) {
+                let data = element.data('context');
+                let expression = element.attr('p-context');
+                let divided = this.dividePipe(expression);
+                let property = divided.property;
+                let method = divided.method;
+                let nodes = property.split('.');
+                let target: any = this.calcu(property, element, data);
+                if (method) {
+                    target = this.convert(method, target);
                 }
-            })
-
+                let fullProp = property;
+                if (parentProperty !== '') {
+                    fullProp = parentProperty + '.' + property;
+                }
+                this.setAlias(element, fullProp, target);
+                this.setRelation(property, $(ele), parentProperty);
+                this.renderChild(ele, target, fullProp);
+            }
         }
 
-        private async renderChild(ele: HTMLElement, data: any, parentProperty: string) {
+        private renderChild(ele: HTMLElement, data: any, parentProperty: string) {
             let $this = this;
-            return new Promise(async (resolve, reject) => {
-                try {
-                    let element = $(ele);
-                    if (element.children().length > 0) {
-                        let f = async function (child: JQuery<HTMLElement>, alias: any) {
-                            child.data('context', data);
-                            await $this.renderSingle(child[0], data, parentProperty, $.extend({}, alias));
-                            if (child.next().length > 0) {
-                                f(child.next(), alias);
-                            }
-                        }
-                        let first = element.children().first();
-                        let alias = element.data('alias');
-                        f(first, alias);
+            let element = $(ele);
+            if (element.children().length > 0) {
+                let f = function (child: JQuery<HTMLElement>, alias: any) {
+                    child.data('context', data);
+                    $this.renderSingle(child[0], data, parentProperty, $.extend({}, alias));
+                    if (child.next().length > 0) {
+                        f(child.next(), alias);
                     }
-                    resolve();
-                } catch (error) {
-                    reject(error.message);
                 }
-            })
+                let first = element.children().first();
+                let alias = element.data('alias');
+                f(first, alias);
+            }
         }
 
-        private async renderEach(element: JQuery<HTMLElement>, data: any, parentProperty) {
+        private renderEach(element: JQuery<HTMLElement>, data: any, parentProperty) {
             let $this = this;
-            return new Promise(async (resolve, reject) => {
-                try {
-                    if (element.attr('p-each')) {
-                        let property = element.attr('p-each').replace(/\s/g, '');
-                        let nodes = property.split('.');
-                        let target: any[] = this.calcu(property, element, data);
-                        if (!element.data('pattern')) {
-                            element.data('pattern', element.html());
-                            this.setRelation(property, element, parentProperty);
-                        };
-                        let fullProp = property;
-                        if (parentProperty !== '') {
-                            fullProp = parentProperty + '.' + property;
-                        };
-                        let alias = element.data('alias');
-                        let htmlText = element.data('pattern');
-                        let children = $('<div />').html(htmlText).children();
-                        element.children().remove();
+            if (element.attr('p-each')) {
+                let property = element.attr('p-each').replace(/\s/g, '');
+                let nodes = property.split('.');
+                let target: any[] = this.calcu(property, element, data);
+                if (!element.data('pattern')) {
+                    element.data('pattern', element.html());
+                    this.setRelation(property, element, parentProperty);
+                };
+                let fullProp = property;
+                if (parentProperty !== '') {
+                    fullProp = parentProperty + '.' + property;
+                };
+                let alias = element.data('alias');
+                let htmlText = element.data('pattern');
+                let children = $('<div />').html(htmlText).children();
+                element.children().remove();
 
-                        let f = async function (i: number) {
-                            if (i >= target.length) {
-                                return;
-                            }
-                            let newChildren = children.clone(true, true);
-                            element.append(newChildren);
-                            await $this.renderSingle(newChildren[0], target[i], fullProp.concat('[', i.toString(), ']'), alias);
-                            let j = i + 1;
-                            f(j);
-                        }
-                        f(0);
+                let f = function (i: number) {
+                    if (i >= target.length) {
+                        return;
                     }
-                    resolve();
-                } catch (error) {
-                    reject(error.message);
+                    let newChildren = children.clone(true, true);
+                    element.append(newChildren);
+                    $this.renderSingle(newChildren[0], target[i], fullProp.concat('[', i.toString(), ']'), alias);
+                    let j = i + 1;
+                    f(j);
                 }
-            })
-
+                f(0);
+            }
         }
 
         private renderText(element: JQuery<HTMLElement>, parentProperty) {
