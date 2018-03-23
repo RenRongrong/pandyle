@@ -127,7 +127,7 @@ namespace Pandyle {
                 binds.forEach((bindInfo, index) => {
                     let array = bindInfo.split(':');
                     let attr = array[0].replace(/\s/g, '');
-                    let value = array[1];
+                    let value = array[1].replace(/\s*$/, '');
                     $(ele).data('binding')[attr] = {
                         pattern: value,
                         related: false

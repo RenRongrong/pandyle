@@ -224,7 +224,7 @@ namespace Pandyle {
                 if(target.val() == value){
                     target.prop('checked', 'checked');
                 }else{
-                    target.removeProp('checked');
+                    target.prop('checked', false);
                 }
             })
         }
@@ -235,7 +235,7 @@ namespace Pandyle {
                 if(value.indexOf(target.val()) > -1){
                     target.prop('checked', 'checked');
                 }else{
-                    target.removeProp('checked');
+                    target.prop('checked', false);
                 }
             })
         }

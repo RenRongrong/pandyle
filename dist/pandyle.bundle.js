@@ -330,7 +330,7 @@ var Pandyle;
                     target.prop('checked', 'checked');
                 }
                 else {
-                    target.removeProp('checked');
+                    target.prop('checked', false);
                 }
             });
         };
@@ -341,7 +341,7 @@ var Pandyle;
                     target.prop('checked', 'checked');
                 }
                 else {
-                    target.removeProp('checked');
+                    target.prop('checked', false);
                 }
             });
         };
@@ -477,7 +477,7 @@ var Pandyle;
                 binds.forEach(function (bindInfo, index) {
                     var array = bindInfo.split(':');
                     var attr = array[0].replace(/\s/g, '');
-                    var value = array[1];
+                    var value = array[1].replace(/\s*$/, '');
                     $(ele).data('binding')[attr] = {
                         pattern: value,
                         related: false
