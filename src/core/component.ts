@@ -18,20 +18,19 @@ namespace Pandyle {
     }
 
     export function loadComponent(ele: HTMLElement) {
-        let path = Pandyle._config.comPath || '/components/';
+        let path = Pandyle._config.comPath || '/components/{name}.html';
         let name = $(ele).attr('p-com');
         if (hasComponent(name)) {
             $(ele).html(getComponent(name));
         } else {
             let url = '';
-            if (/.*\.html$/.test(name)) {
+            if (/^@.*/.test(name)) {
                 url = name;
             } else {
-                url = path + name + '.html';
+                url = path.replace(/{.*}/g, name);
             }
             $.ajax({
                 url: url,
-                dataType: 'html',
                 async: false,
                 success: res => {
                     insertToDom(res, name);

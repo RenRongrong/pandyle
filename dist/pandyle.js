@@ -54,22 +54,21 @@ var Pandyle;
     }
     Pandyle.getComponent = getComponent;
     function loadComponent(ele) {
-        var path = Pandyle._config.comPath || '/components/';
+        var path = Pandyle._config.comPath || '/components/{name}.html';
         var name = $(ele).attr('p-com');
         if (hasComponent(name)) {
             $(ele).html(getComponent(name));
         }
         else {
             var url = '';
-            if (/.*\.html$/.test(name)) {
+            if (/^@.*/.test(name)) {
                 url = name;
             }
             else {
-                url = path + name + '.html';
+                url = path.replace(/{.*}/g, name);
             }
             $.ajax({
                 url: url,
-                dataType: 'html',
                 async: false,
                 success: function (res) {
                     insertToDom(res, name);
@@ -384,7 +383,7 @@ var Pandyle;
         VM.prototype.set = function (newData) {
             var _this = this;
             var _loop_1 = function (key) {
-                var properties = key.split('.');
+                var properties = key.split(/[\[\]\.]/).filter(function (s) { return s != ''; });
                 var lastProperty = properties.pop();
                 var target = this_1._data;
                 if (properties.length > 0) {
@@ -578,7 +577,7 @@ var Pandyle;
                     }
                     var newChildren = children_1.clone(true, true);
                     element.append(newChildren);
-                    $this.renderSingle(newChildren[0], target_1[i], fullProp_1.concat('[', i.toString(), ']'), alias_1);
+                    $this.render(newChildren, target_1[i], fullProp_1.concat('[', i.toString(), ']'), alias_1);
                     var j = i + 1;
                     f_2(j);
                 };
@@ -643,6 +642,9 @@ var Pandyle;
             }
         };
         VM.prototype.isSelfOrChild = function (property, subProperty) {
+            property = property.replace(/[\[\]\(\)\.]/g, function ($0) {
+                return '\\' + $0;
+            });
             var reg = new RegExp('^' + property + '$' + '|' + '^' + property + '[\\[\\.]\\w+');
             return reg.test(subProperty);
         };
@@ -663,6 +665,9 @@ var Pandyle;
         VM.prototype.calcu = function (property, element, data) {
             var _this = this;
             var nodes = property.match(/[@\w]+((?:\(.*?\))*|(?:\[.*?\])*)/g);
+            if (!nodes) {
+                return '';
+            }
             var result = nodes.reduce(function (obj, current) {
                 var arr = /^([@\w]+)([\(|\[].*)*/.exec(current);
                 var property = arr[1];
@@ -759,9 +764,14 @@ var Pandyle;
                 var pairs = method.replace(/{|}/g, '').split(',');
                 return pairs.reduce(function (pre, current) {
                     var pair = current.split(':');
-                    pre[pair[0]] = pair[1].split('.').reduce(function (predata, property) {
-                        return predata[property];
-                    }, data);
+                    if (/^[a-zA-z$_]+/.test(pair[1])) {
+                        pre[pair[0]] = pair[1].split('.').reduce(function (predata, property) {
+                            return predata[property];
+                        }, data);
+                    }
+                    else {
+                        pre[pair[0]] = new Function('return ' + pair[1])();
+                    }
                     return pre;
                 }, {});
             }
@@ -792,4 +802,4 @@ var Pandyle;
     }());
     Pandyle.VM = VM;
 })(Pandyle || (Pandyle = {}));
-//# sourceMappingURL=pandyle.core.js.map
+//# sourceMappingURL=pandyle.js.map

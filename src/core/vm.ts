@@ -37,7 +37,7 @@ namespace Pandyle {
 
         public set(newData: any) {
             for (let key in newData) {
-                let properties = key.split('.');
+                let properties = key.split(/[\[\]\.]/).filter(s => s != '');
                 let lastProperty = properties.pop();
                 let target = this._data;
                 if (properties.length > 0) {
@@ -230,7 +230,7 @@ namespace Pandyle {
                     }
                     let newChildren = children.clone(true, true);
                     element.append(newChildren);
-                    $this.renderSingle(newChildren[0], target[i], fullProp.concat('[', i.toString(), ']'), alias);
+                    $this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'), alias);
                     let j = i + 1;
                     f(j);
                 }
@@ -295,6 +295,9 @@ namespace Pandyle {
         }
 
         private isSelfOrChild(property: string, subProperty: string) {
+            property = property.replace(/[\[\]\(\)\.]/g, $0 => {
+                return '\\' + $0;
+            })
             let reg = new RegExp('^' + property + '$' + '|' + '^' + property + '[\\[\\.]\\w+');
             return reg.test(subProperty);
         }
@@ -316,6 +319,9 @@ namespace Pandyle {
 
         private calcu(property: string, element: JQuery<HTMLElement>, data: any) {
             let nodes = property.match(/[@\w]+((?:\(.*?\))*|(?:\[.*?\])*)/g);
+            if (!nodes) {
+                return '';
+            }
             let result = nodes.reduce((obj, current) => {
                 let arr = /^([@\w]+)([\(|\[].*)*/.exec(current);
                 let property = arr[1];
@@ -419,9 +425,13 @@ namespace Pandyle {
                 let pairs = method.replace(/{|}/g, '').split(',');
                 return pairs.reduce((pre, current) => {
                     let pair = current.split(':');
-                    pre[pair[0]] = pair[1].split('.').reduce((predata, property) => {
-                        return predata[property];
-                    }, data);
+                    if (/^[a-zA-z$_]+/.test(pair[1])) {
+                        pre[pair[0]] = pair[1].split('.').reduce((predata, property) => {
+                            return predata[property];
+                        }, data);
+                    }else{
+                        pre[pair[0]] = new Function('return ' + pair[1])();
+                    }
                     return pre;
                 }, {})
             } else {
