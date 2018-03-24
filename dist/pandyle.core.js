@@ -792,4 +792,4 @@ var Pandyle;
     }());
     Pandyle.VM = VM;
 })(Pandyle || (Pandyle = {}));
-//# sourceMappingURL=pandyle.bundle.js.map
+//# sourceMappingURL=pandyle.core.js.map

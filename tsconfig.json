@@ -1,8 +1,9 @@
 {
     "compilerOptions": {
         "target": "es5",
-        "outFile": "dist/pandyle.bundle.js",
+        "outFile": "dist/pandyle.core.js",
         "sourceMap": true,
+        "declaration": true,
         "removeComments": true,
         "lib": [
             "dom",
