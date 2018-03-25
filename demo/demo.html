@@ -9,28 +9,15 @@
 </head>
 
 <body>
-    <div class="main">
-        <div>{{message}}</div>
-        <div p-each="list">
-            <p>{{name}}</p>
-        </div>
-    </div>
+    <div>显示处理过的message属性：{{foo(message)}}</div>
     <script>
-        var data = {
-            message: 'hello world',
-            list: [{
-                name: '张三'
-            }, {
-                name: '李四'
-            }]
-        };
-        var vm = $('.main').vm(data);
-        var vm2 = $('.main').vm();
-        console.log(vm === vm2);
-        vm.set({
-            message: 'goodbye',
-            'list[1].name': '王五'
+        $('div').vm({
+            message: 'hello world'
         });
+
+        function foo(s) {
+            return s + ' ha ha!';
+        }
     </script>
 </body>
 

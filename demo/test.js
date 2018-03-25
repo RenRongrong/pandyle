@@ -43,6 +43,11 @@ $(document).ready(function() {
             price: data.p
         }
     });
+    vm.register('tagFilter', function(data) {
+        return data.filter(function(x) {
+            return x == '名著';
+        })
+    })
     vm.run();
 })
 
@@ -56,4 +61,8 @@ function setName() {
     });
     foo();
     foo2();
+}
+
+function add(n) {
+    return n + 1;
 }

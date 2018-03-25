@@ -4,7 +4,7 @@ namespace Pandyle {
     export class Inputs {
         private _data: any;
         private _relations: relation[];
-        private _root:JQuery<HTMLElement>;
+        private _root: JQuery<HTMLElement>;
 
         constructor(element: JQuery<HTMLElement>) {
             this._data = {};
@@ -13,12 +13,12 @@ namespace Pandyle {
             this.bindChange();
         }
 
-        public get data() {
+        public data() {
             return $.extend({}, this._data);
         }
 
-        public set(data:any){
-            for(let key in data){
+        public set(data: any) {
+            for (let key in data) {
                 this.setData(key, data[key]);
                 let elements = this._root.find('[name="' + key + '"]');
                 this.updateDom(elements, data[key]);
@@ -32,7 +32,7 @@ namespace Pandyle {
                 let tag = target.prop('tagName');
                 let name = target.prop('name');
                 this.initName(name);
-                switch(tag){
+                switch (tag) {
                     case 'INPUT':
                         this.initData_input(target);
                         break;
@@ -48,9 +48,9 @@ namespace Pandyle {
             });
         }
 
-        private initData_input(element: JQuery<HTMLElement>){
+        private initData_input(element: JQuery<HTMLElement>) {
             let type = element.prop('type');
-            switch(type){
+            switch (type) {
                 case 'radio':
                     this.initData_radio(element);
                     break;
@@ -63,35 +63,35 @@ namespace Pandyle {
             }
         }
 
-        private initData_radio(element:JQuery<HTMLElement>){
+        private initData_radio(element: JQuery<HTMLElement>) {
             let name = element.prop('name');
             let value = element.val();
-            if($.isEmptyObject(this.getDataByName(name))){
+            if ($.isEmptyObject(this.getDataByName(name))) {
                 this.setData(name, '');
             }
-            if(element.prop('checked')){
+            if (element.prop('checked')) {
                 this.setData(name, value);
             }
         }
 
-        private initData_check(element: JQuery<HTMLElement>){
+        private initData_check(element: JQuery<HTMLElement>) {
             let name = element.prop('name');
             let value = element.val();
-            if($.isEmptyObject(this.getDataByName(name))){
+            if ($.isEmptyObject(this.getDataByName(name))) {
                 this.setData(name, []);
             }
-            if(element.prop('checked')){
+            if (element.prop('checked')) {
                 this.getDataByName(name).push(value);
             }
         }
 
-        private initData_normal(element:JQuery<HTMLElement>){
+        private initData_normal(element: JQuery<HTMLElement>) {
             let name = element.prop('name');
             let value = element.val();
             this.setData(name, value);
         }
 
-        private initData_select(element:JQuery<HTMLElement>){
+        private initData_select(element: JQuery<HTMLElement>) {
             let name = element.prop('name');
             let value = element.val() || '';
             this.setData(name, value);
@@ -154,30 +154,30 @@ namespace Pandyle {
             }
         }
 
-        private onChange_select(element:JQuery<HTMLElement>){
+        private onChange_select(element: JQuery<HTMLElement>) {
             let name = element.prop('name');
             let value = element.val();
             this.setData(name, value);
         }
 
-        private initName(name:string) {
+        private initName(name: string) {
             name.split('.').reduce((obj, current) => {
-                if(obj[current]){
+                if (obj[current]) {
                     return obj[current];
-                }else{
+                } else {
                     obj[current] = {};
                     return obj[current];
                 }
             }, this._data);
         }
 
-        private getDataByName(name:string){
+        private getDataByName(name: string) {
             return name.split('.').reduce((obj, current) => {
                 return obj[current];
             }, this._data);
         }
 
-        private setData(name:string, value:any){
+        private setData(name: string, value: any) {
             let nodes = name.split('.');
             let property = nodes.pop();
             let data = nodes.reduce((obj, current) => {
@@ -186,9 +186,9 @@ namespace Pandyle {
             data[property] = value;
         }
 
-        private updateDom(element:JQuery<HTMLElement>, value:any){
+        private updateDom(element: JQuery<HTMLElement>, value: any) {
             let tag = element.prop('tagName');
-            switch(tag){
+            switch (tag) {
                 case 'INPUT':
                     this.updateDom_input(element, value);
                     break;
@@ -203,9 +203,9 @@ namespace Pandyle {
             }
         }
 
-        private updateDom_input(element:JQuery<HTMLElement>, value:any){
+        private updateDom_input(element: JQuery<HTMLElement>, value: any) {
             let type = element.prop('type');
-            switch(type){
+            switch (type) {
                 case 'radio':
                     this.updateDom_radio(element, value);
                     break;
@@ -218,33 +218,33 @@ namespace Pandyle {
             }
         }
 
-        private updateDom_radio(element:JQuery<HTMLElement>, value:any){
+        private updateDom_radio(element: JQuery<HTMLElement>, value: any) {
             element.each((index, ele) => {
                 let target = $(ele);
-                if(target.val() == value){
+                if (target.val() == value) {
                     target.prop('checked', 'checked');
-                }else{
+                } else {
                     target.prop('checked', false);
                 }
             })
         }
 
-        private updateDom_check(element:JQuery<HTMLElement>, value:any[]){
+        private updateDom_check(element: JQuery<HTMLElement>, value: any[]) {
             element.each((index, ele) => {
                 let target = $(ele);
-                if(value.indexOf(target.val()) > -1){
+                if (value.indexOf(target.val()) > -1) {
                     target.prop('checked', 'checked');
-                }else{
+                } else {
                     target.prop('checked', false);
                 }
             })
         }
 
-        private updateDom_normal(element:JQuery<HTMLElement>, value:any){
+        private updateDom_normal(element: JQuery<HTMLElement>, value: any) {
             element.val(value);
         }
 
-        private updateDom_select(element:JQuery<HTMLElement>, value:any){
+        private updateDom_select(element: JQuery<HTMLElement>, value: any) {
             element.val(value);
         }
     }

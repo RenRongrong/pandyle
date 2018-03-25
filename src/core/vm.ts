@@ -62,7 +62,10 @@ namespace Pandyle {
             }
         }
 
-        public get(param: any) {
+        public get(param?: any) {
+            if(!param){
+                return $.extend({}, this._data);
+            }
             switch ($.type(param)) {
                 case 'array':
                     return param.map(value => this.get(value));
@@ -173,7 +176,6 @@ namespace Pandyle {
                 let divided = this.dividePipe(expression);
                 let property = divided.property;
                 let method = divided.method;
-                let nodes = property.split('.');
                 let target: any = this.calcu(property, element, data);
                 if (method) {
                     target = this.convert(method, target);
@@ -208,9 +210,14 @@ namespace Pandyle {
         private renderEach(element: JQuery<HTMLElement>, data: any, parentProperty) {
             let $this = this;
             if (element.attr('p-each')) {
-                let property = element.attr('p-each').replace(/\s/g, '');
-                let nodes = property.split('.');
+                let expression = element.attr('p-each').replace(/\s/g, '');
+                let divided = this.dividePipe(expression);
+                let property = divided.property;
+                let method = divided.method;
                 let target: any[] = this.calcu(property, element, data);
+                if(method){
+                    target = this.filter(method, target);
+                }
                 if (!element.data('pattern')) {
                     element.data('pattern', element.html());
                     this.setRelation(property, element, parentProperty);
@@ -230,7 +237,7 @@ namespace Pandyle {
                     }
                     let newChildren = children.clone(true, true);
                     element.append(newChildren);
-                    $this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'), alias);
+                    $this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'), $.extend({index:{data: i, property: '@index'}},alias));
                     let j = i + 1;
                     f(j);
                 }
@@ -343,7 +350,7 @@ namespace Pandyle {
                         else if (/\(.*\)/.test(current2)) {
                             let params = current2.replace(/\((.*)\)/, '$1').replace(/\s/, '').split(',');
                             let computedParams = params.map(p => {
-                                if (/^[A-Za-z_\$].*$/.test(p)) {
+                                if (/^[A-Za-z_\$\@].*$/.test(p)) {
                                     return this.calcu(p, element, data);
                                 }
                                 else {
@@ -440,6 +447,13 @@ namespace Pandyle {
                 }
                 return this._converters[method](data);
             }
+        }
+
+        private filter(method:string, data:any[]){
+            if(!hasSuffix(method, 'Filter')){
+                method += 'Filter';
+            }
+            return this._filters[method](data);
         }
 
         public register(name: string, value: any) {

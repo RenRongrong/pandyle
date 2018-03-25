@@ -24,7 +24,7 @@
         <p>{{price}}</p>
         <div p-each="tags">
             <p>
-                <span>{{@self}}</span>:<span>{{@root.title}}</span>
+                <span>{{add(@index)}}:{{@self}}:{{@root.title}}</span>
             </p>
         </div>
         <p class="local">{{@window.uid}}</p>

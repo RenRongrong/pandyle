@@ -31,7 +31,7 @@ declare namespace Pandyle {
         private _relations;
         private _root;
         constructor(element: JQuery<HTMLElement>);
-        readonly data: any;
+        data(): any;
         set(data: any): void;
         private initData();
         private initData_input(element);
@@ -68,7 +68,7 @@ declare namespace Pandyle {
         private _defaultAlias;
         constructor(element: JQuery<HTMLElement>, data: T, autoRun?: boolean);
         set(newData: any): void;
-        get(param: any): any;
+        get(param?: any): any;
         run(): void;
         render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string, alias?: any): void;
         private renderSingle(ele, data, parentProperty, alias?);
@@ -91,6 +91,7 @@ declare namespace Pandyle {
         private getMethod(name);
         private dividePipe(expression);
         private convert(method, data);
+        private filter(method, data);
         register(name: string, value: any): void;
     }
 }
