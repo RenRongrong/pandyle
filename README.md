@@ -111,7 +111,50 @@ pandyle由VM管理数据和模板之间的数据绑定。
             }
         </script>
 * 使用p-bind进行属性绑定
+
+    使用p-bind对元素的属性进行绑定，多个属性之间使用^分隔。属性名称与属性值之间使用英文冒号:分隔，属性值里面使用{{}}进行文本插值绑定。
+
+        <img p-bind="class:round {{myClass}} ^ src:{{mySrc}}">
+        <!-- 渲染后是<img class="round border" src="../avatar.jpg"> -->
+        <style>
+            .round{
+                border-radius:50%;
+                width:100px;
+                height:100px;
+            }
+            .border{
+                border:2px solid red;
+            }
+        </style>
+        <script>
+            $('img').vm({
+                myClass: 'border',
+                mySrc: 'avatar.jpg'
+            })
+        </script>
 * 使用p-each进行循环操作
+
+    对一个元素使用p-each绑定一个数组，它的子元素会根据数组的内容进行循环。循环是在p-each元素的内部进行的，p-each元素本身不会改变
+
+        <div p-each="list">
+            <p>{{name}}</p>
+        </div>
+        <!-- 渲染后是
+        <div p-each="list">
+            <p>张三</p>
+            <p>李四</p>
+        </div>
+        -->
+        <script>
+            var data = {
+                list: [
+                    {name: '张三'},
+                    {name: '李四'}
+                ]
+            };
+            $('div').vm(data);
+        </script>
+
 * 使用p-if进行条件判断
 
 *代码示例：模板语法*

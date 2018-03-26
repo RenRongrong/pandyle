@@ -9,15 +9,25 @@
 </head>
 
 <body>
-    <div>显示处理过的message属性：{{foo(message)}}</div>
+    <div p-each="list">
+        <p>{{name}}</p>
+    </div>
+    <!-- 渲染后是
+    <div p-each="list">
+        <p>张三</p>
+        <p>李四</p>
+    </div>
+    循环是在p-each元素的内部进行的，p-each元素本身不会改变
+    -->
     <script>
-        $('div').vm({
-            message: 'hello world'
-        });
-
-        function foo(s) {
-            return s + ' ha ha!';
-        }
+        var data = {
+            list: [{
+                name: '张三'
+            }, {
+                name: '李四'
+            }]
+        };
+        $('div').vm(data);
     </script>
 </body>
 
