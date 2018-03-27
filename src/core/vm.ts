@@ -178,7 +178,7 @@ namespace Pandyle {
                 let method = divided.method;
                 let target: any = this.calcu(property, element, data);
                 if (method) {
-                    target = this.convert(method, target);
+                    target = this.convert(method, $.extend({}, target));
                 }
                 let fullProp = property;
                 if (parentProperty !== '') {

@@ -522,7 +522,7 @@ var Pandyle;
                 var method = divided.method;
                 var target = this.calcu(property, element, data);
                 if (method) {
-                    target = this.convert(method, target);
+                    target = this.convert(method, $.extend({}, target));
                 }
                 var fullProp = property;
                 if (parentProperty !== '') {

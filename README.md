@@ -1,7 +1,6 @@
 # pandyle
-**write less, do more**
 
-pandyle是一个基于jquery的MVVM框架。它提供了模板和组件的功能。pandyle遵循jquery的宗旨，主要关注点在于两字——**简单**，它的大小只有4.8kb（压缩后），易学易用，将尽可能减少你书写的代码量，并且更符合传统的网页构建方式。
+pandyle是一个基于jquery的MVVM框架。它提供了模板和组件的功能。pandyle秉承jquery -- **write less, do more** 设计理念，主要关注点即在于**简单**，它的大小只有4.8kb（压缩后），易学易用，努力减少你书写的代码量，并且更贴合传统的jquery的书写方式。
 
 ## 使用方法
 
@@ -155,21 +154,108 @@ pandyle由VM管理数据和模板之间的数据绑定。
             $('div').vm(data);
         </script>
 
+    在p-each下，可以使用@self指代循环的对象本身，使用@index指代当前对象的索引值。
+
+        <div p-each="list">
+            <p>{{@index}}: {{@self}}</p>
+        </div>
+        <!-- 渲染后是
+        <div p-each="list">
+            <p>0: 张三</p>
+            <p>1: 李四</p>
+        </div>
+        -->
+        <script>
+            var data = {
+                list: [
+                    '张三',
+                    '李四'
+                ]
+            };
+            $('div').vm(data);
+        </script>
+
 * 使用p-if进行条件判断
 
-*代码示例：模板语法*
+    使用p-if绑定一个布尔值，当这个布尔值为真时，p-if所在的元素将显示出来，否则将隐藏。
 
-    <div class="main">
-        <p>user ID: {{id}}</p>
-        <p>user Name: {{name}}</p>
-        <p p-if="show">show it!</p>
-        <p>user Hobbies:</p>
-        <div p-each="hobbies">
-            <div>
-                <p>{{hobby_name}}</p>
-                <p p-bind="class:{{hobby_type}}">{{hobby_type}</p>
+        <div p-if="{{show}}">hello world</div>
+        <button onclick="toggle()">切换</button>
+
+        <script>
+            var vm = $('div').vm({show: true});
+            function toggle(){
+                var isShow = vm.get('show');
+                vm.set({
+                    show: !isShow
+                })
+            }
+        </script>
+
+* 使用p-context设置上下文
+
+    在pandyle中，可以使用p-context为元素设置数据上下文。该元素及其子元素的数据绑定将按照上下文进行解析。
+
+        <div p-context="info">
+            <p>{{name}}</p>
+            <p>{{age}}</p>
+        </div>
+
+        <script>
+            $('div').vm({
+                message: 'hello world',
+                info: {
+                    name: '张三',
+                    age: 29
+                }
+            })
+        </script>
+
+    在p-context中，可以使用转换器对数据上下文进行转换。转换器使用管道语法data | converter书写，converter是一个转换器函数，该函数接收一个输入参数，并返回一个对象。在使用管道之前，需要先将converter注册到vm的转换器集合中。
+
+        <div p-context="info | test">
+            <p>{{name}}</p>
+            <p>{{age}}</p>
+        </div>
+
+        <script>
+            var vm = $('div').vm({
+                message: 'hello world',
+                info: {
+                    name: '张三',
+                    age: 29
+                }
+            }, false);  //在vm函数中将autoRun设置为false，以阻止渲染。
+            vm.register('testConverter', function(data){  //注册转换器testConverter（转换器的命名必须以Converter结尾）
+                data.name = '李四';
+                data.age++;
+                return data;
+            })
+            vm.run();  //调用vm.run()进行渲染
+        </script>
+
+    还可以使用直接对象转换的方式对上下文进行转换。格式为data | {...}。
+
+        <div class="main">
+            <div p-context="info | {myName: name, myAge: age, msg: 'hello'}">
+                <p>{{myName}}</p>
+                <p>{{myAge}}</p>
+                <p>{{msg}}</p>
+            </div>
+            <div p-context="|{myName: '李四', myAge: 30}">
+                <p>{{myName}}</p>
+                <p>{{myAge}}</p>
             </div>
         </div>
-    </div>
+
+        <script>
+            $('.main').vm({
+                info: {
+                    name: '张三',
+                    age: 29
+                }
+            });
+        </script>
+    
 
 
