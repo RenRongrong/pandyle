@@ -10,7 +10,7 @@
 
 <body>
     <div p-each="list">
-        <p>{{name}}</p>
+        <a p-bind="href:http://localhost:8080/test/{{class}} ">{{name}}</a>
     </div>
     <!-- 渲染后是
     <div p-each="list">
@@ -22,9 +22,11 @@
     <script>
         var data = {
             list: [{
-                name: '张三'
+                name: '张三',
+                class: 'a'
             }, {
-                name: '李四'
+                name: '李四',
+                class: 'b'
             }]
         };
         $('div').vm(data);

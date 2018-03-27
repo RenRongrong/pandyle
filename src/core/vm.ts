@@ -63,7 +63,7 @@ namespace Pandyle {
         }
 
         public get(param?: any) {
-            if(!param){
+            if (!param) {
                 return $.extend({}, this._data);
             }
             switch ($.type(param)) {
@@ -128,9 +128,9 @@ namespace Pandyle {
             if ($(ele).attr('p-bind')) {
                 let binds = $(ele).attr('p-bind').split('^');
                 binds.forEach((bindInfo, index) => {
-                    let array = bindInfo.split(':');
-                    let attr = array[0].replace(/\s/g, '');
-                    let value = array[1].replace(/\s*$/, '');
+                    let array = bindInfo.match(/^\s*([\w-]+)\s*:\s*(.*)$/);
+                    let attr = array[1];
+                    let value = array[2].replace(/\s*$/, '');
                     $(ele).data('binding')[attr] = {
                         pattern: value,
                         related: false
@@ -215,7 +215,7 @@ namespace Pandyle {
                 let property = divided.property;
                 let method = divided.method;
                 let target: any[] = this.calcu(property, element, data);
-                if(method){
+                if (method) {
                     target = this.filter(method, target);
                 }
                 if (!element.data('pattern')) {
@@ -237,7 +237,7 @@ namespace Pandyle {
                     }
                     let newChildren = children.clone(true, true);
                     element.append(newChildren);
-                    $this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'), $.extend({index:{data: i, property: '@index'}},alias));
+                    $this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'), $.extend({ index: { data: i, property: '@index' } }, alias));
                     let j = i + 1;
                     f(j);
                 }
@@ -436,7 +436,7 @@ namespace Pandyle {
                         pre[pair[0]] = pair[1].split('.').reduce((predata, property) => {
                             return predata[property];
                         }, data);
-                    }else{
+                    } else {
                         pre[pair[0]] = new Function('return ' + pair[1])();
                     }
                     return pre;
@@ -449,8 +449,8 @@ namespace Pandyle {
             }
         }
 
-        private filter(method:string, data:any[]){
-            if(!hasSuffix(method, 'Filter')){
+        private filter(method: string, data: any[]) {
+            if (!hasSuffix(method, 'Filter')) {
                 method += 'Filter';
             }
             return this._filters[method](data);

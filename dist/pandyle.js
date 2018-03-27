@@ -473,9 +473,9 @@ var Pandyle;
             if ($(ele).attr('p-bind')) {
                 var binds = $(ele).attr('p-bind').split('^');
                 binds.forEach(function (bindInfo, index) {
-                    var array = bindInfo.split(':');
-                    var attr = array[0].replace(/\s/g, '');
-                    var value = array[1].replace(/\s*$/, '');
+                    var array = bindInfo.match(/^\s*([\w-]+)\s*:\s*(.*)$/);
+                    var attr = array[1];
+                    var value = array[2].replace(/\s*$/, '');
                     $(ele).data('binding')[attr] = {
                         pattern: value,
                         related: false
