@@ -9,25 +9,48 @@
 </head>
 
 <body>
-    <div class="main">
-        <div p-context="info | {myName: name, myAge: age, msg: 'hello'}">
-            <p>{{myName}}</p>
-            <p>{{myAge}}</p>
-            <p>{{msg}}</p>
-        </div>
-        <div p-context="|{myName: '李四', myAge: 30}">
-            <p>{{myName}}</p>
-            <p>{{myAge}}</p>
-        </div>
+    <div>
+        <p>
+            姓名： <input type="text" name="name">
+        </p>
+        <p>
+            性别：
+            <label>
+                男
+                <input type="radio" name="sex" value="1">
+            </label>
+            <label>
+                女
+                <input type="radio" name="sex" value="2">
+            </label>
+        </p>
+        <p>
+            职位：
+            <select name="job">
+                <option value="0">请选择</option>
+                <option value="1">码农</option>
+                <option value="2">设计</option>
+                <option value="3">PM</option>
+            </select>
+        </p>
+        <button onclick="output()">输出</button>
+        <button onclick="reset()">重置</button>
     </div>
 
     <script>
-        $('.main').vm({
-            info: {
-                name: '张三',
-                age: 29
-            }
-        });
+        var inputs = $('div').inputs();
+
+        function output() {
+            console.log(inputs.data());
+        }
+
+        function reset() {
+            inputs.set({
+                name: '',
+                sex: '',
+                job: 0
+            })
+        }
     </script>
 </body>
 

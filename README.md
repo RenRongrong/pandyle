@@ -1,6 +1,15 @@
 # pandyle
 
-pandyle是一个基于jquery的MVVM框架。它提供了模板和组件的功能。pandyle秉承jquery -- **write less, do more** 设计理念，主要关注点即在于**简单**，它的大小只有4.8kb（压缩后），易学易用，努力减少你书写的代码量，并且更贴合传统的jquery的书写方式。
+pandyle是一个基于jquery的MVVM库。它提供了基本的模板和组件功能。pandyle秉承jquery -- **write less, do more** 的设计理念，主要关注点即在于**简单**，它的大小只有4.8kb（压缩后），易学易用，努力减少你书写的代码量，并且更贴合传统的jquery的书写方式。
+
+## 为什么要写这个库
+
+在angular、vue、react等mvvm框架流行的今天，为什么要基于jquery写这个库呢？主要有以下原因：
+
+1. 好玩
+2. 我爱jquery!
+
+φ(゜▽゜*)♪
 
 ## 使用方法
 
@@ -257,5 +266,56 @@ pandyle由VM管理数据和模板之间的数据绑定。
             });
         </script>
     
+## 关于Inputs
 
+pandyle使用Inputs类来管理用户的输入。
+
+* 创建：使用$(...).inputs()来创建Inputs类的实例，该实例获取指定元素下面所有表单元素的输入数据（表单元素不需要包含在`<form>`元素内）。Inputs拥有以下两个方法：
+
+1. data()：将表单元素的数据映射为对象并返回。
+2. set(data): 设置指定字段的值并更新对应的表单元素。
+
+        <div>
+            <p>
+                姓名： <input type="text" name="name">
+            </p>
+            <p>
+                性别： 
+                <label>
+                    男
+                    <input type="radio" name="sex" value="1">
+                </label>
+                <label>
+                    女
+                    <input type="radio" name="sex" value="2">
+                </label>
+            </p>
+            <p>
+                职位：
+                <select name="marriage">
+                    <option value="0">请选择</option>
+                    <option value="1">码农</option>
+                    <option value="2">设计</option>
+                    <option value="3">PM</option>
+                </select>
+            </p>
+            <button onclick="output()">输出</button>
+            <button onclick="reset()">重置</button>
+        </div>
+
+        <script>
+            var inputs = $('div').inputs();
+
+            function output(){
+                console.log(inputs.data());
+            }
+
+            function reset(){
+                inputs.set({
+                    name: '',
+                    sex: '',
+                    job: 0
+                })
+            }
+        </script>
 
