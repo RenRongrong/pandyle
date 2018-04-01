@@ -18,8 +18,8 @@ namespace Pandyle {
     }
 
     export function loadComponent(ele: HTMLElement) {
-        let path = Pandyle._config.comPath || '/components/{name}.html';
         let name = $(ele).attr('p-com');
+        name = $.trim(name);
         if (hasComponent(name)) {
             $(ele).html(getComponent(name));
         } else {
@@ -27,7 +27,16 @@ namespace Pandyle {
             if (/^@.*/.test(name)) {
                 url = name;
             } else {
-                url = path.replace(/{.*}/g, name);
+                let fullpath = name.split('.');
+                let path = Pandyle._config.comPath
+                    ? Pandyle._config.comPath.default || '/comments/{name}.html'
+                    : '/comments/{name}.html';
+                if (fullpath.length > 1) {
+                    path = Pandyle._config.comPath[fullpath[0]];
+                    url = path.replace(/{.*}/g, fullpath[1]);
+                } else {
+                    url = path.replace(/{.*}/g, name);
+                }
             }
             $.ajax({
                 url: url,

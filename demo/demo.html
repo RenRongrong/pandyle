@@ -9,48 +9,18 @@
 </head>
 
 <body>
-    <div>
-        <p>
-            姓名： <input type="text" name="name">
-        </p>
-        <p>
-            性别：
-            <label>
-                男
-                <input type="radio" name="sex" value="1">
-            </label>
-            <label>
-                女
-                <input type="radio" name="sex" value="2">
-            </label>
-        </p>
-        <p>
-            职位：
-            <select name="job">
-                <option value="0">请选择</option>
-                <option value="1">码农</option>
-                <option value="2">设计</option>
-                <option value="3">PM</option>
-            </select>
-        </p>
-        <button onclick="output()">输出</button>
-        <button onclick="reset()">重置</button>
+    <div class="main">
+        <c p-com="demo.book" p-context="|{title: '三国演义', author: '罗贯中', price: 150}">
     </div>
 
     <script>
-        var inputs = $('div').inputs();
-
-        function output() {
-            console.log(inputs.data());
-        }
-
-        function reset() {
-            inputs.set({
-                name: '',
-                sex: '',
-                job: 0
-            })
-        }
+        //使用Pandyle.config来设置comPath
+        Pandyle.config({
+            comPath: {
+                demo: '/demo/components/{name}.html'
+            }
+        });
+        $('.main').vm();
     </script>
 </body>
 

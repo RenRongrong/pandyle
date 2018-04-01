@@ -1,15 +1,10 @@
 # pandyle
 
-pandyle是一个基于jquery的MVVM库。它提供了基本的模板和组件功能。pandyle秉承jquery -- **write less, do more** 的设计理念，主要关注点即在于**简单**，它的大小只有4.8kb（压缩后），易学易用，努力减少你书写的代码量，并且更贴合传统的jquery的书写方式。
+pandyle是一个基于jquery的MVVM库。它为jquery提供了基本的模板和组件功能。pandyle秉承jquery -- **write less, do more** 的设计理念，主要关注点即在于**简单**，它的大小只有5kb（压缩后），易学易用，努力减少你书写的代码量，并且更贴合传统的jquery的书写方式。
 
 ## 为什么要写这个库
 
-在angular、vue、react等mvvm框架流行的今天，为什么要基于jquery写这个库呢？主要有以下原因：
-
-1. 好玩
-2. 我爱jquery!
-
-φ(゜▽゜*)♪
+现在已经有angular、react、vue等优秀的MVVM框架了，但是**我爱jquery**！所以就想试着为jquery写一个mvvm库来实现数据与视图的分离以及组件化开发的能力。如果你也喜欢jquery，可以来尝试一下这个库。欢迎你的issue和PR！
 
 ## 使用方法
 
@@ -41,7 +36,7 @@ pandyle是一个基于jquery的MVVM库。它提供了基本的模板和组件功
 
     </html>
 
-### **关于VM**
+### **VM类**
 
 pandyle由VM管理数据和模板之间的数据绑定。
 
@@ -266,11 +261,13 @@ pandyle由VM管理数据和模板之间的数据绑定。
             });
         </script>
     
-## 关于Inputs
+## Inputs类
 
 pandyle使用Inputs类来管理用户的输入。
 
-* 创建：使用$(...).inputs()来创建Inputs类的实例，该实例获取指定元素下面所有表单元素的输入数据（表单元素不需要包含在`<form>`元素内）。Inputs拥有以下两个方法：
+* 创建：使用$(...).inputs()来创建Inputs类的实例，该实例获取指定元素下面所有表单元素的输入数据（表单元素不需要包含在`<form>`元素内）。也可使用`new Pandyle.Inputs(element)`来创建实例。
+
+* Inputs拥有以下两个方法：
 
 1. data()：将表单元素的数据映射为对象并返回。
 2. set(data): 设置指定字段的值并更新对应的表单元素。
@@ -308,6 +305,7 @@ pandyle使用Inputs类来管理用户的输入。
 
             function output(){
                 console.log(inputs.data());
+                
             }
 
             function reset(){
@@ -319,3 +317,30 @@ pandyle使用Inputs类来管理用户的输入。
             }
         </script>
 
+## 组件
+
+pandyle使用c标签提供组件功能。pandyle中的组件实质就是一段html代码，c标签中使用p-com属性来指定组件的名称。VM会根据p-com中指定的名称和Pandyle配置中的comPath字段去加载对应的组件并渲染。如果没有设置comPath，VM会在默认的`/components`文件夹中寻找对应名称的组件。
+
+*示例代码：/index.html中：*
+
+        <div class="main">
+            <c p-com="demo.book" p-context="|{title: '三国演义', author: '罗贯中', price: 150}">
+        </div>
+
+        <script>
+            //使用Pandyle.config来设置comPath
+            Pandyle.config({
+                comPath:{
+                    demo: '/demo/components/{name}.html'
+                }               
+            });
+            $('.main').vm();
+        </script>
+
+*示例代码：/demo/components/book.html文件夹中*:
+
+        <div>
+            <p>书名：{{title}}</p>
+            <p>作者：{{author}}</p>
+            <p>价格：{{price}}</p>
+        </div>

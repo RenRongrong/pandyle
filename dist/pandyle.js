@@ -54,8 +54,8 @@ var Pandyle;
     }
     Pandyle.getComponent = getComponent;
     function loadComponent(ele) {
-        var path = Pandyle._config.comPath || '/components/{name}.html';
         var name = $(ele).attr('p-com');
+        name = $.trim(name);
         if (hasComponent(name)) {
             $(ele).html(getComponent(name));
         }
@@ -65,7 +65,17 @@ var Pandyle;
                 url = name;
             }
             else {
-                url = path.replace(/{.*}/g, name);
+                var fullpath = name.split('.');
+                var path = Pandyle._config.comPath
+                    ? Pandyle._config.comPath.default || '/comments/{name}.html'
+                    : '/comments/{name}.html';
+                if (fullpath.length > 1) {
+                    path = Pandyle._config.comPath[fullpath[0]];
+                    url = path.replace(/{.*}/g, fullpath[1]);
+                }
+                else {
+                    url = path.replace(/{.*}/g, name);
+                }
             }
             $.ajax({
                 url: url,
