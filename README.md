@@ -118,7 +118,7 @@ pandyle由VM管理数据和模板之间的数据绑定。
     使用p-bind对元素的属性进行绑定，多个属性之间使用^分隔。属性名称与属性值之间使用英文冒号:分隔，属性值里面使用{{}}进行文本插值绑定。
 
         <img p-bind="class:round {{myClass}} ^ src:{{mySrc}}">
-        <!-- 渲染后是<img class="round border" src="../avatar.jpg"> -->
+        <!-- 渲染后是<img class="round border" src="avatar.jpg"> -->
         <style>
             .round{
                 border-radius:50%;
