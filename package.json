@@ -1,22 +1,19 @@
 {
     "name": "pandyle",
-    "version": "0.0.4",
+    "version": "0.1.0",
     "author": {
         "name": "Ren Rongrong"
     },
     "keywords": [
-        "flex",
-        "layout",
-        "布局",
-        "弹性"
+        "jquery",
+        "mvvm"
     ],
     "license": "MIT",
     "homepage": "https://github.com/RenRongrong/pandyle",
-    "description": "基于flex布局的样式库",
+    "description": "为jQuery编写的MVVM库",
     "dependencies": {
         "@types/jquery": "^3.2.16",
-        "jquery": "^3.2.1",
-        "whatwg-fetch": "^2.0.3"
+        "jquery": "^3.2.1"
     },
     "repository": {
         "type": "git",
