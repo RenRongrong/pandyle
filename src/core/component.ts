@@ -29,7 +29,7 @@ namespace Pandyle {
             } else {
                 let fullpath = name.split('.');
                 let path = Pandyle._config.comPath
-                    ? Pandyle._config.comPath.default || '/comments/{name}.html'
+                    ? Pandyle._config.comPath.default || '/components/{name}.html'
                     : '/comments/{name}.html';
                 if (fullpath.length > 1) {
                     path = Pandyle._config.comPath[fullpath[0]];
