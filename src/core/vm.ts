@@ -194,16 +194,12 @@ namespace Pandyle {
             let $this = this;
             let element = $(ele);
             if (element.children().length > 0) {
-                let f = function (child: JQuery<HTMLElement>, alias: any) {
+                let alias = element.data('alias');
+                element.children().each((index, item) => {
+                    let child = $(item);
                     child.data('context', data);
                     $this.renderSingle(child[0], data, parentProperty, $.extend({}, alias));
-                    if (child.next().length > 0) {
-                        f(child.next(), alias);
-                    }
-                }
-                let first = element.children().first();
-                let alias = element.data('alias');
-                f(first, alias);
+                })
             }
         }
 
@@ -231,17 +227,11 @@ namespace Pandyle {
                 let children = $('<div />').html(htmlText).children();
                 element.children().remove();
 
-                let f = function (i: number) {
-                    if (i >= target.length) {
-                        return;
-                    }
+                target.forEach((value, index) => {
                     let newChildren = children.clone(true, true);
                     element.append(newChildren);
-                    $this.render(newChildren, target[i], fullProp.concat('[', i.toString(), ']'), $.extend({ index: { data: i, property: '@index' } }, alias));
-                    let j = i + 1;
-                    f(j);
-                }
-                f(0);
+                    $this.render(newChildren, value, fullProp.concat('[', index.toString(), ']'), $.extend({index: {data: index, property: '@index'}}, alias));
+                })
             }
         }
 
@@ -252,7 +242,7 @@ namespace Pandyle {
                 text = element.data('binding').text.pattern;
             }
             let result = this.convertFromPattern(element, 'text', text, data, parentProperty);
-            element.text(result);
+            element.html(result);
         }
 
         private convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty) {

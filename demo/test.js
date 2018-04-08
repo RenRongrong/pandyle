@@ -5,14 +5,18 @@ Pandyle.config({
         demo: '/demo/components/{name}.html'
     }
 })
+var honors = [];
+for (var i = 0; i < 100; i++) {
+    honors.push('test' + i);
+}
 $(document).ready(function() {
     var data = {
         id: 2,
         title: '百年孤独',
         author: {
-            name: '马尔克斯',
+            name: '<p>马尔克斯</p><p>加西亚</p>',
             nation: '哥伦比亚',
-            honors: ['作家', '文学家']
+            honors: honors
         },
         price: 89,
         tags: [
@@ -38,6 +42,7 @@ $(document).ready(function() {
             ]
         }
     }
+    var now = Date.now();
     vm = $('.temp').vm(data, false);
     vm.register('bookConverter', function(data) {
         return {
@@ -52,18 +57,26 @@ $(document).ready(function() {
         })
     })
     vm.run();
+    var then = Date.now();
+    console.log(then - now);
 })
 
 function setName() {
+    var honors2 = [];
+    for (var i = 0; i < 300; i++) {
+        honors2.push('测试' + i);
+    }
+    var now = Date.now();
     vm.set({
         next: {
             t: '水浒传',
             a: '施耐庵',
             p: 40
-        }
+        },
+        'author.honors': honors2
     });
-    foo();
-    foo2();
+    var then = Date.now();
+    console.log(then - now);
 }
 
 function add(n) {
