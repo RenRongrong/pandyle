@@ -84,13 +84,15 @@
         }]
 
         Pandyle.config({
-            comPath: '/demo/components/{name}.html'
+            comPath: {
+                default: '/demo/components/{name}.html'
+            }
         })
 
         $('.main').vm({});
 
         function test() {
-            console.log($('.main').inputs().data);
+            console.log($('.main').inputs().data());
         }
 
         function update() {

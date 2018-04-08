@@ -68,7 +68,7 @@ var Pandyle;
                 var fullpath = name.split('.');
                 var path = Pandyle._config.comPath
                     ? Pandyle._config.comPath.default || '/components/{name}.html'
-                    : '/comments/{name}.html';
+                    : '/components/{name}.html';
                 if (fullpath.length > 1) {
                     path = Pandyle._config.comPath[fullpath[0]];
                     url = path.replace(/{.*}/g, fullpath[1]);
