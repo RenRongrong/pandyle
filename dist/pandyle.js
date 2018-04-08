@@ -67,7 +67,7 @@ var Pandyle;
             else {
                 var fullpath = name.split('.');
                 var path = Pandyle._config.comPath
-                    ? Pandyle._config.comPath.default || '/comments/{name}.html'
+                    ? Pandyle._config.comPath.default || '/components/{name}.html'
                     : '/comments/{name}.html';
                 if (fullpath.length > 1) {
                     path = Pandyle._config.comPath[fullpath[0]];
@@ -547,16 +547,12 @@ var Pandyle;
             var $this = this;
             var element = $(ele);
             if (element.children().length > 0) {
-                var f_1 = function (child, alias) {
+                var alias_1 = element.data('alias');
+                element.children().each(function (index, item) {
+                    var child = $(item);
                     child.data('context', data);
-                    $this.renderSingle(child[0], data, parentProperty, $.extend({}, alias));
-                    if (child.next().length > 0) {
-                        f_1(child.next(), alias);
-                    }
-                };
-                var first = element.children().first();
-                var alias = element.data('alias');
-                f_1(first, alias);
+                    $this.renderSingle(child[0], data, parentProperty, $.extend({}, alias_1));
+                });
             }
         };
         VM.prototype.renderEach = function (element, data, parentProperty) {
@@ -566,9 +562,9 @@ var Pandyle;
                 var divided = this.dividePipe(expression);
                 var property = divided.property;
                 var method = divided.method;
-                var target_1 = this.calcu(property, element, data);
+                var target = this.calcu(property, element, data);
                 if (method) {
-                    target_1 = this.filter(method, target_1);
+                    target = this.filter(method, target);
                 }
                 if (!element.data('pattern')) {
                     element.data('pattern', element.html());
@@ -580,21 +576,15 @@ var Pandyle;
                     fullProp_1 = parentProperty + '.' + property;
                 }
                 ;
-                var alias_1 = element.data('alias');
+                var alias_2 = element.data('alias');
                 var htmlText = element.data('pattern');
                 var children_1 = $('<div />').html(htmlText).children();
                 element.children().remove();
-                var f_2 = function (i) {
-                    if (i >= target_1.length) {
-                        return;
-                    }
+                target.forEach(function (value, index) {
                     var newChildren = children_1.clone(true, true);
                     element.append(newChildren);
-                    $this.render(newChildren, target_1[i], fullProp_1.concat('[', i.toString(), ']'), $.extend({ index: { data: i, property: '@index' } }, alias_1));
-                    var j = i + 1;
-                    f_2(j);
-                };
-                f_2(0);
+                    $this.render(newChildren, value, fullProp_1.concat('[', index.toString(), ']'), $.extend({ index: { data: index, property: '@index' } }, alias_2));
+                });
             }
         };
         VM.prototype.renderText = function (element, parentProperty) {
@@ -604,7 +594,7 @@ var Pandyle;
                 text = element.data('binding').text.pattern;
             }
             var result = this.convertFromPattern(element, 'text', text, data, parentProperty);
-            element.text(result);
+            element.html(result);
         };
         VM.prototype.convertFromPattern = function (element, prop, pattern, data, parentProperty) {
             var _this = this;
