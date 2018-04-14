@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "es3",
         "outFile": "dist/pandyle.js",
         "sourceMap": true,
         "declaration": true,

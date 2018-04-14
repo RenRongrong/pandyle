@@ -1,7 +1,6 @@
 var uid = 17;
 Pandyle.config({
     comPath: {
-        default: '/components/{name}.html',
         demo: '/demo/components/{name}.html'
     }
 })
