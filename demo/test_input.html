@@ -8,12 +8,12 @@
     <title>Document</title>
     <!-- <script src="../node_modules/jquery/dist/jquery.min.js"></script> -->
     <script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="../dist/pandyle.min.js"></script>
+    <script src="../dist/pandyle.js"></script>
 </head>
 
 <body>
     <div class="main">
-        <input type="hidden" name="id" value="123456">
+        <!-- <input type="hidden" name="id" value="123456">
         <input type="hidden" name="uid" value="17">
         <p>
             <span>姓名：</span><input type="text" name="base.name">
@@ -46,11 +46,11 @@
                 <option value="2">vip用户</option>
                 <option value="3">超级vip用户</option>
             </select>
-        </p>
+        </p> -->
         <div p-each="@window.radios">
             <p>
                 <span>{{name}}：</span>
-                <c p-com="radio" p-context="@self"></c>
+                <div p-com="radio"></div>
             </p>
         </div>
         <button onclick="test()">test</button>
@@ -86,7 +86,7 @@
 
         Pandyle.config({
             comPath: {
-                'default': '/demo/components/{name}.html'
+                'Default': '/demo/components/{name}.html'
             }
         })
 

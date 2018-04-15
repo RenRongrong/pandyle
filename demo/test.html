@@ -14,7 +14,7 @@
 
 <body>
     <div class="temp">
-        <p>{{title}}</p>
+        <span style="display: block" p-if="'{{title}}' == '书本'">{{title}}</span>
         <div p-context="author">
             <p>{{name}}</p>
             <p>{{nation}}</p>
@@ -24,14 +24,12 @@
         </div>
         <p>{{price}}</p>
         <div p-each="tags">
-            <p>
-                <span>{{add(@index)}}:{{@self}}:{{@root.title}}</span>
-            </p>
+            <p p-if="{{@index}} % 2 == 0">{{add(@index)}}:{{@self}}:{{@root.title}}</p>
         </div>
         <p class="local">{{@window.uid}}</p>
-        <c p-com="demo.book" p-context="|{title: '三国', author: '罗', price: 150}"></c>
-        <c p-com="demo.radio" p-context="list"></c>
-        <c p-com="demo.radio" p-context="list"></c>
+        <div p-com="demo.book" p-context="|{title: '三国', author: '罗', price: 150}"></div>
+        <div p-com="demo.radio" p-context="list"></div>
+        <div p-com="demo.radio" p-context="list"></div>
     </div>
     <button onclick="setName()">click me</button>
 </body>

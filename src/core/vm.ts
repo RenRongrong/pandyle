@@ -106,7 +106,7 @@ namespace Pandyle {
             data = element.data('context');
             this.bindAttr(ele, parentProperty);
             this.bindIf(ele, parentProperty);
-            if (element[0].tagName === 'C') {
+            if (element.attr('p-com')) {
                 loadComponent(ele);
             }
             if (element.attr('p-context')) {
@@ -149,16 +149,16 @@ namespace Pandyle {
 
         private bindIf(ele: HTMLElement, parentProperty) {
             if ($(ele).attr('p-if')) {
-                $(ele).data('binding')['if'] = {
+                $(ele).data('binding')['If'] = {
                     pattern: $(ele).attr('p-if'),
                     related: false
                 };
                 $(ele).removeAttr('p-if');
             }
-            if ($(ele).data('binding')['if']) {
-                let expression: string = $(ele).data('binding')['if'].pattern;
+            if ($(ele).data('binding')['If']) {
+                let expression: string = $(ele).data('binding')['If'].pattern;
                 let data = $(ele).data('context');
-                let convertedExpression = this.convertFromPattern($(ele), 'if', expression, data, parentProperty);
+                let convertedExpression = this.convertFromPattern($(ele), 'If', expression, data, parentProperty);
                 let judge = new Function('return ' + convertedExpression);
                 if (judge()) {
                     $(ele).show();

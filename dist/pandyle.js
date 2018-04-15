@@ -91,7 +91,7 @@ var Pandyle;
                 return '';
             });
             text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, function ($0, $1) {
-                var style = $('<style></style>').html($1);
+                var style = '<style>' + $1 + '</style>';
                 $('head').append(style);
                 return '';
             });
@@ -544,7 +544,7 @@ var Pandyle;
             data = element.data('context');
             this.bindAttr(ele, parentProperty);
             this.bindIf(ele, parentProperty);
-            if (element[0].tagName === 'C') {
+            if (element.attr('p-com')) {
                 Pandyle.loadComponent(ele);
             }
             if (element.attr('p-context')) {
@@ -587,16 +587,16 @@ var Pandyle;
         };
         VM.prototype.bindIf = function (ele, parentProperty) {
             if ($(ele).attr('p-if')) {
-                $(ele).data('binding')['if'] = {
+                $(ele).data('binding')['If'] = {
                     pattern: $(ele).attr('p-if'),
                     related: false
                 };
                 $(ele).removeAttr('p-if');
             }
-            if ($(ele).data('binding')['if']) {
-                var expression = $(ele).data('binding')['if'].pattern;
+            if ($(ele).data('binding')['If']) {
+                var expression = $(ele).data('binding')['If'].pattern;
                 var data = $(ele).data('context');
-                var convertedExpression = this.convertFromPattern($(ele), 'if', expression, data, parentProperty);
+                var convertedExpression = this.convertFromPattern($(ele), 'If', expression, data, parentProperty);
                 var judge = new Function('return ' + convertedExpression);
                 if (judge()) {
                     $(ele).show();

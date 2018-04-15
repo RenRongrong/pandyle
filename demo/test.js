@@ -72,7 +72,8 @@ function setName() {
             a: '施耐庵',
             p: 40
         },
-        'author.honors': honors2
+        'author.honors': honors2,
+        title: '书本'
     });
     var then = Date.now();
     console.log(then - now);

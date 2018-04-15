@@ -53,7 +53,7 @@ namespace Pandyle {
                 return '';
             });
             text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, ($0, $1) => {
-                let style = $('<style></style>').html($1);
+                let style = '<style>' + $1 + '</style>';
                 $('head').append(style);
                 return '';
             });
