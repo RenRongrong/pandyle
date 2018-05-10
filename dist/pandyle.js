@@ -667,7 +667,7 @@ var Pandyle;
                 target.forEach(function (value, index) {
                     var newChildren = children_1.clone(true, true);
                     element.append(newChildren);
-                    $this.render(newChildren, value, fullProp_1.concat('[', index.toString(), ']'), $.extend({ index: { data: index, property: '@index' } }, alias_2));
+                    $this.render(newChildren, value, fullProp_1.concat('[', index.toString(), ']'), $.extend(alias_2, { index: { data: index, property: '@index' } }));
                 });
             }
         };

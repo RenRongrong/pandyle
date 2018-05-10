@@ -230,7 +230,7 @@ namespace Pandyle {
                 target.forEach((value, index) => {
                     let newChildren = children.clone(true, true);
                     element.append(newChildren);
-                    $this.render(newChildren, value, fullProp.concat('[', index.toString(), ']'), $.extend({index: {data: index, property: '@index'}}, alias));
+                    $this.render(newChildren, value, fullProp.concat('[', index.toString(), ']'), $.extend(alias, {index: {data: index, property: '@index'}}));
                 })
             }
         }
