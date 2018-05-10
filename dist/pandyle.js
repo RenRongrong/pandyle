@@ -155,39 +155,38 @@ var Pandyle;
                 var target = $(ele);
                 var tag = target.prop('tagName');
                 var name = target.prop('name');
+                var value = target.val() || '';
                 _this.initName(name);
                 switch (tag) {
                     case 'INPUT':
-                        _this.initData_input(target);
+                        _this.initData_input(target, name, value);
                         break;
                     case 'TEXTAREA':
-                        _this.initData_normal(target);
+                        _this.initData_normal(target, name, value);
                         break;
                     case 'SELECT':
-                        _this.initData_select(target);
+                        _this.initData_select(target, name, value);
                         break;
                     default:
                         break;
                 }
             });
         };
-        Inputs.prototype.initData_input = function (element) {
+        Inputs.prototype.initData_input = function (element, name, value) {
             var type = element.prop('type');
             switch (type) {
                 case 'radio':
-                    this.initData_radio(element);
+                    this.initData_radio(element, name, value);
                     break;
                 case 'checkbox':
-                    this.initData_check(element);
+                    this.initData_check(element, name, value);
                     break;
                 default:
-                    this.initData_normal(element);
+                    this.initData_normal(element, name, value);
                     break;
             }
         };
-        Inputs.prototype.initData_radio = function (element) {
-            var name = element.prop('name');
-            var value = element.val();
+        Inputs.prototype.initData_radio = function (element, name, value) {
             if ($.isEmptyObject(this.getDataByName(name))) {
                 this.setData(name, '');
             }
@@ -195,9 +194,7 @@ var Pandyle;
                 this.setData(name, value);
             }
         };
-        Inputs.prototype.initData_check = function (element) {
-            var name = element.prop('name');
-            var value = element.val();
+        Inputs.prototype.initData_check = function (element, name, value) {
             if ($.isEmptyObject(this.getDataByName(name))) {
                 this.setData(name, []);
             }
@@ -205,14 +202,10 @@ var Pandyle;
                 this.getDataByName(name).push(value);
             }
         };
-        Inputs.prototype.initData_normal = function (element) {
-            var name = element.prop('name');
-            var value = element.val();
+        Inputs.prototype.initData_normal = function (element, name, value) {
             this.setData(name, value);
         };
-        Inputs.prototype.initData_select = function (element) {
-            var name = element.prop('name');
-            var value = element.val() || '';
+        Inputs.prototype.initData_select = function (element, name, value) {
             this.setData(name, value);
         };
         Inputs.prototype.bindChange = function () {
@@ -220,47 +213,46 @@ var Pandyle;
             this._root.on('change', 'input,textarea,select', function (e) {
                 var ele = $(e.currentTarget);
                 var tagName = ele.prop('tagName');
+                var name = ele.prop('name');
+                var value = ele.val();
                 switch (tagName) {
                     case 'INPUT':
-                        _this.onChange_input(ele);
+                        _this.onChange_input(ele, name, value);
                         break;
                     case 'TEXTAREA':
-                        _this.onChange_normal(ele);
+                        _this.onChange_normal(ele, name, value);
                         break;
                     case 'SELECT':
-                        _this.onChange_select(ele);
+                        _this.onChange_select(ele, name, value);
                         break;
+                }
+                if (_this.callBack) {
+                    _this.callBack(name, value);
                 }
             });
         };
-        Inputs.prototype.onChange_normal = function (element) {
-            var name = element.prop('name');
-            var value = element.val();
+        Inputs.prototype.onChange_normal = function (element, name, value) {
             this.setData(name, value);
         };
-        Inputs.prototype.onChange_input = function (element) {
+        Inputs.prototype.onChange_input = function (element, name, value) {
             switch (element.prop('type')) {
                 case 'radio':
-                    this.onChange_radio(element);
+                    this.onChange_radio(element, name, value);
                     break;
                 case 'checkbox':
-                    this.onChange_check(element);
+                    this.onChange_check(element, name, value);
                     break;
                 default:
-                    this.onChange_normal(element);
+                    this.onChange_normal(element, name, value);
                     break;
             }
         };
-        Inputs.prototype.onChange_radio = function (element) {
-            var name = element.prop('name');
-            var value = element.val();
+        Inputs.prototype.onChange_radio = function (element, name, value) {
             if (element.prop('checked')) {
                 this.setData(name, value);
             }
         };
-        Inputs.prototype.onChange_check = function (element) {
-            var name = element.prop('name');
-            var value = element.val();
+        Inputs.prototype.onChange_check = function (element, name, value) {
             if (element.prop('checked')) {
                 this.getDataByName(name).push(value);
             }
@@ -269,9 +261,7 @@ var Pandyle;
                 this.getDataByName(name).splice(index, 1);
             }
         };
-        Inputs.prototype.onChange_select = function (element) {
-            var name = element.prop('name');
-            var value = element.val();
+        Inputs.prototype.onChange_select = function (element, name, value) {
             this.setData(name, value);
         };
         Inputs.prototype.initName = function (name) {

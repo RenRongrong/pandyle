@@ -6,6 +6,8 @@ namespace Pandyle {
         private _relations: relation[];
         private _root: JQuery<HTMLElement>;
 
+        public callBack: (name:string, value:any) => void;
+
         constructor(element: JQuery<HTMLElement>) {
             this._data = {};
             this._root = element;
@@ -31,16 +33,17 @@ namespace Pandyle {
                 let target = $(ele);
                 let tag = target.prop('tagName');
                 let name = target.prop('name');
+                let value = target.val() || '';
                 this.initName(name);
                 switch (tag) {
                     case 'INPUT':
-                        this.initData_input(target);
+                        this.initData_input(target, name, value);
                         break;
                     case 'TEXTAREA':
-                        this.initData_normal(target);
+                        this.initData_normal(target, name, value);
                         break;
                     case 'SELECT':
-                        this.initData_select(target);
+                        this.initData_select(target, name, value);
                         break;
                     default:
                         break;
@@ -48,24 +51,22 @@ namespace Pandyle {
             });
         }
 
-        private initData_input(element: JQuery<HTMLElement>) {
+        private initData_input(element: JQuery<HTMLElement>, name:string, value:any) {
             let type = element.prop('type');
             switch (type) {
                 case 'radio':
-                    this.initData_radio(element);
+                    this.initData_radio(element, name, value);
                     break;
                 case 'checkbox':
-                    this.initData_check(element);
+                    this.initData_check(element, name, value);
                     break;
                 default:
-                    this.initData_normal(element);
+                    this.initData_normal(element, name, value);
                     break;
             }
         }
 
-        private initData_radio(element: JQuery<HTMLElement>) {
-            let name = element.prop('name');
-            let value = element.val();
+        private initData_radio(element: JQuery<HTMLElement>, name:string, value:any) {
             if ($.isEmptyObject(this.getDataByName(name))) {
                 this.setData(name, '');
             }
@@ -74,9 +75,7 @@ namespace Pandyle {
             }
         }
 
-        private initData_check(element: JQuery<HTMLElement>) {
-            let name = element.prop('name');
-            let value = element.val();
+        private initData_check(element: JQuery<HTMLElement>, name:string, value:any) {
             if ($.isEmptyObject(this.getDataByName(name))) {
                 this.setData(name, []);
             }
@@ -85,15 +84,11 @@ namespace Pandyle {
             }
         }
 
-        private initData_normal(element: JQuery<HTMLElement>) {
-            let name = element.prop('name');
-            let value = element.val();
+        private initData_normal(element: JQuery<HTMLElement>, name:string, value:any) {
             this.setData(name, value);
         }
 
-        private initData_select(element: JQuery<HTMLElement>) {
-            let name = element.prop('name');
-            let value = element.val() || '';
+        private initData_select(element: JQuery<HTMLElement>, name:string, value:any) {
             this.setData(name, value);
         }
 
@@ -101,51 +96,50 @@ namespace Pandyle {
             this._root.on('change', 'input,textarea,select', e => {
                 let ele = $(e.currentTarget);
                 let tagName = ele.prop('tagName');
+                let name = ele.prop('name');
+                let value = ele.val();
                 switch (tagName) {
                     case 'INPUT':
-                        this.onChange_input(ele);
+                        this.onChange_input(ele, name, value);
                         break;
                     case 'TEXTAREA':
-                        this.onChange_normal(ele);
+                        this.onChange_normal(ele, name, value);
                         break;
                     case 'SELECT':
-                        this.onChange_select(ele);
+                        this.onChange_select(ele, name, value);
                         break;
+                }              
+                if(this.callBack){
+                    this.callBack(name, value);
                 }
             })
         }
 
-        private onChange_normal(element: JQuery<HTMLElement>) {
-            let name = element.prop('name');
-            let value = element.val();
+        private onChange_normal(element: JQuery<HTMLElement>, name: string, value:any) {
             this.setData(name, value);
         }
 
-        private onChange_input(element: JQuery<HTMLElement>) {
+        private onChange_input(element: JQuery<HTMLElement>, name:string, value:any) {
             switch (element.prop('type')) {
                 case 'radio':
-                    this.onChange_radio(element);
+                    this.onChange_radio(element, name, value);
                     break;
                 case 'checkbox':
-                    this.onChange_check(element);
+                    this.onChange_check(element, name, value);
                     break;
                 default:
-                    this.onChange_normal(element);
+                    this.onChange_normal(element, name, value);
                     break;
             }
         }
 
-        private onChange_radio(element: JQuery<HTMLElement>) {
-            let name = element.prop('name');
-            let value = element.val();
+        private onChange_radio(element: JQuery<HTMLElement>, name:string, value:any) {
             if (element.prop('checked')) {
                 this.setData(name, value);
             }
         }
 
-        private onChange_check(element: JQuery<HTMLElement>) {
-            let name = element.prop('name');
-            let value = element.val();
+        private onChange_check(element: JQuery<HTMLElement>, name:string, value:any) {
             if (element.prop('checked')) {
                 this.getDataByName(name).push(value);
             } else {
@@ -154,9 +148,7 @@ namespace Pandyle {
             }
         }
 
-        private onChange_select(element: JQuery<HTMLElement>) {
-            let name = element.prop('name');
-            let value = element.val();
+        private onChange_select(element: JQuery<HTMLElement>, name:string, value:any) {
             this.setData(name, value);
         }
 
