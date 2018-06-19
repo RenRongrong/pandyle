@@ -93,7 +93,7 @@ namespace Pandyle {
         }
 
         private bindChange() {
-            this._root.on('change', 'input,textarea,select', e => {
+            this._root.on('change viewChange', 'input,textarea,select', e => {
                 let ele = $(e.currentTarget);
                 let tagName = ele.prop('tagName');
                 let name = ele.prop('name');

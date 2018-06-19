@@ -210,7 +210,7 @@ var Pandyle;
         };
         Inputs.prototype.bindChange = function () {
             var _this = this;
-            this._root.on('change', 'input,textarea,select', function (e) {
+            this._root.on('change viewChange', 'input,textarea,select', function (e) {
                 var ele = $(e.currentTarget);
                 var tagName = ele.prop('tagName');
                 var name = ele.prop('name');
