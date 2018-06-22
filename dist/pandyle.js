@@ -770,6 +770,9 @@ var Pandyle;
                                     return _this.calcu(p, element, data);
                                 }
                                 else {
+                                    if (p === '') {
+                                        p = '""';
+                                    }
                                     return (new Function('return ' + p))();
                                 }
                             });
