@@ -12,6 +12,8 @@ namespace Pandyle {
         private _variables: object;
         private _defaultAlias: object;
 
+        private static _uid = 1;
+
         constructor(element: JQuery<HTMLElement>, data: T, autoRun: boolean = true) {
             this._data = $.extend({}, data);
             this._root = element;
@@ -86,12 +88,26 @@ namespace Pandyle {
             this.render(this._root, this._data, '', this._defaultAlias);
         }
 
+        /**
+         * 渲染指定的元素
+         * @param element 渲染对象
+         * @param data 数据上下文
+         * @param parentProperty 父级字段的名称
+         * @param alias 别名对象
+         */
         public render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string, alias?: any) {
             element.each((index, ele) => {
                 this.renderSingle(ele, data, parentProperty, $.extend({}, alias));
             })
         }
 
+        /**
+         * 渲染单个元素
+         * @param ele 要渲染的dom元素
+         * @param data 数据上下文
+         * @param parentProperty 父级字段的名称
+         * @param alias 别名对象
+         */
         private renderSingle(ele: HTMLElement, data: any, parentProperty: string, alias?: any) {
             let element = $(ele);
             if (!element.data('context')) {
@@ -104,26 +120,36 @@ namespace Pandyle {
                 element.data('alias', alias);
             }
             data = element.data('context');
-            this.bindAttr(ele, parentProperty);
-            this.bindIf(ele, parentProperty);
-            if (element.attr('p-com')) {
-                loadComponent(ele);
-            }
-            if (element.attr('p-context')) {
-                this.renderContext(ele, parentProperty);
-            } else if (element.attr('p-each')) {
+            if (element.attr('p-for')) {
                 this.setAlias(element, parentProperty, data);
-                this.renderEach(element, data, parentProperty);
-            } else if (element.children().length > 0) {
-                this.setAlias(element, parentProperty, data);
-                this.renderChild(ele, data, parentProperty);
+                this.renderFor(element, data, parentProperty);
             } else {
-                this.setAlias(element, parentProperty, data);
-                this.renderText(element, parentProperty);
+                this.bindAttr(ele, parentProperty);
+                this.bindIf(ele, parentProperty);
+                if (element.attr('p-com')) {
+                    loadComponent(ele);
+                }
+                if (element.attr('p-context')) {
+                    this.renderContext(ele, parentProperty);
+                } else if (element.attr('p-each')) {
+                    this.setAlias(element, parentProperty, data);
+                    this.renderEach(element, data, parentProperty);
+                } else if (element.children().length > 0) {
+                    this.setAlias(element, parentProperty, data);
+                    this.renderChild(ele, data, parentProperty);
+                } else {
+                    this.setAlias(element, parentProperty, data);
+                    this.renderText(element, parentProperty);
+                }
             }
 
         }
 
+        /**
+         * 通过p-bind指令绑定元素的属性
+         * @param ele 目标元素
+         * @param parentProperty 父级字段的名称
+         */
         private bindAttr(ele: HTMLElement, parentProperty) {
             if ($(ele).attr('p-bind')) {
                 let binds = $(ele).attr('p-bind').split('^');
@@ -147,6 +173,11 @@ namespace Pandyle {
             }
         }
 
+        /**
+         * 通过p-if指令控制元素的显示与否
+         * @param ele 目标元素
+         * @param parentProperty 父级字段的名称
+         */
         private bindIf(ele: HTMLElement, parentProperty) {
             if ($(ele).attr('p-if')) {
                 $(ele).data('binding')['If'] = {
@@ -168,6 +199,11 @@ namespace Pandyle {
             }
         }
 
+        /**
+         * 通过p-context修改元素的数据上下文
+         * @param ele 目标元素
+         * @param parentProperty 父级字段的名称
+         */
         private renderContext(ele: HTMLElement, parentProperty: string) {
             let element = $(ele);
             if (element.attr('p-context')) {
@@ -190,6 +226,12 @@ namespace Pandyle {
             }
         }
 
+        /**
+         * 渲染目标元素的子元素
+         * @param ele 目标元素
+         * @param data 数据上下文
+         * @param parentProperty 父级字段的名称
+         */
         private renderChild(ele: HTMLElement, data: any, parentProperty: string) {
             let $this = this;
             let element = $(ele);
@@ -203,6 +245,12 @@ namespace Pandyle {
             }
         }
 
+        /**
+         * 
+         * @param element 渲染对象
+         * @param data 数据上下文
+         * @param parentProperty 父级字段的名称
+         */
         private renderEach(element: JQuery<HTMLElement>, data: any, parentProperty) {
             let $this = this;
             if (element.attr('p-each')) {
@@ -230,11 +278,66 @@ namespace Pandyle {
                 target.forEach((value, index) => {
                     let newChildren = children.clone(true, true);
                     element.append(newChildren);
-                    $this.render(newChildren, value, fullProp.concat('[', index.toString(), ']'), $.extend(alias, {index: {data: index, property: '@index'}}));
+                    $this.render(newChildren, value, fullProp.concat('[', index.toString(), ']'), $.extend(alias, { index: { data: index, property: '@index' } }));
                 })
             }
         }
 
+        private renderFor(element: JQuery<HTMLElement>, data: any, parentProperty) {
+            let $this = this;
+            if (element.attr('p-for')) {
+                if (!element.data('uid')) {
+                    element.data('uid', VM._uid++);
+                }
+                let expression = element.attr('p-for').replace(/\s/g, '');
+                let divided = this.dividePipe(expression);
+                let property = divided.property;
+                let method = divided.method;
+                let target: any[] = this.calcu(property, element, data);
+                if (method) {
+                    target = this.filter(method, target);
+                }
+                if (!element.data('pattern')) {
+                    element.data('pattern', element.prop('outerHTML'));
+                    this.setRelation(property, element, parentProperty);
+                };
+                let fullProp = property;
+                if (parentProperty !== '') {
+                    fullProp = parentProperty + '.' + property;
+                };
+                let alias = element.data('alias');
+                let htmlText = element.data('pattern');
+                let siblingText = htmlText.replace(/p-for=((".*?")|('.*?'))/g, '');
+                let siblings = $(siblingText);
+                element.siblings('[uid=' + element.data('uid') + ']').remove();
+
+                let afterElement = function (ele: JQuery<HTMLElement>, target: any[], index: number) {
+                    if (target.length === 0) {
+                        return;
+                    }
+                    let newSibling = siblings.clone(true, true);
+                    ele.after(newSibling);
+                    $this.render(newSibling, target.shift(), fullProp.concat('[', index.toString(), ']'), $.extend(alias, { index: { data: index, property: '@index' } }));
+                    if (index === 0) {
+                        newSibling.data('uid', element.data['uid']);
+                        newSibling.data('pattern', 'htmlText');
+                        newSibling.attr('p-for', expression);
+                    } else {
+                        newSibling.attr('uid', element.data('uid'));
+                    }
+                    afterElement(newSibling, target, ++index);
+                }
+
+                afterElement(element, target, 0);
+                element.remove();
+            }
+        }
+
+        /**
+         * 渲染文本插值
+         * @param element 渲染对象
+         * @param parentProperty 父级字段的名称
+         */
         private renderText(element: JQuery<HTMLElement>, parentProperty) {
             let data = element.data('context');
             let text = element.text();
@@ -245,6 +348,14 @@ namespace Pandyle {
             element.html(result);
         }
 
+        /**
+         * 将带文本插值的字符串模板转换成正常字符串
+         * @param element 文本所在的对象
+         * @param prop 绑定的属性
+         * @param pattern 字符串模板
+         * @param data 数据上下文
+         * @param parentProperty 父级字段的名称
+         */
         private convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty) {
             let reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\s]*)\s*}}/g;
             let related = false;
@@ -267,6 +378,12 @@ namespace Pandyle {
             return result;
         }
 
+        /**
+         * 
+         * @param property 数据字段
+         * @param element 跟该字段绑定的对象
+         * @param parentProperty 父级字段的名称
+         */
         private setRelation(property: string, element: JQuery<HTMLElement>, parentProperty) {
             if (/^@.*/.test(property)) {
                 property = property.replace(/@(\w+)?/, ($0, $1) => {
@@ -291,6 +408,11 @@ namespace Pandyle {
             }
         }
 
+        /**
+         * 从字段名称判断一个字段是否跟目标字段一致或属于目标字段的子字段
+         * @param property 目标字段
+         * @param subProperty 子字段
+         */
         private isSelfOrChild(property: string, subProperty: string) {
             property = property.replace(/[\[\]\(\)\.]/g, $0 => {
                 return '\\' + $0;
@@ -299,11 +421,22 @@ namespace Pandyle {
             return reg.test(subProperty);
         }
 
+        /**
+         * 从字段名称判断一个字段是否属于目标字段的子字段
+         * @param property 目标字段
+         * @param subProperty 子字段
+         */
         private isChild(property: string, subProperty: string) {
             let reg = new RegExp('^' + property + '[\\[\\.]\\w+');
             return reg.test(subProperty);
         }
 
+        /**
+         * 获取表达式的值
+         * @param element 目标对象
+         * @param property 表达式字符串
+         * @param data 数据上下文
+         */
         private getValue(element: JQuery<HTMLElement>, property: string, data: any) {
             let result = this.calcu(property, element, data);
             let type = $.type(result);
@@ -314,6 +447,12 @@ namespace Pandyle {
             }
         }
 
+        /**
+         * 根据表达式字符串计算值
+         * @param property 表达式
+         * @param element 表达式所在的对象
+         * @param data 数据上下文
+         */
         private calcu(property: string, element: JQuery<HTMLElement>, data: any) {
             let nodes = property.match(/[@\w]+((?:\(.*?\))*|(?:\[.*?\])*)/g);
             if (!nodes) {
@@ -344,7 +483,7 @@ namespace Pandyle {
                                     return this.calcu(p, element, data);
                                 }
                                 else {
-                                    if(p === ''){
+                                    if (p === '') {
                                         p = '""';
                                     }
                                     return (new Function('return ' + p))();

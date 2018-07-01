@@ -532,25 +532,31 @@ var Pandyle;
                 element.data('alias', alias);
             }
             data = element.data('context');
-            this.bindAttr(ele, parentProperty);
-            this.bindIf(ele, parentProperty);
-            if (element.attr('p-com')) {
-                Pandyle.loadComponent(ele);
-            }
-            if (element.attr('p-context')) {
-                this.renderContext(ele, parentProperty);
-            }
-            else if (element.attr('p-each')) {
+            if (element.attr('p-for')) {
                 this.setAlias(element, parentProperty, data);
-                this.renderEach(element, data, parentProperty);
-            }
-            else if (element.children().length > 0) {
-                this.setAlias(element, parentProperty, data);
-                this.renderChild(ele, data, parentProperty);
+                this.renderFor(element, data, parentProperty);
             }
             else {
-                this.setAlias(element, parentProperty, data);
-                this.renderText(element, parentProperty);
+                this.bindAttr(ele, parentProperty);
+                this.bindIf(ele, parentProperty);
+                if (element.attr('p-com')) {
+                    Pandyle.loadComponent(ele);
+                }
+                if (element.attr('p-context')) {
+                    this.renderContext(ele, parentProperty);
+                }
+                else if (element.attr('p-each')) {
+                    this.setAlias(element, parentProperty, data);
+                    this.renderEach(element, data, parentProperty);
+                }
+                else if (element.children().length > 0) {
+                    this.setAlias(element, parentProperty, data);
+                    this.renderChild(ele, data, parentProperty);
+                }
+                else {
+                    this.setAlias(element, parentProperty, data);
+                    this.renderText(element, parentProperty);
+                }
             }
         };
         VM.prototype.bindAttr = function (ele, parentProperty) {
@@ -659,6 +665,56 @@ var Pandyle;
                     element.append(newChildren);
                     $this.render(newChildren, value, fullProp_1.concat('[', index.toString(), ']'), $.extend(alias_2, { index: { data: index, property: '@index' } }));
                 });
+            }
+        };
+        VM.prototype.renderFor = function (element, data, parentProperty) {
+            var $this = this;
+            if (element.attr('p-for')) {
+                if (!element.data('uid')) {
+                    element.data('uid', VM._uid++);
+                }
+                var expression_1 = element.attr('p-for').replace(/\s/g, '');
+                var divided = this.dividePipe(expression_1);
+                var property = divided.property;
+                var method = divided.method;
+                var target = this.calcu(property, element, data);
+                if (method) {
+                    target = this.filter(method, target);
+                }
+                if (!element.data('pattern')) {
+                    element.data('pattern', element.prop('outerHTML'));
+                    this.setRelation(property, element, parentProperty);
+                }
+                ;
+                var fullProp_2 = property;
+                if (parentProperty !== '') {
+                    fullProp_2 = parentProperty + '.' + property;
+                }
+                ;
+                var alias_3 = element.data('alias');
+                var htmlText = element.data('pattern');
+                var siblingText = htmlText.replace(/p-for=((".*?")|('.*?'))/g, '');
+                var siblings_1 = $(siblingText);
+                element.siblings('[uid=' + element.data('uid') + ']').remove();
+                var afterElement_1 = function (ele, target, index) {
+                    if (target.length === 0) {
+                        return;
+                    }
+                    var newSibling = siblings_1.clone(true, true);
+                    ele.after(newSibling);
+                    $this.render(newSibling, target.shift(), fullProp_2.concat('[', index.toString(), ']'), $.extend(alias_3, { index: { data: index, property: '@index' } }));
+                    if (index === 0) {
+                        newSibling.data('uid', element.data['uid']);
+                        newSibling.data('pattern', 'htmlText');
+                        newSibling.attr('p-for', expression_1);
+                    }
+                    else {
+                        newSibling.attr('uid', element.data('uid'));
+                    }
+                    afterElement_1(newSibling, target, ++index);
+                };
+                afterElement_1(element, target, 0);
+                element.remove();
             }
         };
         VM.prototype.renderText = function (element, parentProperty) {
@@ -886,6 +942,7 @@ var Pandyle;
         };
         return VM;
     }());
+    VM._uid = 1;
     Pandyle.VM = VM;
 })(Pandyle || (Pandyle = {}));
 //# sourceMappingURL=pandyle.js.map
