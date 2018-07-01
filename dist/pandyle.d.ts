@@ -67,6 +67,7 @@ declare namespace Pandyle {
         private _converters;
         private _variables;
         private _defaultAlias;
+        private static _uid;
         constructor(element: JQuery<HTMLElement>, data: T, autoRun?: boolean);
         set(newData: any): void;
         get(param?: any): any;
@@ -78,6 +79,7 @@ declare namespace Pandyle {
         private renderContext(ele, parentProperty);
         private renderChild(ele, data, parentProperty);
         private renderEach(element, data, parentProperty);
+        private renderFor(element, data, parentProperty);
         private renderText(element, parentProperty);
         private convertFromPattern(element, prop, pattern, data, parentProperty);
         private setRelation(property, element, parentProperty);

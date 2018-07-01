@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <!-- <script src="../node_modules/jquery/dist/jquery.min.js"></script> -->
-    <script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <!-- <script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js"></script> -->
     <script src="../dist/pandyle.js"></script>
     <script src="test.js"></script>
 </head>
@@ -21,6 +21,15 @@
             <div p-each="honors">
                 <span>{{@self}} </span>
             </div>
+            <div>
+                <div p-for="honors">{{@self}}</div>
+            </div>
+        </div>
+        <div>
+            <select name="" id="">
+                <option value="0">请选择</option>
+                <option p-for="list.selects" p-bind="value:{{value}}">{{content}}</option>
+            </select>
         </div>
         <p>{{price}}</p>
         <div p-each="tags">
