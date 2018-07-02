@@ -179,6 +179,31 @@ pandyle由VM管理数据和模板之间的数据绑定。
             $('div').vm(data);
         </script>
 
+* 使用p-for进行循环操作
+
+    你也可以使用p-for进行循环操作，跟p-each不同的是，p-for是将元素本身进行循环输出，而不是它的子元素
+
+        <select>
+            <option value="0">请选择</option>
+            <option p-for="list" p-bind="value: {{value}}">{{content}}</option>
+        </select>
+
+        <script>
+            var data = {
+                list: [
+                    {
+                        value: 1,
+                        content: '选项一'
+                    },
+                    {
+                        value: 2,
+                        content: '选项二'
+                    }
+                ]
+            };
+            $('div').vm(data);
+        </script>
+
 * 使用p-if进行条件判断
 
     使用p-if绑定一个布尔值，当这个布尔值为真时，p-if所在的元素将显示出来，否则将隐藏。
