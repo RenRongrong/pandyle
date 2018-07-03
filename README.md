@@ -344,7 +344,7 @@ pandyle使用Inputs类来管理用户的输入。
 
 ## 组件
 
-pandyle使用p-com属性提供组件功能。pandyle中的组件实质就是一段html代码，在标签中使用p-com属性来指定组件的名称。VM会根据p-com中指定的名称和Pandyle配置中的comPath字段去加载对应的组件并渲染。如果没有设置comPath，VM会在默认的`/components`文件夹中寻找对应名称的组件。
+pandyle使用p-com属性提供组件功能。pandyle中的组件实质就是一段html代码，在标签中使用p-com属性来指定组件的名称。VM会根据p-com中指定的名称和Pandyle配置中的comPath字段去加载对应的组件并渲染。如果没有设置comPath，VM会在默认的`./components`文件夹中寻找对应名称的组件。
 
 *示例代码：/index.html中：*
 

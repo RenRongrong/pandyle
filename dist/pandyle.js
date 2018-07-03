@@ -67,8 +67,8 @@ var Pandyle;
             else {
                 var fullpath = name.split('.');
                 var path = Pandyle._config.comPath
-                    ? Pandyle._config.comPath['Default'] || '/components/{name}.html'
-                    : '/components/{name}.html';
+                    ? Pandyle._config.comPath['Default'] || './components/{name}.html'
+                    : './components/{name}.html';
                 if (fullpath.length > 1) {
                     path = Pandyle._config.comPath[fullpath[0]];
                     url = path.replace(/{.*}/g, fullpath[1]);
@@ -528,7 +528,7 @@ var Pandyle;
             if (!element.data('binding')) {
                 element.data('binding', {});
             }
-            if (alias) {
+            if (alias && !$.isEmptyObject(alias)) {
                 element.data('alias', alias);
             }
             data = element.data('context');
@@ -675,25 +675,24 @@ var Pandyle;
                 }
                 var expression_1 = element.attr('p-for').replace(/\s/g, '');
                 var divided = this.dividePipe(expression_1);
-                var property = divided.property;
+                var property_1 = divided.property;
                 var method = divided.method;
-                var target = this.calcu(property, element, data);
+                var target = this.calcu(property_1, element, data);
                 if (method) {
                     target = this.filter(method, target);
                 }
                 if (!element.data('pattern')) {
                     element.data('pattern', element.prop('outerHTML'));
-                    this.setRelation(property, element, parentProperty);
                 }
                 ;
-                var fullProp_2 = property;
+                var fullProp_2 = property_1;
                 if (parentProperty !== '') {
-                    fullProp_2 = parentProperty + '.' + property;
+                    fullProp_2 = parentProperty + '.' + property_1;
                 }
                 ;
                 var alias_3 = element.data('alias');
-                var htmlText = element.data('pattern');
-                var siblingText = htmlText.replace(/p-for=((".*?")|('.*?'))/g, '');
+                var htmlText_1 = element.data('pattern');
+                var siblingText = htmlText_1.replace(/p-for=((".*?")|('.*?'))/g, '');
                 var siblings_1 = $(siblingText);
                 element.siblings('[uid=' + element.data('uid') + ']').remove();
                 var afterElement_1 = function (ele, target, index) {
@@ -704,9 +703,11 @@ var Pandyle;
                     ele.after(newSibling);
                     $this.render(newSibling, target.shift(), fullProp_2.concat('[', index.toString(), ']'), $.extend(alias_3, { index: { data: index, property: '@index' } }));
                     if (index === 0) {
-                        newSibling.data('uid', element.data['uid']);
-                        newSibling.data('pattern', 'htmlText');
+                        newSibling.data('uid', element.data('uid'));
+                        newSibling.data('pattern', htmlText_1);
                         newSibling.attr('p-for', expression_1);
+                        newSibling.data('context', data);
+                        $this.setRelation(property_1, newSibling, parentProperty);
                     }
                     else {
                         newSibling.attr('uid', element.data('uid'));

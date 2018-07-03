@@ -29,8 +29,8 @@ namespace Pandyle {
             } else {
                 let fullpath = name.split('.');
                 let path = Pandyle._config.comPath
-                    ? Pandyle._config.comPath['Default'] || '/components/{name}.html'
-                    : '/components/{name}.html';
+                    ? Pandyle._config.comPath['Default'] || './components/{name}.html'
+                    : './components/{name}.html';
                 if (fullpath.length > 1) {
                     path = Pandyle._config.comPath[fullpath[0]];
                     url = path.replace(/{.*}/g, fullpath[1]);

@@ -116,7 +116,7 @@ namespace Pandyle {
             if (!element.data('binding')) {
                 element.data('binding', {});
             }
-            if (alias) {
+            if (alias && !$.isEmptyObject(alias)) {
                 element.data('alias', alias);
             }
             data = element.data('context');
@@ -299,7 +299,7 @@ namespace Pandyle {
                 }
                 if (!element.data('pattern')) {
                     element.data('pattern', element.prop('outerHTML'));
-                    this.setRelation(property, element, parentProperty);
+                    // this.setRelation(property, element, parentProperty);
                 };
                 let fullProp = property;
                 if (parentProperty !== '') {
@@ -319,9 +319,11 @@ namespace Pandyle {
                     ele.after(newSibling);
                     $this.render(newSibling, target.shift(), fullProp.concat('[', index.toString(), ']'), $.extend(alias, { index: { data: index, property: '@index' } }));
                     if (index === 0) {
-                        newSibling.data('uid', element.data['uid']);
-                        newSibling.data('pattern', 'htmlText');
+                        newSibling.data('uid', element.data('uid'));
+                        newSibling.data('pattern', htmlText);
                         newSibling.attr('p-for', expression);
+                        newSibling.data('context', data);
+                        $this.setRelation(property, newSibling, parentProperty);
                     } else {
                         newSibling.attr('uid', element.data('uid'));
                     }
