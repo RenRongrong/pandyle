@@ -1,5 +1,32 @@
-<div>
-    <p>书名：{{title}}</p>
-    <p>作者：{{author.name}}</p>
-    <p>价格：{{price}}</p>
+<div class="book">
+    <p class="title">书名：{{title}}</p>
+    <p class="author">作者：{{author}}</p>
+    <p class="price">价格：{{price}}</p>
+    <button p-bind="onclick:buy({{price}})">购买</button>
 </div>
+<style>
+    .book {
+        border: 1px solid brown;
+    }
+    
+    .title {
+        color: red;
+    }
+    
+    .author {
+        color: blue;
+    }
+    
+    .price {
+        color: brown;
+    }
+</style>
+<script>
+    window.buy = function(price) {
+        if (price > 100) {
+            alert('太贵，不买了');
+        } else {
+            alert('不贵，买了');
+        }
+    }
+</script>

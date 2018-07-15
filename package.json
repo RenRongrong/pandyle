@@ -1,6 +1,6 @@
 {
     "name": "pandyle",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "author": {
         "name": "Ren Rongrong"
     },
@@ -11,6 +11,7 @@
     "license": "MIT",
     "homepage": "https://github.com/RenRongrong/pandyle",
     "description": "为jQuery编写的MVVM库",
+    "main": "dist/pandyle.js",
     "dependencies": {
         "@types/jquery": "^3.2.16",
         "jquery": "^3.2.1"

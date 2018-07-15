@@ -10,7 +10,20 @@ pandyle是一个基于jquery的MVVM库。它为jquery提供了基本的模板和
 
 下载：npm install pandyle
 
-引入：使用\<script\>标签引用pandyle.min.js即可。
+引入：0.3.0之后的版本支持amd、es6及全局引入的方式。
+
+* 全局引入：使用\<script\>标签引用pandyle.min.js即可。
+* amd: 
+
+        define(['jquery', 'pandyle'], function($, Pandyle){
+            ...
+        })
+
+* es6: 
+
+        import * as $ from 'jquery';
+        import * as Pandyle from 'pandyle';
+        ...
 
 ### **Hello Wrold**
     
@@ -50,6 +63,8 @@ pandyle由VM管理数据和模板之间的数据绑定。
     2. 也可使用new Pandyle.VM(element, data, autoRun)来创建VM对象。参数element是一个Jquery对象，data和autoRun含义同上（第一个方法实际是封装了此构造函数）
             
             var vm = new Pandyle.VM($('.class'), data);
+    
+    3. 如果选择器对应多个元素，vm将同时作用于这些元素，vm中的数据更改时，这些元素也将同时更新。
 
 * set方法：
     
@@ -369,3 +384,55 @@ pandyle使用p-com属性提供组件功能。pandyle中的组件实质就是一�
             <p>作者：{{author}}</p>
             <p>价格：{{price}}</p>
         </div>
+
+在组件中，可以使用`<style>`标签来定义样式，使用`<script>`标签添加js代码。注意，在`<script>`中需使用`window.xxx = ...`来定义全局的函数或变量。
+
+*示例代码：/demo/components/book.html文件中*:
+
+        <div class="book">
+            <p class="title">书名：{{title}}</p>
+            <p class="author">作者：{{author}}</p>
+            <p class="price">价格：{{price}}</p>
+            <button p-bind="onclick: buy({{price}})">购买</button>
+        </div>
+        <style>
+            .book{
+                border: 1px solid brown;
+            }
+            .title{
+                color: red;
+            }
+            .author{
+                color: blue;
+            }
+            .price{
+                color: brown;
+            }
+        </style>
+        <script>
+            window.buy = function(price){
+                if(price > 100){
+                    alert('太贵，不买了');
+                }else{
+                    alert('不贵，买了');
+                }
+            }
+        </script>
+
+关于p-bind和p-com的顺序:在渲染模板时，p-bind的解析在p-com之前，因此，你可以使用p-bind来动态加载组件。
+
+*示例代码*:
+
+        <div p-bind="p-com: {{type}}" p-context="info"></div>
+        ...
+        <script>
+            var goods = {
+                type: 'book',
+                info: {
+                    title: '三国演义',
+                    author: '罗贯中',
+                    price: 150
+                }
+            };
+            $('div').vm(goods);
+        </script>
