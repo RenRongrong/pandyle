@@ -1,69 +1,88 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-///<reference path="../src/core/vm.ts" />
-var vm;
-var uid = '103';
-$(document).ready(function () {
-    vm = new myVM($('.temp'), {
-        id: 2,
-        title: '百年孤独',
-        author: {
-            name: '马尔克斯',
-            nation: '哥伦比亚',
-            honors: ['作家', '文学家']
-        },
-        price: 89,
-        tags: [
-            '名著',
-            '文学',
-            '外国'
-        ]
-    });
-});
-function setName() {
-    vm.author = vm.author + '1';
-    vm.set({
-        'author.honors': ['记者', '歌手', '名人']
-    });
-    uid = '203';
-    vm.render($('.local'));
-}
-var myVM = (function (_super) {
-    __extends(myVM, _super);
-    function myVM() {
-        return _super !== null && _super.apply(this, arguments) || this;
+require(['/dist/pandyle'], function(Pandyle) {
+    var uid = 17;
+    Pandyle.config({
+        comPath: {
+            demo: '/demo/components/{name}.html'
+        }
+    })
+    var honors = [];
+    for (var i = 0; i < 100; i++) {
+        honors.push('test' + i);
     }
-    Object.defineProperty(myVM.prototype, "title", {
-        get: function () {
-            return this.get('title');
+    $(document).ready(function() {
+        var data = {
+            id: 2,
+            title: '百年孤独',
+            author: {
+                name: '<p>马尔克斯</p><p>加西亚</p>',
+                nation: '哥伦比亚',
+                honors: honors
+            },
+            price: 89,
+            tags: [
+                '名著',
+                '文学',
+                '外国'
+            ],
+            next: {
+                t: '三国演义',
+                a: '罗贯中',
+                p: 35
+            },
+            list: {
+                name: 'type',
+                selects: [{
+                        content: '类型1',
+                        value: 1
+                    },
+                    {
+                        content: '类型2',
+                        value: 2
+                    }
+                ]
+            }
+        }
+        var now = Date.now();
+        vm = $('.temp').vm(data, false);
+        vm.register('bookConverter', function(data) {
+            return {
+                title: data.t,
+                author: data.a,
+                price: data.p
+            }
+        });
+        vm.register('tagFilter', function(data) {
+            return data.filter(function(x) {
+                return x == '名著';
+            })
+        })
+        vm.run();
+        var then = Date.now();
+        console.log(then - now);
+    })
+})
+
+
+
+function setName() {
+    var honors2 = [];
+    for (var i = 0; i < 300; i++) {
+        honors2.push('测试' + i);
+    }
+    var now = Date.now();
+    vm.set({
+        next: {
+            t: '水浒传',
+            a: '施耐庵',
+            p: 40
         },
-        set: function (value) {
-            this.set({
-                'title': value
-            });
-        },
-        enumerable: true,
-        configurable: true
+        'author.honors': honors2,
+        title: '书本'
     });
-    Object.defineProperty(myVM.prototype, "author", {
-        get: function () {
-            return this.get('author.name');
-        },
-        set: function (value) {
-            this.set({
-                'author.name': value
-            });
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return myVM;
-}(Pandyle.VM));
+    var then = Date.now();
+    console.log(then - now);
+}
+
+function add(n) {
+    return n + 1;
+}

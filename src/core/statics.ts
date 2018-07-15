@@ -7,6 +7,8 @@ namespace Pandyle{
     export const _components: any = {};
     export const _config: any = {};
 
+    export var $:JQueryStatic;
+
     export function getMethod(name: string): Function {
         return _methods[name];
     }

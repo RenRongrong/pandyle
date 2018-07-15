@@ -6,6 +6,7 @@ declare namespace Pandyle {
     const _converters: any;
     const _components: any;
     const _config: any;
+    var $: JQueryStatic;
     function getMethod(name: string): Function;
     function hasSuffix(target: string, suffix: string): boolean;
     function register(name: string, value: any): void;
