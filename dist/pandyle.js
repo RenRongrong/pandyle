@@ -16,7 +16,7 @@ var Pandyle;
     }
     Pandyle.hasSuffix = hasSuffix;
     function register(name, value) {
-        if ($.isFunction(value)) {
+        if (Pandyle.$.isFunction(value)) {
             if (hasSuffix(name, 'Filter')) {
                 Pandyle._filters[name] = value;
             }
@@ -54,10 +54,10 @@ var Pandyle;
     }
     Pandyle.getComponent = getComponent;
     function loadComponent(ele) {
-        var name = $(ele).attr('p-com');
-        name = $.trim(name);
+        var name = Pandyle.$(ele).attr('p-com');
+        name = Pandyle.$.trim(name);
         if (hasComponent(name)) {
-            $(ele).html(getComponent(name));
+            Pandyle.$(ele).html(getComponent(name));
         }
         else {
             var url = '';
@@ -77,7 +77,7 @@ var Pandyle;
                     url = path.replace(/{.*}/g, name);
                 }
             }
-            $.ajax({
+            Pandyle.$.ajax({
                 url: url,
                 async: false,
                 success: function (res) {
@@ -92,19 +92,30 @@ var Pandyle;
             });
             text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, function ($0, $1) {
                 var style = '<style>' + $1 + '</style>';
-                $('head').append(style);
+                Pandyle.$('head').append(style);
                 return '';
             });
             addComponent({
                 name: name,
                 html: text
             });
-            $(ele).html(text);
+            Pandyle.$(ele).html(text);
         }
     }
     Pandyle.loadComponent = loadComponent;
 })(Pandyle || (Pandyle = {}));
-(function ($) {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        define(['jquery'], factory);
+    }
+    else if (typeof exports === 'object' && typeof module === 'object') {
+        exports = module.exports = factory(require('jquery'));
+    }
+    else {
+        factory(root.jQuery);
+    }
+})(this, function ($) {
+    Pandyle.$ = $;
     $.fn.vm = function (data, autoRun) {
         if (autoRun === void 0) { autoRun = true; }
         var element = this;
@@ -128,7 +139,8 @@ var Pandyle;
             return inputs;
         }
     };
-})(jQuery);
+    return Pandyle;
+});
 var Pandyle;
 (function (Pandyle) {
     var Inputs = (function () {
@@ -139,7 +151,7 @@ var Pandyle;
             this.bindChange();
         }
         Inputs.prototype.data = function () {
-            return $.extend({}, this._data);
+            return Pandyle.$.extend({}, this._data);
         };
         Inputs.prototype.set = function (data) {
             for (var key in data) {
@@ -152,7 +164,7 @@ var Pandyle;
         Inputs.prototype.initData = function () {
             var _this = this;
             this._root.find('input,textarea,select').each(function (index, ele) {
-                var target = $(ele);
+                var target = Pandyle.$(ele);
                 var tag = target.prop('tagName');
                 var name = target.prop('name');
                 var value = target.val() || '';
@@ -187,7 +199,7 @@ var Pandyle;
             }
         };
         Inputs.prototype.initData_radio = function (element, name, value) {
-            if ($.isEmptyObject(this.getDataByName(name))) {
+            if (Pandyle.$.isEmptyObject(this.getDataByName(name))) {
                 this.setData(name, '');
             }
             if (element.prop('checked')) {
@@ -195,7 +207,7 @@ var Pandyle;
             }
         };
         Inputs.prototype.initData_check = function (element, name, value) {
-            if ($.isEmptyObject(this.getDataByName(name))) {
+            if (Pandyle.$.isEmptyObject(this.getDataByName(name))) {
                 this.setData(name, []);
             }
             if (element.prop('checked')) {
@@ -211,7 +223,7 @@ var Pandyle;
         Inputs.prototype.bindChange = function () {
             var _this = this;
             this._root.on('change viewChange', 'input,textarea,select', function (e) {
-                var ele = $(e.currentTarget);
+                var ele = Pandyle.$(e.currentTarget);
                 var tagName = ele.prop('tagName');
                 var name = ele.prop('name');
                 var value = ele.val();
@@ -320,7 +332,7 @@ var Pandyle;
         };
         Inputs.prototype.updateDom_radio = function (element, value) {
             element.each(function (index, ele) {
-                var target = $(ele);
+                var target = Pandyle.$(ele);
                 if (target.val() == value) {
                     target.prop('checked', 'checked');
                 }
@@ -331,7 +343,7 @@ var Pandyle;
         };
         Inputs.prototype.updateDom_check = function (element, value) {
             element.each(function (index, ele) {
-                var target = $(ele);
+                var target = Pandyle.$(ele);
                 if (value.indexOf(target.val()) > -1) {
                     target.prop('checked', 'checked');
                 }
@@ -439,7 +451,7 @@ var Pandyle;
     var VM = (function () {
         function VM(element, data, autoRun) {
             if (autoRun === void 0) { autoRun = true; }
-            this._data = $.extend({}, data);
+            this._data = Pandyle.$.extend({}, data);
             this._root = element;
             this._relations = [];
             this._methods = {};
@@ -472,7 +484,7 @@ var Pandyle;
                     }, this_1._data);
                 }
                 target[lastProperty] = newData[key];
-                if ($.isArray(target[lastProperty])) {
+                if (Pandyle.$.isArray(target[lastProperty])) {
                     for (var i = this_1._relations.length - 1; i >= 0; i--) {
                         if (this_1.isChild(key, this_1._relations[i].property)) {
                             this_1._relations.splice(i, 1);
@@ -494,9 +506,9 @@ var Pandyle;
         VM.prototype.get = function (param) {
             var _this = this;
             if (!param) {
-                return $.extend({}, this._data);
+                return Pandyle.$.extend({}, this._data);
             }
-            switch ($.type(param)) {
+            switch (Pandyle.$.type(param)) {
                 case 'array':
                     return param.map(function (value) { return _this.get(value); });
                 case 'string':
@@ -517,18 +529,18 @@ var Pandyle;
         VM.prototype.render = function (element, data, parentProperty, alias) {
             var _this = this;
             element.each(function (index, ele) {
-                _this.renderSingle(ele, data, parentProperty, $.extend({}, alias));
+                _this.renderSingle(ele, data, parentProperty, Pandyle.$.extend({}, alias));
             });
         };
         VM.prototype.renderSingle = function (ele, data, parentProperty, alias) {
-            var element = $(ele);
+            var element = Pandyle.$(ele);
             if (!element.data('context')) {
                 element.data('context', data);
             }
             if (!element.data('binding')) {
                 element.data('binding', {});
             }
-            if (alias && !$.isEmptyObject(alias)) {
+            if (alias && !Pandyle.$.isEmptyObject(alias)) {
                 element.data('alias', alias);
             }
             data = element.data('context');
@@ -560,50 +572,50 @@ var Pandyle;
             }
         };
         VM.prototype.bindAttr = function (ele, parentProperty) {
-            if ($(ele).attr('p-bind')) {
-                var binds = $(ele).attr('p-bind').split('^');
+            if (Pandyle.$(ele).attr('p-bind')) {
+                var binds = Pandyle.$(ele).attr('p-bind').split('^');
                 binds.forEach(function (bindInfo, index) {
                     var array = bindInfo.match(/^\s*([\w-]+)\s*:\s*(.*)$/);
                     var attr = array[1];
                     var value = array[2].replace(/\s*$/, '');
-                    $(ele).data('binding')[attr] = {
+                    Pandyle.$(ele).data('binding')[attr] = {
                         pattern: value,
                         related: false
                     };
                 });
-                $(ele).removeAttr('p-bind');
+                Pandyle.$(ele).removeAttr('p-bind');
             }
-            var bindings = $(ele).data('binding');
-            var data = $(ele).data('context');
+            var bindings = Pandyle.$(ele).data('binding');
+            var data = Pandyle.$(ele).data('context');
             for (var a in bindings) {
                 if (a !== 'text' && a !== 'if') {
-                    $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a].pattern, data, parentProperty));
+                    Pandyle.$(ele).attr(a, this.convertFromPattern(Pandyle.$(ele), a, bindings[a].pattern, data, parentProperty));
                 }
             }
         };
         VM.prototype.bindIf = function (ele, parentProperty) {
-            if ($(ele).attr('p-if')) {
-                $(ele).data('binding')['If'] = {
-                    pattern: $(ele).attr('p-if'),
+            if (Pandyle.$(ele).attr('p-if')) {
+                Pandyle.$(ele).data('binding')['If'] = {
+                    pattern: Pandyle.$(ele).attr('p-if'),
                     related: false
                 };
-                $(ele).removeAttr('p-if');
+                Pandyle.$(ele).removeAttr('p-if');
             }
-            if ($(ele).data('binding')['If']) {
-                var expression = $(ele).data('binding')['If'].pattern;
-                var data = $(ele).data('context');
-                var convertedExpression = this.convertFromPattern($(ele), 'If', expression, data, parentProperty);
+            if (Pandyle.$(ele).data('binding')['If']) {
+                var expression = Pandyle.$(ele).data('binding')['If'].pattern;
+                var data = Pandyle.$(ele).data('context');
+                var convertedExpression = this.convertFromPattern(Pandyle.$(ele), 'If', expression, data, parentProperty);
                 var judge = new Function('return ' + convertedExpression);
                 if (judge()) {
-                    $(ele).show();
+                    Pandyle.$(ele).show();
                 }
                 else {
-                    $(ele).hide();
+                    Pandyle.$(ele).hide();
                 }
             }
         };
         VM.prototype.renderContext = function (ele, parentProperty) {
-            var element = $(ele);
+            var element = Pandyle.$(ele);
             if (element.attr('p-context')) {
                 var data = element.data('context');
                 var expression = element.attr('p-context');
@@ -612,26 +624,26 @@ var Pandyle;
                 var method = divided.method;
                 var target = this.calcu(property, element, data);
                 if (method) {
-                    target = this.convert(method, $.extend({}, target));
+                    target = this.convert(method, Pandyle.$.extend({}, target));
                 }
                 var fullProp = property;
                 if (parentProperty !== '') {
                     fullProp = parentProperty + '.' + property;
                 }
                 this.setAlias(element, fullProp, target);
-                this.setRelation(property, $(ele), parentProperty);
+                this.setRelation(property, Pandyle.$(ele), parentProperty);
                 this.renderChild(ele, target, fullProp);
             }
         };
         VM.prototype.renderChild = function (ele, data, parentProperty) {
             var $this = this;
-            var element = $(ele);
+            var element = Pandyle.$(ele);
             if (element.children().length > 0) {
                 var alias_1 = element.data('alias');
                 element.children().each(function (index, item) {
-                    var child = $(item);
+                    var child = Pandyle.$(item);
                     child.data('context', data);
-                    $this.renderSingle(child[0], data, parentProperty, $.extend({}, alias_1));
+                    $this.renderSingle(child[0], data, parentProperty, Pandyle.$.extend({}, alias_1));
                 });
             }
         };
@@ -658,12 +670,12 @@ var Pandyle;
                 ;
                 var alias_2 = element.data('alias');
                 var htmlText = element.data('pattern');
-                var children_1 = $('<div />').html(htmlText).children();
+                var children_1 = Pandyle.$('<div />').html(htmlText).children();
                 element.children().remove();
                 target.forEach(function (value, index) {
                     var newChildren = children_1.clone(true, true);
                     element.append(newChildren);
-                    $this.render(newChildren, value, fullProp_1.concat('[', index.toString(), ']'), $.extend(alias_2, { index: { data: index, property: '@index' } }));
+                    $this.render(newChildren, value, fullProp_1.concat('[', index.toString(), ']'), Pandyle.$.extend(alias_2, { index: { data: index, property: '@index' } }));
                 });
             }
         };
@@ -693,7 +705,7 @@ var Pandyle;
                 var alias_3 = element.data('alias');
                 var htmlText_1 = element.data('pattern');
                 var siblingText = htmlText_1.replace(/p-for=((".*?")|('.*?'))/g, '');
-                var siblings_1 = $(siblingText);
+                var siblings_1 = Pandyle.$(siblingText);
                 element.siblings('[uid=' + element.data('uid') + ']').remove();
                 var afterElement_1 = function (ele, target, index) {
                     if (target.length === 0) {
@@ -701,7 +713,7 @@ var Pandyle;
                     }
                     var newSibling = siblings_1.clone(true, true);
                     ele.after(newSibling);
-                    $this.render(newSibling, target.shift(), fullProp_2.concat('[', index.toString(), ']'), $.extend(alias_3, { index: { data: index, property: '@index' } }));
+                    $this.render(newSibling, target.shift(), fullProp_2.concat('[', index.toString(), ']'), Pandyle.$.extend(alias_3, { index: { data: index, property: '@index' } }));
                     if (index === 0) {
                         newSibling.data('uid', element.data('uid'));
                         newSibling.data('pattern', htmlText_1);
@@ -788,12 +800,12 @@ var Pandyle;
         };
         VM.prototype.getValue = function (element, property, data) {
             var result = this.calcu(property, element, data);
-            var type = $.type(result);
+            var type = Pandyle.$.type(result);
             if (type === 'string' || type === 'number' || type === 'boolean') {
                 return result;
             }
             else {
-                return $.extend(this.toDefault(type), result);
+                return Pandyle.$.extend(this.toDefault(type), result);
             }
         };
         VM.prototype.calcu = function (property, element, data) {
@@ -926,7 +938,7 @@ var Pandyle;
             return this._filters[method](data);
         };
         VM.prototype.register = function (name, value) {
-            if ($.isFunction(value)) {
+            if (Pandyle.$.isFunction(value)) {
                 if (Pandyle.hasSuffix(name, 'Filter')) {
                     this._filters[name] = value;
                 }
