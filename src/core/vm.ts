@@ -37,8 +37,16 @@ namespace Pandyle {
             }
         }
 
-        public set(newData: any) {
-            for (let key in newData) {
+        public set(newData:string, value:any);
+        public set(newData: object);
+        public set(newData: any, value?:any) {
+            let _newData = {};
+            if(arguments.length === 2){
+                _newData[newData] = value;
+            }else{
+                _newData = newData;
+            }
+            for (let key in _newData) {
                 let properties = key.split(/[\[\]\.]/).filter(s => s != '');
                 let lastProperty = properties.pop();
                 let target = this._data;
@@ -47,7 +55,7 @@ namespace Pandyle {
                         return obj[current];
                     }, this._data);
                 }
-                target[lastProperty] = newData[key];
+                target[lastProperty] = _newData[key];
                 if ($.isArray(target[lastProperty])) {
                     for (let i = this._relations.length - 1; i >= 0; i--) {
                         if (this.isChild(key, this._relations[i].property)) {
@@ -120,25 +128,29 @@ namespace Pandyle {
                 element.data('alias', alias);
             }
             data = element.data('context');
+            this.setAlias(element, parentProperty, data);
+            if(!this.bindIf(ele, parentProperty)){
+                return;
+            }
             if (element.attr('p-for')) {
-                this.setAlias(element, parentProperty, data);
+                // this.setAlias(element, parentProperty, data);
                 this.renderFor(element, data, parentProperty);
             } else {
                 this.bindAttr(ele, parentProperty);
-                this.bindIf(ele, parentProperty);
+                
                 if (element.attr('p-com')) {
                     loadComponent(ele);
                 }
                 if (element.attr('p-context')) {
                     this.renderContext(ele, parentProperty);
                 } else if (element.attr('p-each')) {
-                    this.setAlias(element, parentProperty, data);
+                    // this.setAlias(element, parentProperty, data);
                     this.renderEach(element, data, parentProperty);
                 } else if (element.children().length > 0) {
-                    this.setAlias(element, parentProperty, data);
+                    // this.setAlias(element, parentProperty, data);
                     this.renderChild(ele, data, parentProperty);
                 } else {
-                    this.setAlias(element, parentProperty, data);
+                    // this.setAlias(element, parentProperty, data);
                     this.renderText(element, parentProperty);
                 }
             }
@@ -193,9 +205,13 @@ namespace Pandyle {
                 let judge = new Function('return ' + convertedExpression);
                 if (judge()) {
                     $(ele).show();
+                    return true;
                 } else {
                     $(ele).hide();
+                    return false;
                 }
+            }else{
+                return true;
             }
         }
 

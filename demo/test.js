@@ -66,15 +66,21 @@ function setName() {
         honors2.push('测试' + i);
     }
     var now = Date.now();
-    vm.set({
-        next: {
-            t: '水浒传',
-            a: '施耐庵',
-            p: 40
-        },
-        'author.honors': honors2,
-        title: '书本'
-    });
+    // vm.set({
+    //     next: {
+    //         t: '水浒传',
+    //         a: '施耐庵',
+    //         p: 40
+    //     },
+    //     'author.honors': honors2,
+    //     title: '书本',
+    //     'tags': [
+    //         '名著2',
+    //         '文学2',
+    //         '外国2'
+    //     ]
+    // });
+    vm.set('title', '书本');
     var then = Date.now();
     console.log(then - now);
 }

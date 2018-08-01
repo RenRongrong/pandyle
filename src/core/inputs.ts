@@ -6,7 +6,7 @@ namespace Pandyle {
         private _relations: relation[];
         private _root: JQuery<HTMLElement>;
 
-        public callBack: (name:string, value:any) => void;
+        public callBack: (name: string, value: any) => void;
 
         constructor(element: JQuery<HTMLElement>) {
             this._data = {};
@@ -51,7 +51,7 @@ namespace Pandyle {
             });
         }
 
-        private initData_input(element: JQuery<HTMLElement>, name:string, value:any) {
+        private initData_input(element: JQuery<HTMLElement>, name: string, value: any) {
             let type = element.prop('type');
             switch (type) {
                 case 'radio':
@@ -66,7 +66,7 @@ namespace Pandyle {
             }
         }
 
-        private initData_radio(element: JQuery<HTMLElement>, name:string, value:any) {
+        private initData_radio(element: JQuery<HTMLElement>, name: string, value: any) {
             if ($.isEmptyObject(this.getDataByName(name))) {
                 this.setData(name, '');
             }
@@ -75,7 +75,7 @@ namespace Pandyle {
             }
         }
 
-        private initData_check(element: JQuery<HTMLElement>, name:string, value:any) {
+        private initData_check(element: JQuery<HTMLElement>, name: string, value: any) {
             if ($.isEmptyObject(this.getDataByName(name))) {
                 this.setData(name, []);
             }
@@ -84,11 +84,11 @@ namespace Pandyle {
             }
         }
 
-        private initData_normal(element: JQuery<HTMLElement>, name:string, value:any) {
+        private initData_normal(element: JQuery<HTMLElement>, name: string, value: any) {
             this.setData(name, value);
         }
 
-        private initData_select(element: JQuery<HTMLElement>, name:string, value:any) {
+        private initData_select(element: JQuery<HTMLElement>, name: string, value: any) {
             this.setData(name, value);
         }
 
@@ -108,18 +108,18 @@ namespace Pandyle {
                     case 'SELECT':
                         this.onChange_select(ele, name, value);
                         break;
-                }              
-                if(this.callBack){
-                    this.callBack(name, value);
+                }
+                if (this.callBack) {
+                    this.callBack(name, this.getDataByName(name));
                 }
             })
         }
 
-        private onChange_normal(element: JQuery<HTMLElement>, name: string, value:any) {
+        private onChange_normal(element: JQuery<HTMLElement>, name: string, value: any) {
             this.setData(name, value);
         }
 
-        private onChange_input(element: JQuery<HTMLElement>, name:string, value:any) {
+        private onChange_input(element: JQuery<HTMLElement>, name: string, value: any) {
             switch (element.prop('type')) {
                 case 'radio':
                     this.onChange_radio(element, name, value);
@@ -133,13 +133,13 @@ namespace Pandyle {
             }
         }
 
-        private onChange_radio(element: JQuery<HTMLElement>, name:string, value:any) {
+        private onChange_radio(element: JQuery<HTMLElement>, name: string, value: any) {
             if (element.prop('checked')) {
                 this.setData(name, value);
             }
         }
 
-        private onChange_check(element: JQuery<HTMLElement>, name:string, value:any) {
+        private onChange_check(element: JQuery<HTMLElement>, name: string, value: any) {
             if (element.prop('checked')) {
                 this.getDataByName(name).push(value);
             } else {
@@ -148,7 +148,7 @@ namespace Pandyle {
             }
         }
 
-        private onChange_select(element: JQuery<HTMLElement>, name:string, value:any) {
+        private onChange_select(element: JQuery<HTMLElement>, name: string, value: any) {
             this.setData(name, value);
         }
 

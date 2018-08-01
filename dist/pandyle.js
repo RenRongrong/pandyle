@@ -239,7 +239,7 @@ var Pandyle;
                         break;
                 }
                 if (_this.callBack) {
-                    _this.callBack(name, value);
+                    _this.callBack(name, _this.getDataByName(name));
                 }
             });
         };
@@ -472,8 +472,15 @@ var Pandyle;
                 this.run();
             }
         }
-        VM.prototype.set = function (newData) {
+        VM.prototype.set = function (newData, value) {
             var _this = this;
+            var _newData = {};
+            if (arguments.length === 2) {
+                _newData[newData] = value;
+            }
+            else {
+                _newData = newData;
+            }
             var _loop_1 = function (key) {
                 var properties = key.split(/[\[\]\.]/).filter(function (s) { return s != ''; });
                 var lastProperty = properties.pop();
@@ -483,7 +490,7 @@ var Pandyle;
                         return obj[current];
                     }, this_1._data);
                 }
-                target[lastProperty] = newData[key];
+                target[lastProperty] = _newData[key];
                 if (Pandyle.$.isArray(target[lastProperty])) {
                     for (var i = this_1._relations.length - 1; i >= 0; i--) {
                         if (this_1.isChild(key, this_1._relations[i].property)) {
@@ -499,7 +506,7 @@ var Pandyle;
                 }
             };
             var this_1 = this;
-            for (var key in newData) {
+            for (var key in _newData) {
                 _loop_1(key);
             }
         };
@@ -544,13 +551,15 @@ var Pandyle;
                 element.data('alias', alias);
             }
             data = element.data('context');
+            this.setAlias(element, parentProperty, data);
+            if (!this.bindIf(ele, parentProperty)) {
+                return;
+            }
             if (element.attr('p-for')) {
-                this.setAlias(element, parentProperty, data);
                 this.renderFor(element, data, parentProperty);
             }
             else {
                 this.bindAttr(ele, parentProperty);
-                this.bindIf(ele, parentProperty);
                 if (element.attr('p-com')) {
                     Pandyle.loadComponent(ele);
                 }
@@ -558,15 +567,12 @@ var Pandyle;
                     this.renderContext(ele, parentProperty);
                 }
                 else if (element.attr('p-each')) {
-                    this.setAlias(element, parentProperty, data);
                     this.renderEach(element, data, parentProperty);
                 }
                 else if (element.children().length > 0) {
-                    this.setAlias(element, parentProperty, data);
                     this.renderChild(ele, data, parentProperty);
                 }
                 else {
-                    this.setAlias(element, parentProperty, data);
                     this.renderText(element, parentProperty);
                 }
             }
@@ -608,10 +614,15 @@ var Pandyle;
                 var judge = new Function('return ' + convertedExpression);
                 if (judge()) {
                     Pandyle.$(ele).show();
+                    return true;
                 }
                 else {
                     Pandyle.$(ele).hide();
+                    return false;
                 }
+            }
+            else {
+                return true;
             }
         };
         VM.prototype.renderContext = function (ele, parentProperty) {

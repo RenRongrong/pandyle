@@ -70,7 +70,8 @@ declare namespace Pandyle {
         private _defaultAlias;
         private static _uid;
         constructor(element: JQuery<HTMLElement>, data: T, autoRun?: boolean);
-        set(newData: any): void;
+        set(newData: string, value: any): any;
+        set(newData: object): any;
         get(param?: any): any;
         run(): void;
         render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string, alias?: any): void;
