@@ -13,7 +13,7 @@ $(document).ready(function() {
         id: 2,
         title: '百年孤独',
         author: {
-            name: '<p>马尔克斯</p><p>加西亚</p>',
+            name: '马尔克斯',
             nation: '哥伦比亚',
             honors: honors
         },

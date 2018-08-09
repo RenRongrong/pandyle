@@ -752,7 +752,7 @@ var Pandyle;
         };
         VM.prototype.convertFromPattern = function (element, prop, pattern, data, parentProperty) {
             var _this = this;
-            var reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\s]*)\s*}}/g;
+            var reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\s]*?)\s*}}/g;
             var related = false;
             if (reg.test(pattern)) {
                 if (!element.data('binding')[prop]) {

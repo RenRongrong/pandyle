@@ -375,7 +375,7 @@ namespace Pandyle {
          * @param parentProperty 父级字段的名称
          */
         private convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty) {
-            let reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\s]*)\s*}}/g;
+            let reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\s]*?)\s*}}/g;
             let related = false;
             if (reg.test(pattern)) {
                 if (!element.data('binding')[prop]) {
