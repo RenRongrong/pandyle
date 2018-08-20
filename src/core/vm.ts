@@ -516,6 +516,11 @@ namespace Pandyle {
                     return tempData;
                 }
             }, data);
+            if(undefined === result){
+                result = 'undefined';
+            }else if(null === result){
+                result = 'null';
+            }
             return result;
         }
 
