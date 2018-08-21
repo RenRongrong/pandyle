@@ -458,7 +458,7 @@ namespace Pandyle {
         private getValue(element: JQuery<HTMLElement>, property: string, data: any) {
             let result = this.calcu(property, element, data);
             let type = $.type(result);
-            if (type === 'string' || type === 'number' || type === 'boolean') {
+            if (type === 'string' || type === 'number' || type === 'boolean' || type === 'null' || type === 'undefined') {
                 return result;
             } else {
                 return $.extend(this.toDefault(type), result);
@@ -516,11 +516,6 @@ namespace Pandyle {
                     return tempData;
                 }
             }, data);
-            if(undefined === result){
-                result = 'undefined';
-            }else if(null === result){
-                result = 'null';
-            }
             return result;
         }
 

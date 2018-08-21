@@ -812,7 +812,7 @@ var Pandyle;
         VM.prototype.getValue = function (element, property, data) {
             var result = this.calcu(property, element, data);
             var type = Pandyle.$.type(result);
-            if (type === 'string' || type === 'number' || type === 'boolean') {
+            if (type === 'string' || type === 'number' || type === 'boolean' || type === 'null' || type === 'undefined') {
                 return result;
             }
             else {
@@ -865,12 +865,6 @@ var Pandyle;
                     return tempData;
                 }
             }, data);
-            if (undefined === result) {
-                result = 'undefined';
-            }
-            else if (null === result) {
-                result = 'null';
-            }
             return result;
         };
         VM.prototype.toDefault = function (type) {
