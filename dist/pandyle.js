@@ -448,12 +448,62 @@ if (!Array.prototype.indexOf) {
 }
 var Pandyle;
 (function (Pandyle) {
+    var relationCollection = (function () {
+        function relationCollection(util) {
+            this._util = util;
+            this._relations = [];
+        }
+        relationCollection.CreateRelationCollection = function (util) {
+            return new relationCollection(util);
+        };
+        relationCollection.prototype.setRelation = function (property, element, parentProperty) {
+            var _this = this;
+            if (/^@.*/.test(property)) {
+                property = property.replace(/@(\w+)?/, function ($0, $1) {
+                    return _this._util.getAliasProperty(element, $1);
+                });
+            }
+            else if (parentProperty != '') {
+                property = parentProperty + '.' + property;
+            }
+            if (/^\./.test(property)) {
+                property = property.substr(1);
+            }
+            var relation = this._relations.filter(function (value) { return value.property === property; });
+            if (relation.length == 0) {
+                this._relations.push({
+                    property: property,
+                    elements: [element]
+                });
+            }
+            else {
+                if (relation[0].elements.indexOf(element) < 0) {
+                    relation[0].elements.push(element);
+                }
+            }
+        };
+        relationCollection.prototype.findSelfOrChild = function (key) {
+            var _this = this;
+            return this._relations.filter(function (value) { return _this._util.isSelfOrChild(key, value.property); });
+        };
+        relationCollection.prototype.removeChildren = function (key) {
+            for (var i = this._relations.length - 1; i >= 0; i--) {
+                if (this._util.isChild(key, this._relations[i].property)) {
+                    this._relations.splice(i, 1);
+                }
+            }
+        };
+        return relationCollection;
+    }());
+    Pandyle.relationCollection = relationCollection;
+})(Pandyle || (Pandyle = {}));
+var Pandyle;
+(function (Pandyle) {
     var VM = (function () {
         function VM(element, data, autoRun) {
             if (autoRun === void 0) { autoRun = true; }
             this._data = Pandyle.$.extend({}, data);
             this._root = element;
-            this._relations = [];
             this._methods = {};
             this._filters = {};
             this._converters = {};
@@ -468,6 +518,8 @@ var Pandyle;
                     property: '@window'
                 }
             };
+            this._util = Pandyle.Util.CreateUtil(this);
+            this._relationCollection = Pandyle.relationCollection.CreateRelationCollection(this._util);
             if (autoRun) {
                 this.run();
             }
@@ -481,33 +533,25 @@ var Pandyle;
             else {
                 _newData = newData;
             }
-            var _loop_1 = function (key) {
+            for (var key in _newData) {
                 var properties = key.split(/[\[\]\.]/).filter(function (s) { return s != ''; });
                 var lastProperty = properties.pop();
-                var target = this_1._data;
+                var target = this._data;
                 if (properties.length > 0) {
                     target = properties.reduce(function (obj, current) {
                         return obj[current];
-                    }, this_1._data);
+                    }, this._data);
                 }
                 target[lastProperty] = _newData[key];
                 if (Pandyle.$.isArray(target[lastProperty])) {
-                    for (var i = this_1._relations.length - 1; i >= 0; i--) {
-                        if (this_1.isChild(key, this_1._relations[i].property)) {
-                            this_1._relations.splice(i, 1);
-                        }
-                    }
+                    this._relationCollection.removeChildren(key);
                 }
-                var relation = this_1._relations.filter(function (value) { return _this.isSelfOrChild(key, value.property); });
+                var relation = this._relationCollection.findSelfOrChild(key);
                 if (relation.length > 0) {
                     relation[0].elements.forEach(function (ele) {
                         _this.render(ele);
                     });
                 }
-            };
-            var this_1 = this;
-            for (var key in _newData) {
-                _loop_1(key);
             }
         };
         VM.prototype.get = function (param) {
@@ -519,11 +563,11 @@ var Pandyle;
                 case 'array':
                     return param.map(function (value) { return _this.get(value); });
                 case 'string':
-                    return this.getValue(this._root, param, this._data);
+                    return this._util.getValue(this._root, param, this._data);
                 case 'object':
                     var result = {};
                     for (var key in param) {
-                        result[key] = this.getValue(this._root, param[key], this._data);
+                        result[key] = this._util.getValue(this._root, param[key], this._data);
                     }
                     return result;
                 default:
@@ -551,7 +595,7 @@ var Pandyle;
                 element.data('alias', alias);
             }
             data = element.data('context');
-            this.setAlias(element, parentProperty, data);
+            this._util.setAlias(element, parentProperty, data);
             if (!this.bindIf(ele, parentProperty)) {
                 return;
             }
@@ -630,19 +674,19 @@ var Pandyle;
             if (element.attr('p-context')) {
                 var data = element.data('context');
                 var expression = element.attr('p-context');
-                var divided = this.dividePipe(expression);
+                var divided = this._util.dividePipe(expression);
                 var property = divided.property;
                 var method = divided.method;
-                var target = this.calcu(property, element, data);
+                var target = this._util.calcu(property, element, data);
                 if (method) {
-                    target = this.convert(method, Pandyle.$.extend({}, target));
+                    target = this._util.convert(method, Pandyle.$.extend({}, target));
                 }
                 var fullProp = property;
                 if (parentProperty !== '') {
                     fullProp = parentProperty + '.' + property;
                 }
-                this.setAlias(element, fullProp, target);
-                this.setRelation(property, Pandyle.$(ele), parentProperty);
+                this._util.setAlias(element, fullProp, target);
+                this._relationCollection.setRelation(property, Pandyle.$(ele), parentProperty);
                 this.renderChild(ele, target, fullProp);
             }
         };
@@ -662,16 +706,16 @@ var Pandyle;
             var $this = this;
             if (element.attr('p-each')) {
                 var expression = element.attr('p-each').replace(/\s/g, '');
-                var divided = this.dividePipe(expression);
+                var divided = this._util.dividePipe(expression);
                 var property = divided.property;
                 var method = divided.method;
-                var target = this.calcu(property, element, data);
+                var target = this._util.calcu(property, element, data);
                 if (method) {
                     target = this.filter(method, target);
                 }
                 if (!element.data('pattern')) {
                     element.data('pattern', element.html());
-                    this.setRelation(property, element, parentProperty);
+                    this._relationCollection.setRelation(property, element, parentProperty);
                 }
                 ;
                 var fullProp_1 = property;
@@ -697,10 +741,10 @@ var Pandyle;
                     element.data('uid', VM._uid++);
                 }
                 var expression_1 = element.attr('p-for').replace(/\s/g, '');
-                var divided = this.dividePipe(expression_1);
+                var divided = this._util.dividePipe(expression_1);
                 var property_1 = divided.property;
                 var method = divided.method;
-                var target = this.calcu(property_1, element, data);
+                var target = this._util.calcu(property_1, element, data);
                 if (method) {
                     target = this.filter(method, target);
                 }
@@ -730,7 +774,7 @@ var Pandyle;
                         newSibling.data('pattern', htmlText_1);
                         newSibling.attr('p-for', expression_1);
                         newSibling.data('context', data);
-                        $this.setRelation(property_1, newSibling, parentProperty);
+                        $this._relationCollection.setRelation(property_1, newSibling, parentProperty);
                     }
                     else {
                         newSibling.attr('uid', element.data('uid'));
@@ -765,51 +809,54 @@ var Pandyle;
             }
             var result = pattern.replace(reg, function ($0, $1) {
                 if (!related) {
-                    _this.setRelation($1, element, parentProperty);
+                    _this._relationCollection.setRelation($1, element, parentProperty);
                     element.data('binding')[prop].related = true;
                 }
-                return _this.getValue(element, $1, data);
+                return _this._util.getValue(element, $1, data);
             });
             return result;
         };
-        VM.prototype.setRelation = function (property, element, parentProperty) {
-            var _this = this;
-            if (/^@.*/.test(property)) {
-                property = property.replace(/@(\w+)?/, function ($0, $1) {
-                    return _this.getAliasProperty(element, $1);
-                });
+        VM.prototype.getMethod = function (name) {
+            return this._methods[name];
+        };
+        VM.prototype.filter = function (method, data) {
+            if (!Pandyle.hasSuffix(method, 'Filter')) {
+                method += 'Filter';
             }
-            else if (parentProperty != '') {
-                property = parentProperty + '.' + property;
-            }
-            if (/^\./.test(property)) {
-                property = property.substr(1);
-            }
-            var relation = this._relations.filter(function (value) { return value.property === property; });
-            if (relation.length == 0) {
-                this._relations.push({
-                    property: property,
-                    elements: [element]
-                });
-            }
-            else {
-                if (relation[0].elements.indexOf(element) < 0) {
-                    relation[0].elements.push(element);
+            return this._filters[method](data);
+        };
+        VM.prototype.register = function (name, value) {
+            if (Pandyle.$.isFunction(value)) {
+                if (Pandyle.hasSuffix(name, 'Filter')) {
+                    this._filters[name] = value;
+                }
+                else if (Pandyle.hasSuffix(name, 'Converter')) {
+                    this._converters[name] = value;
+                }
+                else {
+                    this._methods[name] = value;
                 }
             }
+            else {
+                this._variables[name] = value;
+            }
         };
-        VM.prototype.isSelfOrChild = function (property, subProperty) {
-            property = property.replace(/[\[\]\(\)\.]/g, function ($0) {
-                return '\\' + $0;
-            });
-            var reg = new RegExp('^' + property + '$' + '|' + '^' + property + '[\\[\\.]\\w+');
-            return reg.test(subProperty);
+        return VM;
+    }());
+    VM._uid = 1;
+    Pandyle.VM = VM;
+})(Pandyle || (Pandyle = {}));
+var Pandyle;
+(function (Pandyle) {
+    var Util = (function () {
+        function Util(vm) {
+            this._vm = vm;
+        }
+        Util.CreateUtil = function (vm) {
+            var util = new Util(vm);
+            return util;
         };
-        VM.prototype.isChild = function (property, subProperty) {
-            var reg = new RegExp('^' + property + '[\\[\\.]\\w+');
-            return reg.test(subProperty);
-        };
-        VM.prototype.getValue = function (element, property, data) {
+        Util.prototype.getValue = function (element, property, data) {
             var result = this.calcu(property, element, data);
             var type = Pandyle.$.type(result);
             if (type === 'string' || type === 'number' || type === 'boolean' || type === 'null' || type === 'undefined') {
@@ -819,7 +866,7 @@ var Pandyle;
                 return Pandyle.$.extend(this.toDefault(type), result);
             }
         };
-        VM.prototype.calcu = function (property, element, data) {
+        Util.prototype.calcu = function (property, element, data) {
             var _this = this;
             var nodes = property.match(/[@\w]+((?:\(.*?\))*|(?:\[.*?\])*)/g);
             if (!nodes) {
@@ -856,7 +903,7 @@ var Pandyle;
                                     return (new Function('return ' + p))();
                                 }
                             });
-                            var func = obj2 || _this.getMethod(property) || Pandyle.getMethod(property) || window[property];
+                            var func = obj2 || _this._vm.getMethod(property) || Pandyle.getMethod(property) || window[property];
                             return func.apply(_this, computedParams);
                         }
                     }, tempData);
@@ -867,7 +914,7 @@ var Pandyle;
             }, data);
             return result;
         };
-        VM.prototype.toDefault = function (type) {
+        Util.prototype.toDefault = function (type) {
             switch (type) {
                 case 'string':
                     return '';
@@ -885,7 +932,7 @@ var Pandyle;
                     return null;
             }
         };
-        VM.prototype.setAlias = function (element, property, data) {
+        Util.prototype.setAlias = function (element, property, data) {
             var targetData = data || element.data('context');
             element.data('alias').self = {
                 data: targetData,
@@ -899,18 +946,15 @@ var Pandyle;
                 };
             }
         };
-        VM.prototype.getAliasData = function (element, alias) {
+        Util.prototype.getAliasData = function (element, alias) {
             var data = element.data('alias');
             return data[alias].data;
         };
-        VM.prototype.getAliasProperty = function (element, alias) {
+        Util.prototype.getAliasProperty = function (element, alias) {
             var data = element.data('alias');
             return data[alias].property;
         };
-        VM.prototype.getMethod = function (name) {
-            return this._methods[name];
-        };
-        VM.prototype.dividePipe = function (expression) {
+        Util.prototype.dividePipe = function (expression) {
             var array = expression.split('|');
             var property = array[0].replace(/\s/g, '');
             var method = array[1] ? array[1].replace(/\s/g, '') : null;
@@ -919,7 +963,7 @@ var Pandyle;
                 method: method
             };
         };
-        VM.prototype.convert = function (method, data) {
+        Util.prototype.convert = function (method, data) {
             if (/^{.*}$/.test(method)) {
                 var pairs = method.replace(/{|}/g, '').split(',');
                 return pairs.reduce(function (pre, current) {
@@ -939,34 +983,22 @@ var Pandyle;
                 if (!Pandyle.hasSuffix(method, 'Converter')) {
                     method += 'Converter';
                 }
-                return this._converters[method](data);
+                return this._vm._converters[method](data);
             }
         };
-        VM.prototype.filter = function (method, data) {
-            if (!Pandyle.hasSuffix(method, 'Filter')) {
-                method += 'Filter';
-            }
-            return this._filters[method](data);
+        Util.prototype.isSelfOrChild = function (property, subProperty) {
+            property = property.replace(/[\[\]\(\)\.]/g, function ($0) {
+                return '\\' + $0;
+            });
+            var reg = new RegExp('^' + property + '$' + '|' + '^' + property + '[\\[\\.]\\w+');
+            return reg.test(subProperty);
         };
-        VM.prototype.register = function (name, value) {
-            if (Pandyle.$.isFunction(value)) {
-                if (Pandyle.hasSuffix(name, 'Filter')) {
-                    this._filters[name] = value;
-                }
-                else if (Pandyle.hasSuffix(name, 'Converter')) {
-                    this._converters[name] = value;
-                }
-                else {
-                    this._methods[name] = value;
-                }
-            }
-            else {
-                this._variables[name] = value;
-            }
+        Util.prototype.isChild = function (property, subProperty) {
+            var reg = new RegExp('^' + property + '[\\[\\.]\\w+');
+            return reg.test(subProperty);
         };
-        return VM;
+        return Util;
     }());
-    VM._uid = 1;
-    Pandyle.VM = VM;
+    Pandyle.Util = Util;
 })(Pandyle || (Pandyle = {}));
 //# sourceMappingURL=pandyle.js.map

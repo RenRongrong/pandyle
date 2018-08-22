@@ -58,16 +58,37 @@ declare namespace Pandyle {
         private updateDom_select(element, value);
     }
 }
+interface IRelation {
+    property: string;
+    elements: JQuery<HTMLElement>[];
+}
+interface IRelationCollection {
+    setRelation: (property: string, element: JQuery<HTMLElement>, parentProperty: string) => void;
+    findSelfOrChild: (key: string) => IRelation[];
+    removeChildren: (key: string) => void;
+}
+declare namespace Pandyle {
+    class relationCollection<T> implements IRelationCollection {
+        private _util;
+        private _relations;
+        private constructor(util);
+        static CreateRelationCollection<T>(util: Util<T>): relationCollection<T>;
+        setRelation(property: string, element: JQuery<HTMLElement>, parentProperty: string): void;
+        findSelfOrChild(key: string): IRelation[];
+        removeChildren(key: string): void;
+    }
+}
 declare namespace Pandyle {
     class VM<T> {
         protected _data: T;
-        private _relations;
         private _root;
         private _methods;
         private _filters;
-        private _converters;
+        _converters: object;
         private _variables;
         private _defaultAlias;
+        private _relationCollection;
+        private _util;
         private static _uid;
         constructor(element: JQuery<HTMLElement>, data: T, autoRun?: boolean);
         set(newData: string, value: any): any;
@@ -84,19 +105,28 @@ declare namespace Pandyle {
         private renderFor(element, data, parentProperty);
         private renderText(element, parentProperty);
         private convertFromPattern(element, prop, pattern, data, parentProperty);
-        private setRelation(property, element, parentProperty);
-        private isSelfOrChild(property, subProperty);
-        private isChild(property, subProperty);
-        private getValue(element, property, data);
-        private calcu(property, element, data);
-        private toDefault(type);
-        private setAlias(element, property, data?);
-        private getAliasData(element, alias);
-        private getAliasProperty(element, alias);
-        private getMethod(name);
-        private dividePipe(expression);
-        private convert(method, data);
-        private filter(method, data);
+        getMethod(name: string): Function;
+        filter(method: string, data: any[]): any;
         register(name: string, value: any): void;
+    }
+}
+declare namespace Pandyle {
+    class Util<T> {
+        private _vm;
+        private constructor(vm);
+        static CreateUtil<T>(vm: VM<T>): Util<T>;
+        getValue(element: JQuery<HTMLElement>, property: string, data: any): any;
+        calcu(property: string, element: JQuery<HTMLElement>, data: any): any;
+        toDefault(type: string): {};
+        setAlias(element: JQuery<HTMLElement>, property: string, data?: any): void;
+        getAliasData(element: JQuery<HTMLElement>, alias: string): any;
+        getAliasProperty(element: JQuery<HTMLElement>, alias: string): any;
+        dividePipe(expression: string): {
+            property: string;
+            method: string;
+        };
+        convert(method: string, data: any): any;
+        isSelfOrChild(property: string, subProperty: string): boolean;
+        isChild(property: string, subProperty: string): boolean;
     }
 }
