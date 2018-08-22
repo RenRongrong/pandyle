@@ -84,6 +84,37 @@ namespace Pandyle {
             return result;
         }
 
+        /**
+         * 将带文本插值的字符串模板转换成正常字符串
+         * @param element 文本所在的对象
+         * @param prop 绑定的属性
+         * @param pattern 字符串模板
+         * @param data 数据上下文
+         * @param parentProperty 父级字段的名称
+         */
+        public convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty) {
+            let reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\s]*?)\s*}}/g;
+            let related = false;
+            if (reg.test(pattern)) {
+                if (!element.data('binding')[prop]) {
+                    element.data('binding')[prop] = {
+                        pattern: pattern,
+                        related: false
+                    }
+                }
+                related = element.data('binding')[prop].related;
+            }
+            let result = pattern.replace(reg, ($0, $1) => {
+                if (!related) {
+                    this._vm._relationCollection.setRelation($1, element, parentProperty);
+                    element.data('binding')[prop].related = true;
+                }
+                return this.getValue(element, $1, data);
+            });
+            return result;
+        }
+
+
         public toDefault(type: string) {
             switch (type) {
                 case 'string':
