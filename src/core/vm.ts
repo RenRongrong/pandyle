@@ -15,6 +15,7 @@ namespace Pandyle {
 
         public _relationCollection: IRelationCollection;
         private _util: Util<T>;
+        private _renderer: Renderer<T>
 
         private static _uid = 1;
 
@@ -37,7 +38,8 @@ namespace Pandyle {
             }
             
             this._util = Util.CreateUtil(this);
-            this._relationCollection = relationCollection.CreateRelationCollection(this._util);
+            this._relationCollection = RelationCollection.CreateRelationCollection(this._util);
+            this._renderer = new Renderer(this);
 
             if (autoRun) {
                 this.run();
@@ -108,7 +110,7 @@ namespace Pandyle {
          */
         public render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string, alias?: any) {
             element.each((index, ele) => {
-                this.renderSingle(ele, data, parentProperty, $.extend({}, alias));
+                this._renderer.renderSingle(ele, data, parentProperty, $.extend({}, alias));
             })
         }
 
@@ -183,7 +185,7 @@ namespace Pandyle {
             let data = $(ele).data('context');
             for (let a in bindings) {
                 if (a !== 'text' && a !== 'if') {
-                    $(ele).attr(a, this.convertFromPattern($(ele), a, bindings[a].pattern, data, parentProperty));
+                    $(ele).attr(a, this._util.convertFromPattern($(ele), a, bindings[a].pattern, data, parentProperty));
                 }
             }
         }
@@ -204,7 +206,7 @@ namespace Pandyle {
             if ($(ele).data('binding')['If']) {
                 let expression: string = $(ele).data('binding')['If'].pattern;
                 let data = $(ele).data('context');
-                let convertedExpression = this.convertFromPattern($(ele), 'If', expression, data, parentProperty);
+                let convertedExpression = this._util.convertFromPattern($(ele), 'If', expression, data, parentProperty);
                 let judge = new Function('return ' + convertedExpression);
                 if (judge()) {
                     $(ele).show();
@@ -365,7 +367,7 @@ namespace Pandyle {
             if (element.data('binding').text) {
                 text = element.data('binding').text.pattern;
             }
-            let result = this.convertFromPattern(element, 'text', text, data, parentProperty);
+            let result = this._util.convertFromPattern(element, 'text', text, data, parentProperty);
             element.html(result);
         }
 
@@ -380,12 +382,6 @@ namespace Pandyle {
             }
             return this._filters[method](data);
         }
-
-        
-
-        
-
-        
 
         public register(name: string, value: any) {
             if ($.isFunction(value)) {

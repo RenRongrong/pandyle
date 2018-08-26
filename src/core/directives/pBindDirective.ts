@@ -1,14 +1,10 @@
 /// <reference path="../util.ts" />
 
 namespace Pandyle {
-    export class pBindDirective<T> extends directiveBase<T> {
-
-        constructor(element: HTMLElement, parentProperty: string, util: Util<T>) {
-            super(element, parentProperty, util);
-        }
+    export class PBindDirective<T> extends DirectiveBase<T> {
 
         public execute() {
-            let ele = $(this._element);
+            let ele = $(this._context.element);
             if (ele.attr('p-bind')) {
                 let binds = $(ele).attr('p-bind').split('^');
                 binds.forEach((bindInfo, index) => {
@@ -26,7 +22,7 @@ namespace Pandyle {
             let data = ele.data('context');
             for (let a in bindings) {
                 if (a !== 'text' && a !== 'if') {
-                    $(ele).attr(a, this._util.convertFromPattern($(ele), a, bindings[a].pattern, data, this._parentProperty));
+                    $(ele).attr(a, this._util.convertFromPattern($(ele), a, bindings[a].pattern, data, this._context.parentProperty));
                 }
             }
             this.next();

@@ -1,3 +1,13 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var Pandyle;
 (function (Pandyle) {
     Pandyle._variables = {};
@@ -362,101 +372,17 @@ var Pandyle;
     }());
     Pandyle.Inputs = Inputs;
 })(Pandyle || (Pandyle = {}));
-if (!Array.prototype.filter) {
-    Array.prototype.filter = function (fun) {
-        var len = this.length;
-        if (typeof fun != "function")
-            throw new TypeError();
-        var res = new Array();
-        var thisp = arguments[1];
-        for (var i = 0; i < len; i++) {
-            if (i in this) {
-                var val = this[i];
-                if (fun.call(thisp, val, i, this))
-                    res.push(val);
-            }
-        }
-        return res;
-    };
-}
-if (!Array.prototype.forEach) {
-    Array.prototype.forEach = function (fun) {
-        var len = this.length;
-        if (typeof fun != "function")
-            throw new TypeError();
-        var thisp = arguments[1];
-        for (var i = 0; i < len; i++) {
-            if (i in this)
-                fun.call(thisp, this[i], i, this);
-        }
-    };
-}
-if (!Array.prototype.map) {
-    Array.prototype.map = function (fun) {
-        var len = this.length;
-        if (typeof fun != "function")
-            throw new TypeError();
-        var res = new Array(len);
-        var thisp = arguments[1];
-        for (var i = 0; i < len; i++) {
-            if (i in this)
-                res[i] = fun.call(thisp, this[i], i, this);
-        }
-        return res;
-    };
-}
-if (!Array.prototype.reduce) {
-    Array.prototype.reduce = function (callback, opt_initialValue) {
-        'use strict';
-        if (null === this || 'undefined' === typeof this) {
-            throw new TypeError('Array.prototype.reduce called on null or undefined');
-        }
-        if ('function' !== typeof callback) {
-            throw new TypeError(callback + ' is not a function');
-        }
-        var index, value, length = this.length >>> 0, isValueSet = false;
-        if (1 < arguments.length) {
-            value = opt_initialValue;
-            isValueSet = true;
-        }
-        for (index = 0; length > index; ++index) {
-            if (this.hasOwnProperty(index)) {
-                if (isValueSet) {
-                    value = callback(value, this[index], index, this);
-                }
-                else {
-                    value = this[index];
-                    isValueSet = true;
-                }
-            }
-        }
-        if (!isValueSet) {
-            throw new TypeError('Reduce of empty array with no initial value');
-        }
-        return value;
-    };
-}
-if (!Array.prototype.indexOf) {
-    Array.prototype.indexOf = function (el) {
-        for (var i = 0, n = this.length; i < n; i++) {
-            if (this[i] === el) {
-                return i;
-            }
-        }
-        return -1;
-    };
-}
 var Pandyle;
 (function (Pandyle) {
-    var relationCollection = (function () {
-        function relationCollection(util) {
+    var RelationCollection = (function () {
+        function RelationCollection(util) {
             this._util = util;
             this._relations = [];
         }
-        relationCollection.CreateRelationCollection = function (util) {
-            return new relationCollection(util);
+        RelationCollection.CreateRelationCollection = function (util) {
+            return new RelationCollection(util);
         };
-        relationCollection.prototype.setRelation = function (property, element, parentProperty) {
+        RelationCollection.prototype.setRelation = function (property, element, parentProperty) {
             var _this = this;
             if (/^@.*/.test(property)) {
                 property = property.replace(/@(\w+)?/, function ($0, $1) {
@@ -482,20 +408,20 @@ var Pandyle;
                 }
             }
         };
-        relationCollection.prototype.findSelfOrChild = function (key) {
+        RelationCollection.prototype.findSelfOrChild = function (key) {
             var _this = this;
             return this._relations.filter(function (value) { return _this._util.isSelfOrChild(key, value.property); });
         };
-        relationCollection.prototype.removeChildren = function (key) {
+        RelationCollection.prototype.removeChildren = function (key) {
             for (var i = this._relations.length - 1; i >= 0; i--) {
                 if (this._util.isChild(key, this._relations[i].property)) {
                     this._relations.splice(i, 1);
                 }
             }
         };
-        return relationCollection;
+        return RelationCollection;
     }());
-    Pandyle.relationCollection = relationCollection;
+    Pandyle.RelationCollection = RelationCollection;
 })(Pandyle || (Pandyle = {}));
 var Pandyle;
 (function (Pandyle) {
@@ -519,7 +445,8 @@ var Pandyle;
                 }
             };
             this._util = Pandyle.Util.CreateUtil(this);
-            this._relationCollection = Pandyle.relationCollection.CreateRelationCollection(this._util);
+            this._relationCollection = Pandyle.RelationCollection.CreateRelationCollection(this._util);
+            this._renderer = new Pandyle.Renderer(this);
             if (autoRun) {
                 this.run();
             }
@@ -580,7 +507,7 @@ var Pandyle;
         VM.prototype.render = function (element, data, parentProperty, alias) {
             var _this = this;
             element.each(function (index, ele) {
-                _this.renderSingle(ele, data, parentProperty, Pandyle.$.extend({}, alias));
+                _this._renderer.renderSingle(ele, data, parentProperty, Pandyle.$.extend({}, alias));
             });
         };
         VM.prototype.renderSingle = function (ele, data, parentProperty, alias) {
@@ -639,7 +566,7 @@ var Pandyle;
             var data = Pandyle.$(ele).data('context');
             for (var a in bindings) {
                 if (a !== 'text' && a !== 'if') {
-                    Pandyle.$(ele).attr(a, this.convertFromPattern(Pandyle.$(ele), a, bindings[a].pattern, data, parentProperty));
+                    Pandyle.$(ele).attr(a, this._util.convertFromPattern(Pandyle.$(ele), a, bindings[a].pattern, data, parentProperty));
                 }
             }
         };
@@ -654,7 +581,7 @@ var Pandyle;
             if (Pandyle.$(ele).data('binding')['If']) {
                 var expression = Pandyle.$(ele).data('binding')['If'].pattern;
                 var data = Pandyle.$(ele).data('context');
-                var convertedExpression = this.convertFromPattern(Pandyle.$(ele), 'If', expression, data, parentProperty);
+                var convertedExpression = this._util.convertFromPattern(Pandyle.$(ele), 'If', expression, data, parentProperty);
                 var judge = new Function('return ' + convertedExpression);
                 if (judge()) {
                     Pandyle.$(ele).show();
@@ -791,30 +718,8 @@ var Pandyle;
             if (element.data('binding').text) {
                 text = element.data('binding').text.pattern;
             }
-            var result = this.convertFromPattern(element, 'text', text, data, parentProperty);
+            var result = this._util.convertFromPattern(element, 'text', text, data, parentProperty);
             element.html(result);
-        };
-        VM.prototype.convertFromPattern = function (element, prop, pattern, data, parentProperty) {
-            var _this = this;
-            var reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\s]*?)\s*}}/g;
-            var related = false;
-            if (reg.test(pattern)) {
-                if (!element.data('binding')[prop]) {
-                    element.data('binding')[prop] = {
-                        pattern: pattern,
-                        related: false
-                    };
-                }
-                related = element.data('binding')[prop].related;
-            }
-            var result = pattern.replace(reg, function ($0, $1) {
-                if (!related) {
-                    _this._relationCollection.setRelation($1, element, parentProperty);
-                    element.data('binding')[prop].related = true;
-                }
-                return _this._util.getValue(element, $1, data);
-            });
-            return result;
         };
         VM.prototype.getMethod = function (name) {
             return this._methods[name];
@@ -914,6 +819,28 @@ var Pandyle;
             }, data);
             return result;
         };
+        Util.prototype.convertFromPattern = function (element, prop, pattern, data, parentProperty) {
+            var _this = this;
+            var reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\s]*?)\s*}}/g;
+            var related = false;
+            if (reg.test(pattern)) {
+                if (!element.data('binding')[prop]) {
+                    element.data('binding')[prop] = {
+                        pattern: pattern,
+                        related: false
+                    };
+                }
+                related = element.data('binding')[prop].related;
+            }
+            var result = pattern.replace(reg, function ($0, $1) {
+                if (!related) {
+                    _this._vm._relationCollection.setRelation($1, element, parentProperty);
+                    element.data('binding')[prop].related = true;
+                }
+                return _this.getValue(element, $1, data);
+            });
+            return result;
+        };
         Util.prototype.toDefault = function (type) {
             switch (type) {
                 case 'string':
@@ -1000,5 +927,266 @@ var Pandyle;
         return Util;
     }());
     Pandyle.Util = Util;
+})(Pandyle || (Pandyle = {}));
+var Pandyle;
+(function (Pandyle) {
+    var DirectiveBase = (function () {
+        function DirectiveBase() {
+        }
+        DirectiveBase.prototype.next = function () {
+            this._next.init(this._context, this._util);
+            this._next.execute();
+        };
+        DirectiveBase.prototype.deep = function () {
+        };
+        DirectiveBase.prototype.append = function (next) {
+            this._next = next;
+        };
+        DirectiveBase.prototype.init = function (context, util) {
+            this._context = context;
+            this._util = util;
+        };
+        return DirectiveBase;
+    }());
+    Pandyle.DirectiveBase = DirectiveBase;
+})(Pandyle || (Pandyle = {}));
+var Pandyle;
+(function (Pandyle) {
+    var PBindDirective = (function (_super) {
+        __extends(PBindDirective, _super);
+        function PBindDirective() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        PBindDirective.prototype.execute = function () {
+            var ele = Pandyle.$(this._context.element);
+            if (ele.attr('p-bind')) {
+                var binds = Pandyle.$(ele).attr('p-bind').split('^');
+                binds.forEach(function (bindInfo, index) {
+                    var array = bindInfo.match(/^\s*([\w-]+)\s*:\s*(.*)$/);
+                    var attr = array[1];
+                    var value = array[2].replace(/\s*$/, '');
+                    ele.data('binding')[attr] = {
+                        pattern: value,
+                        related: false
+                    };
+                });
+                ele.removeAttr('p-bind');
+            }
+            var bindings = ele.data('binding');
+            var data = ele.data('context');
+            for (var a in bindings) {
+                if (a !== 'text' && a !== 'if') {
+                    Pandyle.$(ele).attr(a, this._util.convertFromPattern(Pandyle.$(ele), a, bindings[a].pattern, data, this._context.parentProperty));
+                }
+            }
+            this.next();
+        };
+        return PBindDirective;
+    }(Pandyle.DirectiveBase));
+    Pandyle.PBindDirective = PBindDirective;
+})(Pandyle || (Pandyle = {}));
+var Pandyle;
+(function (Pandyle) {
+    var pComDirective = (function (_super) {
+        __extends(pComDirective, _super);
+        function pComDirective() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        pComDirective.prototype.execute = function () {
+            var ele = Pandyle.$(this._context.element);
+            if (ele.attr('p-com')) {
+                Pandyle.loadComponent(this._context.element);
+            }
+            this.next();
+        };
+        return pComDirective;
+    }(Pandyle.DirectiveBase));
+    Pandyle.pComDirective = pComDirective;
+})(Pandyle || (Pandyle = {}));
+var Pandyle;
+(function (Pandyle) {
+    var pTextDirective = (function (_super) {
+        __extends(pTextDirective, _super);
+        function pTextDirective() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        pTextDirective.prototype.execute = function () {
+            var element = Pandyle.$(this._context.element);
+            if (element.children().length === 0) {
+                var data = element.data('context');
+                var text = element.text();
+                if (element.data('binding').text) {
+                    text = element.data('binding').text.pattern;
+                }
+                var result = this._util.convertFromPattern(element, 'text', text, data, this._context.parentProperty);
+                element.html(result);
+            }
+        };
+        return pTextDirective;
+    }(Pandyle.DirectiveBase));
+    Pandyle.pTextDirective = pTextDirective;
+})(Pandyle || (Pandyle = {}));
+var Pandyle;
+(function (Pandyle) {
+    var PipeLine = (function () {
+        function PipeLine(context, util) {
+            this._util = util;
+            this._context = context;
+        }
+        ;
+        PipeLine.prototype.add = function (directive) {
+            if (!this._firstDirective) {
+                this._firstDirective = this._lastDirective = directive;
+            }
+            else {
+                this._lastDirective.append(directive);
+                this._lastDirective = directive;
+            }
+            return this;
+        };
+        PipeLine.prototype.start = function () {
+            this._firstDirective.init(this._context, this._util);
+            this._firstDirective.execute();
+        };
+        PipeLine.createPipeLine = function (context, util) {
+            var pipe = new PipeLine(context, util);
+            pipe.add(new Pandyle.PBindDirective())
+                .add(new Pandyle.pComDirective())
+                .add(new Pandyle.pTextDirective());
+            return pipe;
+        };
+        return PipeLine;
+    }());
+    Pandyle.PipeLine = PipeLine;
+})(Pandyle || (Pandyle = {}));
+if (!Array.prototype.filter) {
+    Array.prototype.filter = function (fun) {
+        var len = this.length;
+        if (typeof fun != "function")
+            throw new TypeError();
+        var res = new Array();
+        var thisp = arguments[1];
+        for (var i = 0; i < len; i++) {
+            if (i in this) {
+                var val = this[i];
+                if (fun.call(thisp, val, i, this))
+                    res.push(val);
+            }
+        }
+        return res;
+    };
+}
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function (fun) {
+        var len = this.length;
+        if (typeof fun != "function")
+            throw new TypeError();
+        var thisp = arguments[1];
+        for (var i = 0; i < len; i++) {
+            if (i in this)
+                fun.call(thisp, this[i], i, this);
+        }
+    };
+}
+if (!Array.prototype.map) {
+    Array.prototype.map = function (fun) {
+        var len = this.length;
+        if (typeof fun != "function")
+            throw new TypeError();
+        var res = new Array(len);
+        var thisp = arguments[1];
+        for (var i = 0; i < len; i++) {
+            if (i in this)
+                res[i] = fun.call(thisp, this[i], i, this);
+        }
+        return res;
+    };
+}
+if (!Array.prototype.reduce) {
+    Array.prototype.reduce = function (callback, opt_initialValue) {
+        'use strict';
+        if (null === this || 'undefined' === typeof this) {
+            throw new TypeError('Array.prototype.reduce called on null or undefined');
+        }
+        if ('function' !== typeof callback) {
+            throw new TypeError(callback + ' is not a function');
+        }
+        var index, value, length = this.length >>> 0, isValueSet = false;
+        if (1 < arguments.length) {
+            value = opt_initialValue;
+            isValueSet = true;
+        }
+        for (index = 0; length > index; ++index) {
+            if (this.hasOwnProperty(index)) {
+                if (isValueSet) {
+                    value = callback(value, this[index], index, this);
+                }
+                else {
+                    value = this[index];
+                    isValueSet = true;
+                }
+            }
+        }
+        if (!isValueSet) {
+            throw new TypeError('Reduce of empty array with no initial value');
+        }
+        return value;
+    };
+}
+if (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function (el) {
+        for (var i = 0, n = this.length; i < n; i++) {
+            if (this[i] === el) {
+                return i;
+            }
+        }
+        return -1;
+    };
+}
+var Pandyle;
+(function (Pandyle) {
+    var Renderer = (function () {
+        function Renderer(vm) {
+            this._util = Pandyle.Util.CreateUtil(vm);
+        }
+        ;
+        Renderer.prototype.renderSingle = function (ele, data, parentProperty, alias) {
+            var element = Pandyle.$(ele);
+            if (!element.data('context')) {
+                element.data('context', data);
+            }
+            if (!element.data('binding')) {
+                element.data('binding', {});
+            }
+            if (alias && !Pandyle.$.isEmptyObject(alias)) {
+                element.data('alias', alias);
+            }
+            data = element.data('context');
+            this._util.setAlias(element, parentProperty, data);
+            this.renderPipe(ele, parentProperty);
+            this.renderChild(ele, data, parentProperty);
+        };
+        Renderer.prototype.renderChild = function (ele, data, parentProperty) {
+            var $this = this;
+            var element = Pandyle.$(ele);
+            if (element.children().length > 0) {
+                var alias_4 = element.data('alias');
+                element.children().each(function (index, item) {
+                    var child = Pandyle.$(item);
+                    child.data('context', data);
+                    $this.renderSingle(child[0], data, parentProperty, Pandyle.$.extend({}, alias_4));
+                });
+            }
+        };
+        Renderer.prototype.renderPipe = function (ele, parentProperty) {
+            var context = {
+                element: ele,
+                parentProperty: parentProperty
+            };
+            Pandyle.PipeLine.createPipeLine(context, this._util).start();
+        };
+        return Renderer;
+    }());
+    Pandyle.Renderer = Renderer;
 })(Pandyle || (Pandyle = {}));
 //# sourceMappingURL=pandyle.js.map

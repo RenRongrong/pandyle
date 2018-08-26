@@ -2,16 +2,12 @@
 /// <reference path="../component.ts" />
 
 namespace Pandyle {
-    export class pComDirective<T> extends directiveBase<T>{
-
-        constructor(element: HTMLElement, parentProperty: string, util: Util<T>) {
-            super(element, parentProperty, util);
-        }
+    export class pComDirective<T> extends DirectiveBase<T>{
 
         public execute(): void {
-            let ele = $(this._element);
+            let ele = $(this._context.element);
             if (ele.attr('p-com')) {
-                loadComponent(this._element);
+                loadComponent(this._context.element);
             }
             this.next();
         }

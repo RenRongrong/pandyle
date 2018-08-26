@@ -2,7 +2,7 @@
 /// <reference path="interfaces/IRelationCollection.ts" />
 
 namespace Pandyle {
-    export class relationCollection<T> implements IRelationCollection {
+    export class RelationCollection<T> implements IRelationCollection {
         private _util: Util<T>;
         private _relations: IRelation[];
 
@@ -12,7 +12,7 @@ namespace Pandyle {
         }
 
         public static CreateRelationCollection<T>(util: Util<T>){
-            return new relationCollection(util);
+            return new RelationCollection(util);
         }
 
         public setRelation(property: string, element: JQuery<HTMLElement>, parentProperty: string) {
