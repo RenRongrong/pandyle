@@ -13,13 +13,24 @@
 <body>
     <div class="main">
         <div p-bind="class: {{class}}">{{message}}</div>
+        <div p-if="{{visible}}">this is visible</div>
+
+        <button onclick="test()">click me</button>
     </div>
 
     <script>
-        $('.main').vm({
+        var vm = $('.main').vm({
             message: 'hello world',
-            class: 'active'
+            class: 'active',
+            visible: true
         })
+
+        function test() {
+            var visible = vm.get('visible');
+            vm.set({
+                visible: !visible
+            });
+        }
     </script>
 </body>
 

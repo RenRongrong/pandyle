@@ -2,9 +2,11 @@ namespace Pandyle{
     export class Renderer<T>{
 
         private _util : Util<T>;
+        private _pipeline: PipeLine<T>;
 
         public constructor(vm:VM<T>){
             this._util = Util.CreateUtil<T>(vm);
+            this._pipeline = PipeLine.createPipeLine(this._util);
         };
 
         public renderSingle(ele: HTMLElement, data: any, parentProperty: string, alias?: any){
@@ -32,6 +34,7 @@ namespace Pandyle{
                 element.children().each((index, item) => {
                     let child = $(item);
                     child.data('context', data);
+                    child.data('pindex', index);
                     $this.renderSingle(child[0], data, parentProperty, $.extend({}, alias));
                 })
             }
@@ -42,7 +45,7 @@ namespace Pandyle{
                 element: ele,
                 parentProperty: parentProperty
             };
-            PipeLine.createPipeLine(context, this._util).start();
+            this._pipeline.start(context);
         }
     }
 }

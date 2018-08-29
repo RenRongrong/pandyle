@@ -97,14 +97,10 @@ declare namespace Pandyle {
         get(param?: any): any;
         run(): void;
         render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string, alias?: any): void;
-        private renderSingle(ele, data, parentProperty, alias?);
-        private bindAttr(ele, parentProperty);
         private bindIf(ele, parentProperty);
         private renderContext(ele, parentProperty);
-        private renderChild(ele, data, parentProperty);
         private renderEach(element, data, parentProperty);
         private renderFor(element, data, parentProperty);
-        private renderText(element, parentProperty);
         getMethod(name: string): Function;
         filter(method: string, data: any[]): any;
         register(name: string, value: any): void;
@@ -163,20 +159,25 @@ declare namespace Pandyle {
     }
 }
 declare namespace Pandyle {
+    class PIfDirective<T> extends DirectiveBase<T> {
+        execute(): void;
+    }
+}
+declare namespace Pandyle {
     class PipeLine<T> {
         private _firstDirective;
         private _lastDirective;
-        private _context;
         private _util;
-        private constructor(context, util);
+        private constructor(util);
         private add(directive);
-        start(): void;
-        static createPipeLine<T>(context: IPipeContext, util: Util<T>): PipeLine<T>;
+        start(context: IPipeContext): void;
+        static createPipeLine<T>(util: Util<T>): PipeLine<T>;
     }
 }
 declare namespace Pandyle {
     class Renderer<T> {
         private _util;
+        private _pipeline;
         constructor(vm: VM<T>);
         renderSingle(ele: HTMLElement, data: any, parentProperty: string, alias?: any): void;
         renderChild(ele: HTMLElement, data: any, parentProperty: string): void;

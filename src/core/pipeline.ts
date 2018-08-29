@@ -2,19 +2,18 @@
 /// <reference path="directives/pBIndDirective.ts" />
 /// <reference path="directives/pComDirective.ts" />
 /// <reference path="directives/pTextDirective.ts" />
+/// <reference path="directives/pIfDirective.ts" />
 /// <reference path="interfaces/IPipeContext.ts" />
 
 namespace Pandyle {
     export class PipeLine<T>{
         private _firstDirective: DirectiveBase<T>;
         private _lastDirective: DirectiveBase<T>;
-        private _context: IPipeContext;
         private _util: Util<T>;
 
-        private constructor(context:IPipeContext, util: Util<T>) {
+        private constructor(util: Util<T>) {
             this._util = util;
-            this._context = context;
-         };
+        };
 
         private add(directive: DirectiveBase<T>) {
             if (!this._firstDirective) {
@@ -26,14 +25,15 @@ namespace Pandyle {
             return this;
         }
 
-        public start(){
-            this._firstDirective.init(this._context, this._util);
+        public start(context: IPipeContext) {
+            this._firstDirective.init(context, this._util);
             this._firstDirective.execute();
         }
 
-        public static createPipeLine<T>(context:IPipeContext, util: Util<T>) {
-            let pipe = new PipeLine<T>(context, util);
-            pipe.add(new PBindDirective())
+        public static createPipeLine<T>(util: Util<T>) {
+            let pipe = new PipeLine<T>(util);
+            pipe.add(new PIfDirective())
+                .add(new PBindDirective())
                 .add(new pComDirective())
                 .add(new pTextDirective());
             return pipe;
