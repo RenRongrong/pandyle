@@ -32,10 +32,10 @@ namespace Pandyle {
 
         public static createPipeLine<T>(util: Util<T>) {
             let pipe = new PipeLine<T>(util);
-            pipe.add(new PIfDirective())
-                .add(new PBindDirective())
-                .add(new pComDirective())
-                .add(new pTextDirective());
+            pipe.add(new PIfDirective<T>())
+                .add(new PBindDirective<T>())
+                .add(new pComDirective<T>())
+                .add(new pTextDirective<T>());
             return pipe;
         }
 

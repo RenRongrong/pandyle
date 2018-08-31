@@ -21,7 +21,7 @@ namespace Pandyle {
             let bindings = ele.data('binding');
             let data = ele.data('context');
             for (let a in bindings) {
-                if (a !== 'text' && a !== 'if') {
+                if (a !== 'text' && a !== 'If') {
                     $(ele).attr(a, this._util.convertFromPattern($(ele), a, bindings[a].pattern, data, this._context.parentProperty));
                 }
             }

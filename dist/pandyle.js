@@ -893,7 +893,7 @@ var Pandyle;
             var bindings = ele.data('binding');
             var data = ele.data('context');
             for (var a in bindings) {
-                if (a !== 'text' && a !== 'if') {
+                if (a !== 'text' && a !== 'If') {
                     Pandyle.$(ele).attr(a, this._util.convertFromPattern(Pandyle.$(ele), a, bindings[a].pattern, data, this._context.parentProperty));
                 }
             }
@@ -952,7 +952,6 @@ var Pandyle;
             return _super !== null && _super.apply(this, arguments) || this;
         }
         PIfDirective.prototype.execute = function () {
-            var _this = this;
             var ele = Pandyle.$(this._context.element);
             var parentProperty = this._context.parentProperty;
             if (ele.attr('p-if')) {
@@ -961,6 +960,7 @@ var Pandyle;
                     related: false
                 };
                 ele.removeAttr('p-if');
+                console.log(ele);
             }
             if (ele.data('binding')['If']) {
                 var parentElement = ele.parent();
@@ -974,8 +974,8 @@ var Pandyle;
                 if (judge()) {
                     if (ele.parent().length === 0) {
                         var pindex_1 = ele.data('pindex');
-                        var pre = ele.data('parent').children().filter(function () {
-                            return Pandyle.$(_this).data('pindex') == (pindex_1 - 1);
+                        var pre = ele.data('parent').children().filter(function (inex, element) {
+                            return Pandyle.$(element).data('pindex') == (pindex_1 - 1);
                         });
                         if (pre.length > 0) {
                             ele.insertAfter(pre);

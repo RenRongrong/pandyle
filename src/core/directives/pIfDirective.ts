@@ -12,6 +12,7 @@ namespace Pandyle {
                     related: false
                 };
                 ele.removeAttr('p-if');
+                console.log(ele);
             }
             if (ele.data('binding')['If']) {
                 let parentElement = ele.parent();
@@ -27,8 +28,8 @@ namespace Pandyle {
                 if (judge()) {
                     if (ele.parent().length === 0) {
                         let pindex = ele.data('pindex');
-                        let pre = ele.data('parent').children().filter(() => {
-                            return $(this).data('pindex') == (pindex - 1);
+                        let pre = ele.data('parent').children().filter((inex, element) => {
+                            return $(element).data('pindex') == (pindex - 1);
                         })
                         if (pre.length > 0) {
                             ele.insertAfter(pre);
