@@ -431,8 +431,6 @@ var Pandyle;
             this._data = Pandyle.$.extend({}, data);
             this._root = element;
             this._methods = {};
-            this._filters = {};
-            this._converters = {};
             this._variables = {};
             this._defaultAlias = {
                 root: {
@@ -556,109 +554,15 @@ var Pandyle;
                 this._relationCollection.setRelation(property, Pandyle.$(ele), parentProperty);
             }
         };
-        VM.prototype.renderEach = function (element, data, parentProperty) {
-            var $this = this;
-            if (element.attr('p-each')) {
-                var expression = element.attr('p-each').replace(/\s/g, '');
-                var divided = this._util.dividePipe(expression);
-                var property = divided.property;
-                var method = divided.method;
-                var target = this._util.calcu(property, element, data);
-                if (method) {
-                    target = this.filter(method, target);
-                }
-                if (!element.data('pattern')) {
-                    element.data('pattern', element.html());
-                    this._relationCollection.setRelation(property, element, parentProperty);
-                }
-                ;
-                var fullProp_1 = property;
-                if (parentProperty !== '') {
-                    fullProp_1 = parentProperty + '.' + property;
-                }
-                ;
-                var alias_1 = element.data('alias');
-                var htmlText = element.data('pattern');
-                var children_1 = Pandyle.$('<div />').html(htmlText).children();
-                element.children().remove();
-                target.forEach(function (value, index) {
-                    var newChildren = children_1.clone(true, true);
-                    element.append(newChildren);
-                    $this.render(newChildren, value, fullProp_1.concat('[', index.toString(), ']'), Pandyle.$.extend(alias_1, { index: { data: index, property: '@index' } }));
-                });
-            }
-        };
-        VM.prototype.renderFor = function (element, data, parentProperty) {
-            var $this = this;
-            if (element.attr('p-for')) {
-                if (!element.data('uid')) {
-                    element.data('uid', VM._uid++);
-                }
-                var expression_1 = element.attr('p-for').replace(/\s/g, '');
-                var divided = this._util.dividePipe(expression_1);
-                var property_1 = divided.property;
-                var method = divided.method;
-                var target = this._util.calcu(property_1, element, data);
-                if (method) {
-                    target = this.filter(method, target);
-                }
-                if (!element.data('pattern')) {
-                    element.data('pattern', element.prop('outerHTML'));
-                }
-                ;
-                var fullProp_2 = property_1;
-                if (parentProperty !== '') {
-                    fullProp_2 = parentProperty + '.' + property_1;
-                }
-                ;
-                var alias_2 = element.data('alias');
-                var htmlText_1 = element.data('pattern');
-                var siblingText = htmlText_1.replace(/p-for=((".*?")|('.*?'))/g, '');
-                var siblings_1 = Pandyle.$(siblingText);
-                element.siblings('[uid=' + element.data('uid') + ']').remove();
-                var afterElement_1 = function (ele, target, index) {
-                    if (target.length === 0) {
-                        return;
-                    }
-                    var newSibling = siblings_1.clone(true, true);
-                    ele.after(newSibling);
-                    $this.render(newSibling, target.shift(), fullProp_2.concat('[', index.toString(), ']'), Pandyle.$.extend(alias_2, { index: { data: index, property: '@index' } }));
-                    if (index === 0) {
-                        newSibling.data('uid', element.data('uid'));
-                        newSibling.data('pattern', htmlText_1);
-                        newSibling.attr('p-for', expression_1);
-                        newSibling.data('context', data);
-                        $this._relationCollection.setRelation(property_1, newSibling, parentProperty);
-                    }
-                    else {
-                        newSibling.attr('uid', element.data('uid'));
-                    }
-                    afterElement_1(newSibling, target, ++index);
-                };
-                afterElement_1(element, target, 0);
-                element.remove();
-            }
-        };
         VM.prototype.getMethod = function (name) {
             return this._methods[name];
         };
-        VM.prototype.filter = function (method, data) {
-            if (!Pandyle.hasSuffix(method, 'Filter')) {
-                method += 'Filter';
-            }
-            return this._filters[method](data);
+        VM.prototype.transfer = function (method, data) {
+            return this._methods[method](data);
         };
         VM.prototype.register = function (name, value) {
             if (Pandyle.$.isFunction(value)) {
-                if (Pandyle.hasSuffix(name, 'Filter')) {
-                    this._filters[name] = value;
-                }
-                else if (Pandyle.hasSuffix(name, 'Converter')) {
-                    this._converters[name] = value;
-                }
-                else {
-                    this._methods[name] = value;
-                }
+                this._methods[name] = value;
             }
             else {
                 this._variables[name] = value;
@@ -691,6 +595,9 @@ var Pandyle;
         };
         Util.prototype.calcu = function (property, element, data) {
             var _this = this;
+            var devided = this.dividePipe(property);
+            property = devided.property;
+            var method = devided.method;
             var nodes = property.match(/[@\w]+((?:\(.*?\))*|(?:\[.*?\])*)/g);
             if (!nodes) {
                 return '';
@@ -735,11 +642,16 @@ var Pandyle;
                     return tempData;
                 }
             }, data);
-            return result;
+            if (method) {
+                return this.transfer(method, result);
+            }
+            else {
+                return result;
+            }
         };
         Util.prototype.convertFromPattern = function (element, prop, pattern, data, parentProperty) {
             var _this = this;
-            var reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\s]*?)\s*}}/g;
+            var reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\|\s]*?)\s*}}/g;
             var related = false;
             if (reg.test(pattern)) {
                 if (!element.data('binding')[prop]) {
@@ -751,8 +663,9 @@ var Pandyle;
                 related = element.data('binding')[prop].related;
             }
             var result = pattern.replace(reg, function ($0, $1) {
+                var property = _this.dividePipe($1).property;
                 if (!related) {
-                    _this._vm._relationCollection.setRelation($1, element, parentProperty);
+                    _this._vm._relationCollection.setRelation(property, element, parentProperty);
                     element.data('binding')[prop].related = true;
                 }
                 return _this.getValue(element, $1, data);
@@ -825,10 +738,7 @@ var Pandyle;
                 }, {});
             }
             else {
-                if (!Pandyle.hasSuffix(method, 'Converter')) {
-                    method += 'Converter';
-                }
-                return this._vm._converters[method](data);
+                return this._vm._methods[method](data);
             }
         };
         Util.prototype.isSelfOrChild = function (property, subProperty) {
@@ -842,6 +752,12 @@ var Pandyle;
             var reg = new RegExp('^' + property + '[\\[\\.]\\w+');
             return reg.test(subProperty);
         };
+        Util.prototype.transfer = function (method, data) {
+            return this._vm.transfer(method, data);
+        };
+        Util.prototype.setRelation = function (property, element, parentProperty) {
+            this._vm._relationCollection.setRelation(property, element, parentProperty);
+        };
         return Util;
     }());
     Pandyle.Util = Util;
@@ -852,8 +768,10 @@ var Pandyle;
         function DirectiveBase() {
         }
         DirectiveBase.prototype.next = function () {
-            this._next.init(this._context, this._util);
-            this._next.execute();
+            if (this._next) {
+                this._next.init(this._context, this._util);
+                this._next.execute();
+            }
         };
         DirectiveBase.prototype.deep = function () {
         };
@@ -893,7 +811,7 @@ var Pandyle;
             var bindings = ele.data('binding');
             var data = ele.data('context');
             for (var a in bindings) {
-                if (a !== 'text' && a !== 'If') {
+                if (a !== 'text' && a !== 'If' && a !== 'Each') {
                     Pandyle.$(ele).attr(a, this._util.convertFromPattern(Pandyle.$(ele), a, bindings[a].pattern, data, this._context.parentProperty));
                 }
             }
@@ -960,7 +878,6 @@ var Pandyle;
                     related: false
                 };
                 ele.removeAttr('p-if');
-                console.log(ele);
             }
             if (ele.data('binding')['If']) {
                 var parentElement = ele.parent();
@@ -1000,6 +917,59 @@ var Pandyle;
 })(Pandyle || (Pandyle = {}));
 var Pandyle;
 (function (Pandyle) {
+    var PEachDirective = (function (_super) {
+        __extends(PEachDirective, _super);
+        function PEachDirective() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        PEachDirective.prototype.execute = function () {
+            var $this = this;
+            var element = Pandyle.$(this._context.element);
+            var data = element.data('context');
+            var parentProperty = this._context.parentProperty;
+            if (element.attr('p-each')) {
+                element.data('binding')['Each'] = {
+                    pattern: element.attr('p-each'),
+                    related: false
+                };
+                element.removeAttr('p-each');
+            }
+            if (element.data('binding')['Each']) {
+                var expression = element.data('binding')['Each'].pattern.replace(/\s/g, '');
+                var property = this._util.dividePipe(expression).property;
+                var target = this._util.calcu(expression, element, data);
+                if (!element.data('pattern')) {
+                    element.data('pattern', element.html());
+                    this._util.setRelation(property, element, parentProperty);
+                }
+                ;
+                var fullProp_1 = property;
+                if (parentProperty !== '') {
+                    fullProp_1 = parentProperty + '.' + property;
+                }
+                ;
+                var alias_1 = element.data('alias');
+                var htmlText = element.data('pattern');
+                var children_1 = Pandyle.$(htmlText);
+                element.children().remove();
+                target.forEach(function (value, index) {
+                    var newChildren = children_1.clone(true, true);
+                    newChildren.data({
+                        context: value,
+                        parentProperty: fullProp_1.concat('[', index.toString(), ']'),
+                        alias: Pandyle.$.extend(alias_1, { index: { data: index, property: '@index' } })
+                    });
+                    element.append(newChildren);
+                });
+            }
+            this.next();
+        };
+        return PEachDirective;
+    }(Pandyle.DirectiveBase));
+    Pandyle.PEachDirective = PEachDirective;
+})(Pandyle || (Pandyle = {}));
+var Pandyle;
+(function (Pandyle) {
     var PipeLine = (function () {
         function PipeLine(util) {
             this._util = util;
@@ -1022,6 +992,7 @@ var Pandyle;
         PipeLine.createPipeLine = function (util) {
             var pipe = new PipeLine(util);
             pipe.add(new Pandyle.PIfDirective())
+                .add(new Pandyle.PEachDirective())
                 .add(new Pandyle.PBindDirective())
                 .add(new Pandyle.pComDirective())
                 .add(new Pandyle.pTextDirective());
@@ -1131,10 +1102,14 @@ var Pandyle;
             if (!element.data('binding')) {
                 element.data('binding', {});
             }
+            if (!element.data('parentProperty')) {
+                element.data('parentProperty', parentProperty);
+            }
             if (alias && !Pandyle.$.isEmptyObject(alias)) {
                 element.data('alias', alias);
             }
             data = element.data('context');
+            parentProperty = element.data('parentProperty');
             this._util.setAlias(element, parentProperty, data);
             this.renderPipe(ele, parentProperty);
             this.renderChild(ele, data, parentProperty);
@@ -1143,12 +1118,14 @@ var Pandyle;
             var $this = this;
             var element = Pandyle.$(ele);
             if (element.children().length > 0) {
-                var alias_3 = element.data('alias');
+                var alias_2 = element.data('alias');
                 element.children().each(function (index, item) {
                     var child = Pandyle.$(item);
-                    child.data('context', data);
+                    if (!child.data('context')) {
+                        child.data('context', data);
+                    }
                     child.data('pindex', index);
-                    $this.renderSingle(child[0], data, parentProperty, Pandyle.$.extend({}, alias_3));
+                    $this.renderSingle(child[0], data, parentProperty, Pandyle.$.extend({}, alias_2));
                 });
             }
         };

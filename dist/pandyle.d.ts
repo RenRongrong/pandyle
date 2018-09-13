@@ -82,9 +82,7 @@ declare namespace Pandyle {
     class VM<T> {
         protected _data: T;
         private _root;
-        private _methods;
-        private _filters;
-        _converters: object;
+        _methods: object;
         private _variables;
         private _defaultAlias;
         _relationCollection: IRelationCollection;
@@ -99,10 +97,8 @@ declare namespace Pandyle {
         render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string, alias?: any): void;
         private bindIf(ele, parentProperty);
         private renderContext(ele, parentProperty);
-        private renderEach(element, data, parentProperty);
-        private renderFor(element, data, parentProperty);
         getMethod(name: string): Function;
-        filter(method: string, data: any[]): any;
+        transfer(method: string, data: any[]): any;
         register(name: string, value: any): void;
     }
 }
@@ -125,6 +121,8 @@ declare namespace Pandyle {
         convert(method: string, data: any): any;
         isSelfOrChild(property: string, subProperty: string): boolean;
         isChild(property: string, subProperty: string): boolean;
+        transfer(method: string, data: any[]): any;
+        setRelation(property: string, element: JQuery<HTMLElement>, parentProperty: string): void;
     }
 }
 interface IPipeContext {
@@ -160,6 +158,11 @@ declare namespace Pandyle {
 }
 declare namespace Pandyle {
     class PIfDirective<T> extends DirectiveBase<T> {
+        execute(): void;
+    }
+}
+declare namespace Pandyle {
+    class PEachDirective<T> extends DirectiveBase<T> {
         execute(): void;
     }
 }

@@ -37,6 +37,9 @@ namespace Pandyle {
          * @param data 数据上下文
          */
         public calcu(property: string, element: JQuery<HTMLElement>, data: any) {
+            let devided = this.dividePipe(property);
+            property = devided.property;
+            let method = devided.method;
             let nodes = property.match(/[@\w]+((?:\(.*?\))*|(?:\[.*?\])*)/g);
             if (!nodes) {
                 return '';
@@ -81,7 +84,11 @@ namespace Pandyle {
                     return tempData;
                 }
             }, data);
-            return result;
+            if(method){
+                return this.transfer(method, result);
+            }else{
+                return result;
+            }          
         }
 
         /**
@@ -93,7 +100,7 @@ namespace Pandyle {
          * @param parentProperty 父级字段的名称
          */
         public convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty) {
-            let reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\s]*?)\s*}}/g;
+            let reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\|\s]*?)\s*}}/g;
             let related = false;
             if (reg.test(pattern)) {
                 if (!element.data('binding')[prop]) {
@@ -105,8 +112,9 @@ namespace Pandyle {
                 related = element.data('binding')[prop].related;
             }
             let result = pattern.replace(reg, ($0, $1) => {
+                let property = this.dividePipe($1).property;
                 if (!related) {
-                    this._vm._relationCollection.setRelation($1, element, parentProperty);
+                    this._vm._relationCollection.setRelation(property, element, parentProperty);
                     element.data('binding')[prop].related = true;
                 }
                 return this.getValue(element, $1, data);
@@ -186,10 +194,7 @@ namespace Pandyle {
                     return pre;
                 }, {})
             } else {
-                if (!hasSuffix(method, 'Converter')) {
-                    method += 'Converter';
-                }
-                return this._vm._converters[method](data);
+                return this._vm._methods[method](data);
             }
         }
 
@@ -214,6 +219,14 @@ namespace Pandyle {
         public isChild(property: string, subProperty: string) {
             let reg = new RegExp('^' + property + '[\\[\\.]\\w+');
             return reg.test(subProperty);
+        }
+
+        public transfer(method:string, data: any[]){
+            return this._vm.transfer(method, data);
+        }
+
+        public setRelation(property:string, element:JQuery<HTMLElement>, parentProperty:string){
+            this._vm._relationCollection.setRelation(property, element, parentProperty);
         }
     }
 }

@@ -7,9 +7,7 @@ namespace Pandyle {
     export class VM<T> {
         protected _data: T;
         private _root: JQuery<HTMLElement>;
-        private _methods: object;
-        private _filters: object;
-        public _converters: object;
+        public _methods: object;
         private _variables: object;
         private _defaultAlias: object;
 
@@ -23,8 +21,6 @@ namespace Pandyle {
             this._data = $.extend({}, data);
             this._root = element;
             this._methods = {};
-            this._filters = {};
-            this._converters = {};
             this._variables = {};
             this._defaultAlias = {
                 root: {
@@ -177,110 +173,101 @@ namespace Pandyle {
          * @param data 数据上下文
          * @param parentProperty 父级字段的名称
          */
-        private renderEach(element: JQuery<HTMLElement>, data: any, parentProperty) {
-            let $this = this;
-            if (element.attr('p-each')) {
-                let expression = element.attr('p-each').replace(/\s/g, '');
-                let divided = this._util.dividePipe(expression);
-                let property = divided.property;
-                let method = divided.method;
-                let target: any[] = this._util.calcu(property, element, data);
-                if (method) {
-                    target = this.filter(method, target);
-                }
-                if (!element.data('pattern')) {
-                    element.data('pattern', element.html());
-                    this._relationCollection.setRelation(property, element, parentProperty);
-                };
-                let fullProp = property;
-                if (parentProperty !== '') {
-                    fullProp = parentProperty + '.' + property;
-                };
-                let alias = element.data('alias');
-                let htmlText = element.data('pattern');
-                let children = $('<div />').html(htmlText).children();
-                element.children().remove();
+        // private renderEach(element: JQuery<HTMLElement>, data: any, parentProperty) {
+        //     let $this = this;
+        //     if (element.attr('p-each')) {
+        //         let expression = element.attr('p-each').replace(/\s/g, '');
+        //         let divided = this._util.dividePipe(expression);
+        //         let property = divided.property;
+        //         let method = divided.method;
+        //         let target: any[] = this._util.calcu(property, element, data);
+        //         if (method) {
+        //             target = this.filter(method, target);
+        //         }
+        //         if (!element.data('pattern')) {
+        //             element.data('pattern', element.html());
+        //             this._relationCollection.setRelation(property, element, parentProperty);
+        //         };
+        //         let fullProp = property;
+        //         if (parentProperty !== '') {
+        //             fullProp = parentProperty + '.' + property;
+        //         };
+        //         let alias = element.data('alias');
+        //         let htmlText = element.data('pattern');
+        //         let children = $('<div />').html(htmlText).children();
+        //         element.children().remove();
 
-                target.forEach((value, index) => {
-                    let newChildren = children.clone(true, true);
-                    element.append(newChildren);
-                    $this.render(newChildren, value, fullProp.concat('[', index.toString(), ']'), $.extend(alias, { index: { data: index, property: '@index' } }));
-                })
-            }
-        }
+        //         target.forEach((value, index) => {
+        //             let newChildren = children.clone(true, true);
+        //             element.append(newChildren);
+        //             $this.render(newChildren, value, fullProp.concat('[', index.toString(), ']'), $.extend(alias, { index: { data: index, property: '@index' } }));
+        //         })
+        //     }
+        // }
 
-        private renderFor(element: JQuery<HTMLElement>, data: any, parentProperty) {
-            let $this = this;
-            if (element.attr('p-for')) {
-                if (!element.data('uid')) {
-                    element.data('uid', VM._uid++);
-                }
-                let expression = element.attr('p-for').replace(/\s/g, '');
-                let divided = this._util.dividePipe(expression);
-                let property = divided.property;
-                let method = divided.method;
-                let target: any[] = this._util.calcu(property, element, data);
-                if (method) {
-                    target = this.filter(method, target);
-                }
-                if (!element.data('pattern')) {
-                    element.data('pattern', element.prop('outerHTML'));
-                    // this.setRelation(property, element, parentProperty);
-                };
-                let fullProp = property;
-                if (parentProperty !== '') {
-                    fullProp = parentProperty + '.' + property;
-                };
-                let alias = element.data('alias');
-                let htmlText = element.data('pattern');
-                let siblingText = htmlText.replace(/p-for=((".*?")|('.*?'))/g, '');
-                let siblings = $(siblingText);
-                element.siblings('[uid=' + element.data('uid') + ']').remove();
+        // private renderFor(element: JQuery<HTMLElement>, data: any, parentProperty) {
+        //     let $this = this;
+        //     if (element.attr('p-for')) {
+        //         if (!element.data('uid')) {
+        //             element.data('uid', VM._uid++);
+        //         }
+        //         let expression = element.attr('p-for').replace(/\s/g, '');
+        //         let divided = this._util.dividePipe(expression);
+        //         let property = divided.property;
+        //         let method = divided.method;
+        //         let target: any[] = this._util.calcu(property, element, data);
+        //         if (method) {
+        //             target = this.filter(method, target);
+        //         }
+        //         if (!element.data('pattern')) {
+        //             element.data('pattern', element.prop('outerHTML'));
+        //             // this.setRelation(property, element, parentProperty);
+        //         };
+        //         let fullProp = property;
+        //         if (parentProperty !== '') {
+        //             fullProp = parentProperty + '.' + property;
+        //         };
+        //         let alias = element.data('alias');
+        //         let htmlText = element.data('pattern');
+        //         let siblingText = htmlText.replace(/p-for=((".*?")|('.*?'))/g, '');
+        //         let siblings = $(siblingText);
+        //         element.siblings('[uid=' + element.data('uid') + ']').remove();
 
-                let afterElement = function (ele: JQuery<HTMLElement>, target: any[], index: number) {
-                    if (target.length === 0) {
-                        return;
-                    }
-                    let newSibling = siblings.clone(true, true);
-                    ele.after(newSibling);
-                    $this.render(newSibling, target.shift(), fullProp.concat('[', index.toString(), ']'), $.extend(alias, { index: { data: index, property: '@index' } }));
-                    if (index === 0) {
-                        newSibling.data('uid', element.data('uid'));
-                        newSibling.data('pattern', htmlText);
-                        newSibling.attr('p-for', expression);
-                        newSibling.data('context', data);
-                        $this._relationCollection.setRelation(property, newSibling, parentProperty);
-                    } else {
-                        newSibling.attr('uid', element.data('uid'));
-                    }
-                    afterElement(newSibling, target, ++index);
-                }
+        //         let afterElement = function (ele: JQuery<HTMLElement>, target: any[], index: number) {
+        //             if (target.length === 0) {
+        //                 return;
+        //             }
+        //             let newSibling = siblings.clone(true, true);
+        //             ele.after(newSibling);
+        //             $this.render(newSibling, target.shift(), fullProp.concat('[', index.toString(), ']'), $.extend(alias, { index: { data: index, property: '@index' } }));
+        //             if (index === 0) {
+        //                 newSibling.data('uid', element.data('uid'));
+        //                 newSibling.data('pattern', htmlText);
+        //                 newSibling.attr('p-for', expression);
+        //                 newSibling.data('context', data);
+        //                 $this._relationCollection.setRelation(property, newSibling, parentProperty);
+        //             } else {
+        //                 newSibling.attr('uid', element.data('uid'));
+        //             }
+        //             afterElement(newSibling, target, ++index);
+        //         }
 
-                afterElement(element, target, 0);
-                element.remove();
-            }
-        }
+        //         afterElement(element, target, 0);
+        //         element.remove();
+        //     }
+        // }
         
         public getMethod(name: string): Function {
             return this._methods[name];
         }
 
-        public filter(method: string, data: any[]) {
-            if (!hasSuffix(method, 'Filter')) {
-                method += 'Filter';
-            }
-            return this._filters[method](data);
+        public transfer(method: string, data: any[]) {
+            return this._methods[method](data);
         }
 
         public register(name: string, value: any) {
             if ($.isFunction(value)) {
-                if (hasSuffix(name, 'Filter')) {
-                    this._filters[name] = value;
-                } else if (hasSuffix(name, 'Converter')) {
-                    this._converters[name] = value;
-                } else {
-                    this._methods[name] = value;
-                }
+                this._methods[name] = value;
             } else {
                 this._variables[name] = value;
             }

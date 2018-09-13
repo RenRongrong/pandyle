@@ -12,7 +12,6 @@ namespace Pandyle {
                     related: false
                 };
                 ele.removeAttr('p-if');
-                console.log(ele);
             }
             if (ele.data('binding')['If']) {
                 let parentElement = ele.parent();

@@ -17,10 +17,14 @@ namespace Pandyle{
             if (!element.data('binding')) {
                 element.data('binding', {});
             }
+            if(!element.data('parentProperty')){
+                element.data('parentProperty', parentProperty);
+            }
             if (alias && !$.isEmptyObject(alias)) {
                 element.data('alias', alias);
             }
             data = element.data('context');
+            parentProperty = element.data('parentProperty');
             this._util.setAlias(element, parentProperty, data);
             this.renderPipe(ele, parentProperty);
             this.renderChild(ele, data, parentProperty);
@@ -33,7 +37,9 @@ namespace Pandyle{
                 let alias = element.data('alias');
                 element.children().each((index, item) => {
                     let child = $(item);
-                    child.data('context', data);
+                    if(!child.data('context')){
+                        child.data('context', data);
+                    }
                     child.data('pindex', index);
                     $this.renderSingle(child[0], data, parentProperty, $.extend({}, alias));
                 })

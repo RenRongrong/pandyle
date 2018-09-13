@@ -3,6 +3,7 @@
 /// <reference path="directives/pComDirective.ts" />
 /// <reference path="directives/pTextDirective.ts" />
 /// <reference path="directives/pIfDirective.ts" />
+/// <reference path="directives/pEachDirective.ts" />
 /// <reference path="interfaces/IPipeContext.ts" />
 
 namespace Pandyle {
@@ -33,6 +34,7 @@ namespace Pandyle {
         public static createPipeLine<T>(util: Util<T>) {
             let pipe = new PipeLine<T>(util);
             pipe.add(new PIfDirective<T>())
+                .add(new PEachDirective<T>())
                 .add(new PBindDirective<T>())
                 .add(new pComDirective<T>())
                 .add(new pTextDirective<T>());
