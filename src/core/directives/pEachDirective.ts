@@ -33,10 +33,11 @@ namespace Pandyle{
                 element.children().remove();
                 target.forEach((value, index) => {
                     let newChildren = children.clone(true, true);
+                    let _alias = $.extend({}, alias, { index: { data: index, property: '@index' } });
                     newChildren.data({
                         context: value,
                         parentProperty: fullProp.concat('[', index.toString(), ']'),
-                        alias: $.extend(alias, { index: { data: index, property: '@index' } })
+                        alias: _alias
                     });
                     element.append(newChildren);
                 })

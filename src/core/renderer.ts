@@ -20,7 +20,7 @@ namespace Pandyle{
             if(!element.data('parentProperty')){
                 element.data('parentProperty', parentProperty);
             }
-            if (alias && !$.isEmptyObject(alias)) {
+            if (alias && !$.isEmptyObject(alias) && !(element.data('alias'))) {
                 element.data('alias', alias);
             }
             data = element.data('context');
@@ -33,9 +33,13 @@ namespace Pandyle{
         public renderChild(ele: HTMLElement, data: any, parentProperty: string){
             let $this = this;
             let element = $(ele);
-            if (element.children().length > 0) {
+            if(!element.data('children')){
+                element.data('children', element.children());
+            }
+            let children:JQuery<HTMLElement> = element.data('children');
+            if (children.length > 0) {
                 let alias = element.data('alias');
-                element.children().each((index, item) => {
+                children.each((index, item) => {
                     let child = $(item);
                     if(!child.data('context')){
                         child.data('context', data);

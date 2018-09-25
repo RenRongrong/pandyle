@@ -13,9 +13,11 @@
 <body>
     <div class="main">
         <div p-bind="class: {{class}}">{{message|add}}</div>
-        <div p-if="{{visible}}">this is visible</div>
-        <div p-each="list | filt" class="list">
-            <p>{{name}}</p>
+        <div p-bind="class: {{subInfo.class}}">
+            <p p-if="{{subInfo.visible}}">this is visible</p>
+        </div>
+        <div p-each="list" class="list">
+            <p>{{name}} {{@index}}</p>
         </div>
 
         <button onclick="test()">click me</button>
@@ -25,7 +27,10 @@
         var vm = $('.main').vm({
             message: 'hello world',
             class: 'active',
-            visible: true,
+            subInfo: {
+                class: 'on',
+                visible: true
+            },
             list: [
                 {id: 1, name: 'test1'},
                 {id: 2, name: 'test2'},
@@ -43,10 +48,17 @@
         vm.run();
 
         function test() {
-            var visible = vm.get('visible');
+            var visible = vm.get('subInfo.visible');
             vm.set({
-                visible: !visible
+                subInfo: {
+                    class: 'on',
+                    visible: !visible
+                }
             });
+        }
+
+        function isOdd(x){
+            return (x % 2) === 1;
         }
     </script>
 </body>

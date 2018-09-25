@@ -568,9 +568,9 @@ var Pandyle;
                 this._variables[name] = value;
             }
         };
+        VM._uid = 1;
         return VM;
     }());
-    VM._uid = 1;
     Pandyle.VM = VM;
 })(Pandyle || (Pandyle = {}));
 var Pandyle;
@@ -954,10 +954,11 @@ var Pandyle;
                 element.children().remove();
                 target.forEach(function (value, index) {
                     var newChildren = children_1.clone(true, true);
+                    var _alias = Pandyle.$.extend({}, alias_1, { index: { data: index, property: '@index' } });
                     newChildren.data({
                         context: value,
                         parentProperty: fullProp_1.concat('[', index.toString(), ']'),
-                        alias: Pandyle.$.extend(alias_1, { index: { data: index, property: '@index' } })
+                        alias: _alias
                     });
                     element.append(newChildren);
                 });
@@ -1105,7 +1106,7 @@ var Pandyle;
             if (!element.data('parentProperty')) {
                 element.data('parentProperty', parentProperty);
             }
-            if (alias && !Pandyle.$.isEmptyObject(alias)) {
+            if (alias && !Pandyle.$.isEmptyObject(alias) && !(element.data('alias'))) {
                 element.data('alias', alias);
             }
             data = element.data('context');
@@ -1117,9 +1118,13 @@ var Pandyle;
         Renderer.prototype.renderChild = function (ele, data, parentProperty) {
             var $this = this;
             var element = Pandyle.$(ele);
-            if (element.children().length > 0) {
+            if (!element.data('children')) {
+                element.data('children', element.children());
+            }
+            var children = element.data('children');
+            if (children.length > 0) {
                 var alias_2 = element.data('alias');
-                element.children().each(function (index, item) {
+                children.each(function (index, item) {
                     var child = Pandyle.$(item);
                     if (!child.data('context')) {
                         child.data('context', data);
