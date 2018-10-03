@@ -508,32 +508,6 @@ var Pandyle;
                 _this._renderer.renderSingle(ele, data, parentProperty, Pandyle.$.extend({}, alias));
             });
         };
-        VM.prototype.bindIf = function (ele, parentProperty) {
-            if (Pandyle.$(ele).attr('p-if')) {
-                Pandyle.$(ele).data('binding')['If'] = {
-                    pattern: Pandyle.$(ele).attr('p-if'),
-                    related: false
-                };
-                Pandyle.$(ele).removeAttr('p-if');
-            }
-            if (Pandyle.$(ele).data('binding')['If']) {
-                var expression = Pandyle.$(ele).data('binding')['If'].pattern;
-                var data = Pandyle.$(ele).data('context');
-                var convertedExpression = this._util.convertFromPattern(Pandyle.$(ele), 'If', expression, data, parentProperty);
-                var judge = new Function('return ' + convertedExpression);
-                if (judge()) {
-                    Pandyle.$(ele).show();
-                    return true;
-                }
-                else {
-                    Pandyle.$(ele).hide();
-                    return false;
-                }
-            }
-            else {
-                return true;
-            }
-        };
         VM.prototype.renderContext = function (ele, parentProperty) {
             var element = Pandyle.$(ele);
             if (element.attr('p-context')) {
@@ -971,6 +945,81 @@ var Pandyle;
 })(Pandyle || (Pandyle = {}));
 var Pandyle;
 (function (Pandyle) {
+    var PForDirective = (function (_super) {
+        __extends(PForDirective, _super);
+        function PForDirective() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        PForDirective.prototype.execute = function () {
+            var $this = this;
+            var element = Pandyle.$(this._context.element);
+            var data = element.data('context');
+            var parentProperty = this._context.parentProperty;
+            if (element.attr('p-for')) {
+                element.data('binding')['For'] = {
+                    pattern: element.attr('p-for'),
+                    related: false
+                };
+                element.removeAttr('p-for');
+            }
+            if (element.data('binding')['For']) {
+                var parentElement = element.parent();
+                if (!element.data('parent')) {
+                    element.data('parent', parentElement);
+                }
+                var expression = element.data('binding')['For'].pattern.replace(/\s/g, '');
+                var property = this._util.dividePipe(expression).property;
+                var target = this._util.calcu(expression, element, data);
+                if (!element.data('pattern')) {
+                    element.data('pattern', element.prop('outerHTML'));
+                    this._util.setRelation(property, element, parentProperty);
+                }
+                ;
+                var fullProp_2 = property;
+                if (parentProperty !== '') {
+                    fullProp_2 = parentProperty + '.' + property;
+                }
+                ;
+                var alias_2 = element.data('alias');
+                var htmlText = element.data('pattern');
+                var children_2 = Pandyle.$(htmlText);
+                element.children().remove();
+                if (element.data('children')) {
+                    element.data('children').remove();
+                }
+                var div_1 = Pandyle.$('<div />');
+                target.forEach(function (value, index) {
+                    var newChildren = children_2.clone(true, true);
+                    var _alias = Pandyle.$.extend({}, alias_2, { index: { data: index, property: '@index' } });
+                    newChildren.data({
+                        context: value,
+                        parentProperty: fullProp_2.concat('[', index.toString(), ']'),
+                        alias: _alias
+                    });
+                    div_1.append(newChildren);
+                });
+                var actualChildren = div_1.children();
+                element.data('children', actualChildren);
+                element.detach();
+                var pindex_2 = element.data('pindex');
+                var pre = element.data('parent').children().filter(function (inex, ele) {
+                    return Pandyle.$(ele).data('pindex') == (pindex_2 - 1);
+                });
+                if (pre.length > 0) {
+                    actualChildren.insertAfter(pre);
+                }
+                else {
+                    element.data('parent').prepend(actualChildren);
+                }
+            }
+            this.next();
+        };
+        return PForDirective;
+    }(Pandyle.DirectiveBase));
+    Pandyle.PForDirective = PForDirective;
+})(Pandyle || (Pandyle = {}));
+var Pandyle;
+(function (Pandyle) {
     var PipeLine = (function () {
         function PipeLine(util) {
             this._util = util;
@@ -993,6 +1042,7 @@ var Pandyle;
         PipeLine.createPipeLine = function (util) {
             var pipe = new PipeLine(util);
             pipe.add(new Pandyle.PIfDirective())
+                .add(new Pandyle.PForDirective())
                 .add(new Pandyle.PEachDirective())
                 .add(new Pandyle.PBindDirective())
                 .add(new Pandyle.pComDirective())
@@ -1123,14 +1173,14 @@ var Pandyle;
             }
             var children = element.data('children');
             if (children.length > 0) {
-                var alias_2 = element.data('alias');
+                var alias_3 = element.data('alias');
                 children.each(function (index, item) {
                     var child = Pandyle.$(item);
                     if (!child.data('context')) {
                         child.data('context', data);
                     }
                     child.data('pindex', index);
-                    $this.renderSingle(child[0], data, parentProperty, Pandyle.$.extend({}, alias_2));
+                    $this.renderSingle(child[0], data, parentProperty, Pandyle.$.extend({}, alias_3));
                 });
             }
         };

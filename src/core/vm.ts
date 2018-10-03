@@ -111,36 +111,6 @@ namespace Pandyle {
         }
 
         /**
-         * 通过p-if指令控制元素的显示与否
-         * @param ele 目标元素
-         * @param parentProperty 父级字段的名称
-         */
-        private bindIf(ele: HTMLElement, parentProperty) {
-            if ($(ele).attr('p-if')) {
-                $(ele).data('binding')['If'] = {
-                    pattern: $(ele).attr('p-if'),
-                    related: false
-                };
-                $(ele).removeAttr('p-if');
-            }
-            if ($(ele).data('binding')['If']) {
-                let expression: string = $(ele).data('binding')['If'].pattern;
-                let data = $(ele).data('context');
-                let convertedExpression = this._util.convertFromPattern($(ele), 'If', expression, data, parentProperty);
-                let judge = new Function('return ' + convertedExpression);
-                if (judge()) {
-                    $(ele).show();
-                    return true;
-                } else {
-                    $(ele).hide();
-                    return false;
-                }
-            }else{
-                return true;
-            }
-        }
-
-        /**
          * 通过p-context修改元素的数据上下文
          * @param ele 目标元素
          * @param parentProperty 父级字段的名称
@@ -166,96 +136,6 @@ namespace Pandyle {
                 // this.renderChild(ele, target, fullProp);
             }
         }
-
-        /**
-         * 
-         * @param element 渲染对象
-         * @param data 数据上下文
-         * @param parentProperty 父级字段的名称
-         */
-        // private renderEach(element: JQuery<HTMLElement>, data: any, parentProperty) {
-        //     let $this = this;
-        //     if (element.attr('p-each')) {
-        //         let expression = element.attr('p-each').replace(/\s/g, '');
-        //         let divided = this._util.dividePipe(expression);
-        //         let property = divided.property;
-        //         let method = divided.method;
-        //         let target: any[] = this._util.calcu(property, element, data);
-        //         if (method) {
-        //             target = this.filter(method, target);
-        //         }
-        //         if (!element.data('pattern')) {
-        //             element.data('pattern', element.html());
-        //             this._relationCollection.setRelation(property, element, parentProperty);
-        //         };
-        //         let fullProp = property;
-        //         if (parentProperty !== '') {
-        //             fullProp = parentProperty + '.' + property;
-        //         };
-        //         let alias = element.data('alias');
-        //         let htmlText = element.data('pattern');
-        //         let children = $('<div />').html(htmlText).children();
-        //         element.children().remove();
-
-        //         target.forEach((value, index) => {
-        //             let newChildren = children.clone(true, true);
-        //             element.append(newChildren);
-        //             $this.render(newChildren, value, fullProp.concat('[', index.toString(), ']'), $.extend(alias, { index: { data: index, property: '@index' } }));
-        //         })
-        //     }
-        // }
-
-        // private renderFor(element: JQuery<HTMLElement>, data: any, parentProperty) {
-        //     let $this = this;
-        //     if (element.attr('p-for')) {
-        //         if (!element.data('uid')) {
-        //             element.data('uid', VM._uid++);
-        //         }
-        //         let expression = element.attr('p-for').replace(/\s/g, '');
-        //         let divided = this._util.dividePipe(expression);
-        //         let property = divided.property;
-        //         let method = divided.method;
-        //         let target: any[] = this._util.calcu(property, element, data);
-        //         if (method) {
-        //             target = this.filter(method, target);
-        //         }
-        //         if (!element.data('pattern')) {
-        //             element.data('pattern', element.prop('outerHTML'));
-        //             // this.setRelation(property, element, parentProperty);
-        //         };
-        //         let fullProp = property;
-        //         if (parentProperty !== '') {
-        //             fullProp = parentProperty + '.' + property;
-        //         };
-        //         let alias = element.data('alias');
-        //         let htmlText = element.data('pattern');
-        //         let siblingText = htmlText.replace(/p-for=((".*?")|('.*?'))/g, '');
-        //         let siblings = $(siblingText);
-        //         element.siblings('[uid=' + element.data('uid') + ']').remove();
-
-        //         let afterElement = function (ele: JQuery<HTMLElement>, target: any[], index: number) {
-        //             if (target.length === 0) {
-        //                 return;
-        //             }
-        //             let newSibling = siblings.clone(true, true);
-        //             ele.after(newSibling);
-        //             $this.render(newSibling, target.shift(), fullProp.concat('[', index.toString(), ']'), $.extend(alias, { index: { data: index, property: '@index' } }));
-        //             if (index === 0) {
-        //                 newSibling.data('uid', element.data('uid'));
-        //                 newSibling.data('pattern', htmlText);
-        //                 newSibling.attr('p-for', expression);
-        //                 newSibling.data('context', data);
-        //                 $this._relationCollection.setRelation(property, newSibling, parentProperty);
-        //             } else {
-        //                 newSibling.attr('uid', element.data('uid'));
-        //             }
-        //             afterElement(newSibling, target, ++index);
-        //         }
-
-        //         afterElement(element, target, 0);
-        //         element.remove();
-        //     }
-        // }
         
         public getMethod(name: string): Function {
             return this._methods[name];

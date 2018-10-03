@@ -16,8 +16,9 @@
         <div p-bind="class: {{subInfo.class}}">
             <p p-if="{{subInfo.visible}}">this is visible</p>
         </div>
-        <div p-each="list" class="list">
+        <div p-for="list" class="list">
             <p>{{name}} {{@index}}</p>
+            <p p-for="child">{{@self}}</p>
         </div>
 
         <button onclick="test()">click me</button>
@@ -32,16 +33,16 @@
                 visible: true
             },
             list: [
-                {id: 1, name: 'test1'},
-                {id: 2, name: 'test2'},
-                {id: 3, name: 'test3'}
+                { id: 1, name: 'test1', child: ['child1', 'child2'] },
+                { id: 2, name: 'test2', child: ['child3', 'child4'] },
+                { id: 3, name: 'test3', child: ['child5', 'child6'] }
             ]
         }, false);
-        vm.register('add', function(value){
+        vm.register('add', function (value) {
             return value + ' my name is pandarrr';
         });
-        vm.register('filt', function(value){
-            return value.filter(function(item, index){
+        vm.register('filt', function (value) {
+            return value.filter(function (item, index) {
                 return (item.id % 2) === 1;
             })
         })
@@ -53,11 +54,16 @@
                 subInfo: {
                     class: 'on',
                     visible: !visible
-                }
+                },
+                list: [
+                    { id: 4, name: 'test4', child: ['child7', 'child8'] },
+                    { id: 5, name: 'test5', child: ['child9', 'child10'] },
+                    { id: 6, name: 'test6', child: ['child11', 'child12'] }
+                ]
             });
         }
 
-        function isOdd(x){
+        function isOdd(x) {
             return (x % 2) === 1;
         }
     </script>

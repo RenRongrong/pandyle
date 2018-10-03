@@ -95,7 +95,6 @@ declare namespace Pandyle {
         get(param?: any): any;
         run(): void;
         render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string, alias?: any): void;
-        private bindIf(ele, parentProperty);
         private renderContext(ele, parentProperty);
         getMethod(name: string): Function;
         transfer(method: string, data: any[]): any;
@@ -163,6 +162,11 @@ declare namespace Pandyle {
 }
 declare namespace Pandyle {
     class PEachDirective<T> extends DirectiveBase<T> {
+        execute(): void;
+    }
+}
+declare namespace Pandyle {
+    class PForDirective<T> extends DirectiveBase<T> {
         execute(): void;
     }
 }
