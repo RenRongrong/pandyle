@@ -1,7 +1,7 @@
 <div class="book">
-    <p class="title">书名：{{title}}</p>
-    <p class="author">作者：{{author}}</p>
-    <p class="price">价格：{{price}}</p>
+    <p class="title">书名：{{book.title}}</p>
+    <p class="author">作者：{{book.author}}</p>
+    <p class="price">价格：{{book.price}}</p>
     <button p-bind="onclick: buy({{price}})">购买</button>
 </div>
 <style>

@@ -64,15 +64,16 @@ var Pandyle;
     }
     Pandyle.getComponent = getComponent;
     function loadComponent(ele) {
-        var name = Pandyle.$(ele).attr('p-com');
+        var element = Pandyle.$(ele);
+        var name = element.attr('p-com');
         name = Pandyle.$.trim(name);
         if (hasComponent(name)) {
-            Pandyle.$(ele).html(getComponent(name));
+            element.html(getComponent(name));
         }
         else {
             var url = '';
             if (/^@.*/.test(name)) {
-                url = name;
+                url = name.replace(/^@/, '');
             }
             else {
                 var fullpath = name.split('.');
@@ -109,7 +110,12 @@ var Pandyle;
                 name: name,
                 html: text
             });
-            Pandyle.$(ele).html(text);
+            element.html(text);
+            var children = element.children();
+            children.each(function (index, item) {
+                Pandyle.$(item).data('context', element.data('context'));
+            });
+            element.data('children', children);
         }
     }
     Pandyle.loadComponent = loadComponent;
@@ -473,8 +479,10 @@ var Pandyle;
                 }
                 var relation = this._relationCollection.findSelfOrChild(key);
                 if (relation.length > 0) {
-                    relation[0].elements.forEach(function (ele) {
-                        _this.render(ele);
+                    relation.forEach(function (item, index) {
+                        item.elements.forEach(function (ele) {
+                            _this.render(ele);
+                        });
                     });
                 }
             }
@@ -508,26 +516,6 @@ var Pandyle;
                 _this._renderer.renderSingle(ele, data, parentProperty, Pandyle.$.extend({}, alias));
             });
         };
-        VM.prototype.renderContext = function (ele, parentProperty) {
-            var element = Pandyle.$(ele);
-            if (element.attr('p-context')) {
-                var data = element.data('context');
-                var expression = element.attr('p-context');
-                var divided = this._util.dividePipe(expression);
-                var property = divided.property;
-                var method = divided.method;
-                var target = this._util.calcu(property, element, data);
-                if (method) {
-                    target = this._util.convert(method, Pandyle.$.extend({}, target));
-                }
-                var fullProp = property;
-                if (parentProperty !== '') {
-                    fullProp = parentProperty + '.' + property;
-                }
-                this._util.setAlias(element, fullProp, target);
-                this._relationCollection.setRelation(property, Pandyle.$(ele), parentProperty);
-            }
-        };
         VM.prototype.getMethod = function (name) {
             return this._methods[name];
         };
@@ -542,7 +530,6 @@ var Pandyle;
                 this._variables[name] = value;
             }
         };
-        VM._uid = 1;
         return VM;
     }());
     Pandyle.VM = VM;
@@ -785,7 +772,7 @@ var Pandyle;
             var bindings = ele.data('binding');
             var data = ele.data('context');
             for (var a in bindings) {
-                if (a !== 'text' && a !== 'If' && a !== 'Each') {
+                if (['text', 'If', 'Each', 'For', 'Context'].indexOf(a) < 0) {
                     Pandyle.$(ele).attr(a, this._util.convertFromPattern(Pandyle.$(ele), a, bindings[a].pattern, data, this._context.parentProperty));
                 }
             }
@@ -926,6 +913,9 @@ var Pandyle;
                 var htmlText = element.data('pattern');
                 var children_1 = Pandyle.$(htmlText);
                 element.children().remove();
+                if (element.data('children')) {
+                    element.data('children').remove();
+                }
                 target.forEach(function (value, index) {
                     var newChildren = children_1.clone(true, true);
                     var _alias = Pandyle.$.extend({}, alias_1, { index: { data: index, property: '@index' } });
@@ -936,6 +926,7 @@ var Pandyle;
                     });
                     element.append(newChildren);
                 });
+                element.data('children', element.children());
             }
             this.next();
         };
@@ -1020,6 +1011,57 @@ var Pandyle;
 })(Pandyle || (Pandyle = {}));
 var Pandyle;
 (function (Pandyle) {
+    var PContextDirective = (function (_super) {
+        __extends(PContextDirective, _super);
+        function PContextDirective() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        PContextDirective.prototype.execute = function () {
+            var element = Pandyle.$(this._context.element);
+            var parentProperty = this._context.parentProperty;
+            if (element.attr('p-context')) {
+                element.data('binding')['Context'] = {
+                    pattern: element.attr('p-context'),
+                    related: false
+                };
+                element.removeAttr('p-context');
+            }
+            if (element.data('binding')['Context']) {
+                var data = void 0;
+                if (element.data('ocontext')) {
+                    data = element.data('ocontext');
+                }
+                else {
+                    data = element.data('context');
+                    element.data('ocontext', data);
+                }
+                var expression = element.data('binding')['Context'].pattern;
+                var divided = this._util.dividePipe(expression);
+                var property = divided.property;
+                var method = divided.method;
+                var target_1 = this._util.calcu(property, element, data);
+                if (method) {
+                    target_1 = this._util.convert(method, Pandyle.$.extend({}, target_1));
+                }
+                var fullProp = property;
+                if (parentProperty !== '') {
+                    fullProp = parentProperty + '.' + property;
+                }
+                this._util.setAlias(element, fullProp, target_1);
+                this._util.setRelation(property, Pandyle.$(element), parentProperty);
+                element.data('context', target_1);
+                element.children().each(function (index, ele) {
+                    Pandyle.$(ele).data('context', target_1);
+                });
+            }
+            this.next();
+        };
+        return PContextDirective;
+    }(Pandyle.DirectiveBase));
+    Pandyle.PContextDirective = PContextDirective;
+})(Pandyle || (Pandyle = {}));
+var Pandyle;
+(function (Pandyle) {
     var PipeLine = (function () {
         function PipeLine(util) {
             this._util = util;
@@ -1041,7 +1083,8 @@ var Pandyle;
         };
         PipeLine.createPipeLine = function (util) {
             var pipe = new PipeLine(util);
-            pipe.add(new Pandyle.PIfDirective())
+            pipe.add(new Pandyle.PContextDirective())
+                .add(new Pandyle.PIfDirective())
                 .add(new Pandyle.PForDirective())
                 .add(new Pandyle.PEachDirective())
                 .add(new Pandyle.PBindDirective())
@@ -1163,6 +1206,7 @@ var Pandyle;
             parentProperty = element.data('parentProperty');
             this._util.setAlias(element, parentProperty, data);
             this.renderPipe(ele, parentProperty);
+            data = element.data('context');
             this.renderChild(ele, data, parentProperty);
         };
         Renderer.prototype.renderChild = function (ele, data, parentProperty) {

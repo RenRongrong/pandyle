@@ -31,6 +31,9 @@ namespace Pandyle{
                 let htmlText = element.data('pattern');
                 let children = $(htmlText);
                 element.children().remove();
+                if(element.data('children')){
+                    element.data('children').remove();
+                }
                 target.forEach((value, index) => {
                     let newChildren = children.clone(true, true);
                     let _alias = $.extend({}, alias, { index: { data: index, property: '@index' } });
@@ -41,6 +44,7 @@ namespace Pandyle{
                     });
                     element.append(newChildren);
                 })
+                element.data('children', element.children());
             }
             this.next();
         }

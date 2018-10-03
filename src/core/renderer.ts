@@ -27,6 +27,7 @@ namespace Pandyle{
             parentProperty = element.data('parentProperty');
             this._util.setAlias(element, parentProperty, data);
             this.renderPipe(ele, parentProperty);
+            data = element.data('context');
             this.renderChild(ele, data, parentProperty);
         }
 

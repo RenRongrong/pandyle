@@ -88,14 +88,12 @@ declare namespace Pandyle {
         _relationCollection: IRelationCollection;
         private _util;
         private _renderer;
-        private static _uid;
         constructor(element: JQuery<HTMLElement>, data: T, autoRun?: boolean);
         set(newData: string, value: any): any;
         set(newData: object): any;
         get(param?: any): any;
         run(): void;
         render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string, alias?: any): void;
-        private renderContext(ele, parentProperty);
         getMethod(name: string): Function;
         transfer(method: string, data: any[]): any;
         register(name: string, value: any): void;
@@ -167,6 +165,11 @@ declare namespace Pandyle {
 }
 declare namespace Pandyle {
     class PForDirective<T> extends DirectiveBase<T> {
+        execute(): void;
+    }
+}
+declare namespace Pandyle {
+    class PContextDirective<T> extends DirectiveBase<T> {
         execute(): void;
     }
 }

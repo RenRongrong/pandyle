@@ -18,14 +18,15 @@ namespace Pandyle {
     }
 
     export function loadComponent(ele: HTMLElement) {
-        let name = $(ele).attr('p-com');
+        let element = $(ele);
+        let name = element.attr('p-com');
         name = $.trim(name);
         if (hasComponent(name)) {
-            $(ele).html(getComponent(name));
+            element.html(getComponent(name));
         } else {
             let url = '';
             if (/^@.*/.test(name)) {
-                url = name;
+                url = name.replace(/^@/, '');
             } else {
                 let fullpath = name.split('.');
                 let path = Pandyle._config.comPath
@@ -61,7 +62,12 @@ namespace Pandyle {
                 name: name,
                 html: text
             });
-            $(ele).html(text);
+            element.html(text);
+            let children = element.children();
+            children.each((index, item) => {
+                $(item).data('context', element.data('context'));
+            })
+            element.data('children', children);
         }
     }
 }

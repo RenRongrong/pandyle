@@ -5,6 +5,7 @@
 /// <reference path="directives/pIfDirective.ts" />
 /// <reference path="directives/pEachDirective.ts" />
 /// <reference path="directives/pForDirective.ts" />
+/// <reference path="directives/pContextDirective.ts" />
 /// <reference path="interfaces/IPipeContext.ts" />
 
 namespace Pandyle {
@@ -34,7 +35,8 @@ namespace Pandyle {
 
         public static createPipeLine<T>(util: Util<T>) {
             let pipe = new PipeLine<T>(util);
-            pipe.add(new PIfDirective<T>())
+            pipe.add(new PContextDirective<T>())
+                .add(new PIfDirective<T>())
                 .add(new PForDirective<T>())
                 .add(new PEachDirective<T>())
                 .add(new PBindDirective<T>())

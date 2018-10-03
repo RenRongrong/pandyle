@@ -15,8 +15,6 @@ namespace Pandyle {
         private _util: Util<T>;
         private _renderer: Renderer<T>
 
-        private static _uid = 1;
-
         constructor(element: JQuery<HTMLElement>, data: T, autoRun: boolean = true) {
             this._data = $.extend({}, data);
             this._root = element;
@@ -66,9 +64,14 @@ namespace Pandyle {
                 }
                 let relation = this._relationCollection.findSelfOrChild(key);
                 if (relation.length > 0) {
-                    relation[0].elements.forEach(ele => {
-                        this.render(ele);
+                    relation.forEach((item, index) => {
+                        item.elements.forEach(ele => {
+                            this.render(ele);
+                        })
                     })
+                    // relation[0].elements.forEach(ele => {
+                    //     this.render(ele);
+                    // })
                 }
             }
         }
@@ -108,33 +111,6 @@ namespace Pandyle {
             element.each((index, ele) => {
                 this._renderer.renderSingle(ele, data, parentProperty, $.extend({}, alias));
             })
-        }
-
-        /**
-         * 通过p-context修改元素的数据上下文
-         * @param ele 目标元素
-         * @param parentProperty 父级字段的名称
-         */
-        private renderContext(ele: HTMLElement, parentProperty: string) {
-            let element = $(ele);
-            if (element.attr('p-context')) {
-                let data = element.data('context');
-                let expression = element.attr('p-context');
-                let divided = this._util.dividePipe(expression);
-                let property = divided.property;
-                let method = divided.method;
-                let target: any = this._util.calcu(property, element, data);
-                if (method) {
-                    target = this._util.convert(method, $.extend({}, target));
-                }
-                let fullProp = property;
-                if (parentProperty !== '') {
-                    fullProp = parentProperty + '.' + property;
-                }
-                this._util.setAlias(element, fullProp, target);
-                this._relationCollection.setRelation(property, $(ele), parentProperty);
-                // this.renderChild(ele, target, fullProp);
-            }
         }
         
         public getMethod(name: string): Function {
