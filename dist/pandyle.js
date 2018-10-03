@@ -65,10 +65,16 @@ var Pandyle;
     Pandyle.getComponent = getComponent;
     function loadComponent(ele) {
         var element = Pandyle.$(ele);
+        element.children().remove();
         var name = element.attr('p-com');
         name = Pandyle.$.trim(name);
         if (hasComponent(name)) {
             element.html(getComponent(name));
+            var children = element.children();
+            children.each(function (index, item) {
+                Pandyle.$(item).data('context', element.data('context'));
+            });
+            element.data('children', children);
         }
         else {
             var url = '';
@@ -478,12 +484,20 @@ var Pandyle;
                     this._relationCollection.removeChildren(key);
                 }
                 var relation = this._relationCollection.findSelfOrChild(key);
+                var currentArray = '';
                 if (relation.length > 0) {
-                    relation.forEach(function (item, index) {
-                        item.elements.forEach(function (ele) {
-                            _this.render(ele);
-                        });
-                    });
+                    for (var i = 0; i < relation.length; i++) {
+                        var item = relation[i];
+                        if (Pandyle.$.isArray(this.get(item.property))) {
+                            this._relationCollection.removeChildren(item.property);
+                            currentArray = item.property;
+                        }
+                        if (!this._util.isChild(currentArray, item.property)) {
+                            item.elements.forEach(function (ele) {
+                                _this.render(ele);
+                            });
+                        }
+                    }
                 }
             }
         };
@@ -1028,6 +1042,14 @@ var Pandyle;
             }
             if (element.data('binding')['Context']) {
                 var data = void 0;
+                var expression = element.data('binding')['Context'].pattern;
+                var divided = this._util.dividePipe(expression);
+                var property = divided.property;
+                var method = divided.method;
+                var fullProp = property;
+                if (parentProperty !== '') {
+                    fullProp = parentProperty + '.' + property;
+                }
                 if (element.data('ocontext')) {
                     data = element.data('ocontext');
                 }
@@ -1035,24 +1057,22 @@ var Pandyle;
                     data = element.data('context');
                     element.data('ocontext', data);
                 }
-                var expression = element.data('binding')['Context'].pattern;
-                var divided = this._util.dividePipe(expression);
-                var property = divided.property;
-                var method = divided.method;
                 var target_1 = this._util.calcu(property, element, data);
                 if (method) {
                     target_1 = this._util.convert(method, Pandyle.$.extend({}, target_1));
                 }
-                var fullProp = property;
-                if (parentProperty !== '') {
-                    fullProp = parentProperty + '.' + property;
-                }
                 this._util.setAlias(element, fullProp, target_1);
                 this._util.setRelation(property, Pandyle.$(element), parentProperty);
-                element.data('context', target_1);
-                element.children().each(function (index, ele) {
-                    Pandyle.$(ele).data('context', target_1);
+                element.data({
+                    context: target_1,
+                    oparentProperty: fullProp
                 });
+                element.children().each(function (index, ele) {
+                    Pandyle.$(ele).data({
+                        context: target_1
+                    });
+                });
+                this._context.parentProperty = fullProp;
             }
             this.next();
         };
@@ -1207,6 +1227,9 @@ var Pandyle;
             this._util.setAlias(element, parentProperty, data);
             this.renderPipe(ele, parentProperty);
             data = element.data('context');
+            if (element.data('oparentProperty')) {
+                parentProperty = element.data('oparentProperty');
+            }
             this.renderChild(ele, data, parentProperty);
         };
         Renderer.prototype.renderChild = function (ele, data, parentProperty) {

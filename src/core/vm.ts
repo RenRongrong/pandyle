@@ -63,14 +63,24 @@ namespace Pandyle {
                     this._relationCollection.removeChildren(key);
                 }
                 let relation = this._relationCollection.findSelfOrChild(key);
+                let currentArray = '';
                 if (relation.length > 0) {
-                    relation.forEach((item, index) => {
-                        item.elements.forEach(ele => {
-                            this.render(ele);
-                        })
-                    })
-                    // relation[0].elements.forEach(ele => {
-                    //     this.render(ele);
+                    for(let i = 0; i < relation.length; i++){
+                        let item = relation[i];
+                        if($.isArray(this.get(item.property))){
+                            this._relationCollection.removeChildren(item.property);
+                            currentArray = item.property;
+                        }
+                        if(!this._util.isChild(currentArray, item.property)){
+                            item.elements.forEach(ele => {
+                                this.render(ele);
+                            })
+                        }
+                    }
+                    // relation.forEach((item, index) => {
+                    //     item.elements.forEach(ele => {
+                    //         this.render(ele);
+                    //     })
                     // })
                 }
             }

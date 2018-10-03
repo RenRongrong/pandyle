@@ -45,7 +45,8 @@
             book: {
                 title: '三国演义',
                 author: '罗贯中',
-                price: 50
+                price: 50,
+                tags: ['tag1', 'tag2']
             }
         }, false);
         vm.register('add', function (value) {
@@ -73,8 +74,10 @@
                 book: {
                     title: '水浒传',
                     author: '施耐庵',
-                    price: 40
+                    price: 40,
+                    tags: ['tag3', 'tag4']
                 }
+                // 'book.tags': ['tag3', 'tag4']
             });
         }
 

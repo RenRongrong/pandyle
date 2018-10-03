@@ -15,31 +15,40 @@ namespace Pandyle {
             }
             if (element.data('binding')['Context']) {
                 let data;
-                if(element.data('ocontext')){
-                    data = element.data('ocontext');
-                }else{
-                    data = element.data('context');
-                    element.data('ocontext', data);
-                }
-                // let data = element.data('context');
                 let expression = element.data('binding')['Context'].pattern;
                 let divided = this._util.dividePipe(expression);
                 let property = divided.property;
                 let method = divided.method;
-                let target: any = this._util.calcu(property, element, data);
-                if (method) {
-                    target = this._util.convert(method, $.extend({}, target));
-                }
                 let fullProp = property;
                 if (parentProperty !== '') {
                     fullProp = parentProperty + '.' + property;
                 }
+
+                if (element.data('ocontext')) {
+                    data = element.data('ocontext');
+                } else {
+                    data = element.data('context');
+                    element.data('ocontext', data);
+                }
+                // let data = element.data('context');
+                let target: any = this._util.calcu(property, element, data);
+                if (method) {
+                    target = this._util.convert(method, $.extend({}, target));
+                }
+
                 this._util.setAlias(element, fullProp, target);
                 this._util.setRelation(property, $(element), parentProperty);
-                element.data('context', target);
-                element.children().each((index, ele) => {
-                    $(ele).data('context', target);
+                element.data({
+                    context: target,
+                    oparentProperty: fullProp
                 })
+                element.children().each((index, ele) => {
+                    $(ele).data({
+                        context: target
+                    })
+                })
+
+                this._context.parentProperty = fullProp;
             }
             this.next();
         }

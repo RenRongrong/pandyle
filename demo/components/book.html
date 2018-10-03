@@ -2,6 +2,9 @@
     <p class="title">书名：{{book.title}}</p>
     <p class="author">作者：{{book.author}}</p>
     <p class="price">价格：{{book.price}}</p>
+    <div p-each="book.tags">
+        <span>{{@self}}</span>
+    </div>
     <button p-bind="onclick: buy({{price}})">购买</button>
 </div>
 <style>

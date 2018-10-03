@@ -19,10 +19,16 @@ namespace Pandyle {
 
     export function loadComponent(ele: HTMLElement) {
         let element = $(ele);
+        element.children().remove();
         let name = element.attr('p-com');
         name = $.trim(name);
         if (hasComponent(name)) {
             element.html(getComponent(name));
+            let children = element.children();
+            children.each((index, item) => {
+                $(item).data('context', element.data('context'));
+            })
+            element.data('children', children);
         } else {
             let url = '';
             if (/^@.*/.test(name)) {
