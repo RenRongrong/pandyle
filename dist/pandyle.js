@@ -462,7 +462,6 @@ var Pandyle;
             }
         }
         VM.prototype.set = function (newData, value) {
-            var _this = this;
             var _newData = {};
             if (arguments.length === 2) {
                 _newData[newData] = value;
@@ -488,14 +487,14 @@ var Pandyle;
                 if (relation.length > 0) {
                     for (var i = 0; i < relation.length; i++) {
                         var item = relation[i];
-                        if (Pandyle.$.isArray(this.get(item.property))) {
-                            this._relationCollection.removeChildren(item.property);
-                            currentArray = item.property;
-                        }
-                        if (!this._util.isChild(currentArray, item.property)) {
-                            item.elements.forEach(function (ele) {
-                                _this.render(ele);
-                            });
+                        for (var j = 0; j < item.elements.length; j++) {
+                            var item2 = item.elements[j];
+                            if (item2.data('alias')) {
+                                this.render(item2);
+                            }
+                            else {
+                                item.elements.splice(j, 1);
+                            }
                         }
                     }
                 }
@@ -1055,14 +1054,16 @@ var Pandyle;
                 }
                 else {
                     data = element.data('context');
-                    element.data('ocontext', data);
                 }
                 var target_1 = this._util.calcu(property, element, data);
                 if (method) {
                     target_1 = this._util.convert(method, Pandyle.$.extend({}, target_1));
                 }
-                this._util.setAlias(element, fullProp, target_1);
-                this._util.setRelation(property, Pandyle.$(element), parentProperty);
+                if (!element.data('ocontext')) {
+                    this._util.setAlias(element, fullProp, target_1);
+                    this._util.setRelation(property, Pandyle.$(element), parentProperty);
+                    element.data('ocontext', data);
+                }
                 element.data({
                     context: target_1,
                     oparentProperty: fullProp

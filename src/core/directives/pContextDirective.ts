@@ -28,16 +28,19 @@ namespace Pandyle {
                     data = element.data('ocontext');
                 } else {
                     data = element.data('context');
-                    element.data('ocontext', data);
+                    // element.data('ocontext', data);
                 }
                 // let data = element.data('context');
                 let target: any = this._util.calcu(property, element, data);
                 if (method) {
                     target = this._util.convert(method, $.extend({}, target));
                 }
+                if (!element.data('ocontext')) {
+                    this._util.setAlias(element, fullProp, target);
+                    this._util.setRelation(property, $(element), parentProperty);
+                    element.data('ocontext', data);
+                }
 
-                this._util.setAlias(element, fullProp, target);
-                this._util.setRelation(property, $(element), parentProperty);
                 element.data({
                     context: target,
                     oparentProperty: fullProp
