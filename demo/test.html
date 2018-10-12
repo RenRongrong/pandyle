@@ -7,41 +7,84 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <script src="../node_modules/jquery/dist/jquery.min.js"></script>
-    <!-- <script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js"></script> -->
     <script src="../dist/pandyle.js"></script>
-    <script src="test.js"></script>
+    <!-- <script src="../dist/pandyle.min.js"></script> -->
 </head>
 
 <body>
-    <div class="temp">
-        <span style="display: block" p-if="'{{title}}' == '书本'">{{title}}</span>
-        <div p-context="author">
-            <p>{{name}}/{{nation}}</p>
-            <p>{{nation}}</p>
-            <div p-each="honors">
-                <span>{{@self}} </span>
-            </div>
-            <div>
-                <div p-for="honors">{{@self}}</div>
-            </div>
+    <div class="main">
+        <div p-bind="class: {{class}}">{{message|add}}</div>
+        <div p-bind="class: {{subInfo.class}}">
+            <p p-if="{{subInfo.visible}}">this is visible</p>
         </div>
-        <div>
-            <select name="" id="">
-                <option value="0">请选择</option>
-                <option p-for="list.selects" p-bind="value:{{value}}">{{content}}</option>
-            </select>
+        <div p-each="list" class="list">
+            <p>{{name}} {{@index}}</p>
+            <!-- <p p-for="child">{{@self}}</p> -->
         </div>
-        <p>{{price}}</p>
-        <div p-each="tags">
-            <p p-if="{{@index}} % 2 == 0">{{add(@index)}}:{{@self}}:{{@root.title}}</p>
+        <div p-context="subInfo">
+            <div>{{class}}</div>
         </div>
-        <p class="local">{{@window.uid}}</p>
-        <div p-com="demo.book" p-context="|{title: '三国', author: '罗', price: 150}"></div>
-        <div p-com="demo.book" p-context="|{title: '水浒', author: '施', price: 99}"></div>
-        <div p-com="demo.radio" p-context="list"></div>
-        <div p-com="demo.radio" p-context="list"></div>
+        <div p-com="@/demo/components/book.html" p-context="book"></div>
+
+        <button onclick="test()">click me</button>
     </div>
-    <button onclick="setName()">click me</button>
+
+    <script>
+        var vm = $('.main').vm({
+            message: 'hello world',
+            class: 'active',
+            subInfo: {
+                class: 'on',
+                visible: true
+            },
+            list: [
+                { id: 1, name: 'test1', child: ['child1', 'child2'] },
+                { id: 2, name: 'test2', child: ['child3', 'child4'] },
+                { id: 3, name: 'test3', child: ['child5', 'child6'] }
+            ],
+            book: {
+                title: '三国演义',
+                author: '罗贯中',
+                price: 50,
+                tags: ['tag1', 'tag2']
+            }
+        }, false);
+        vm.register('add', function (value) {
+            return value + ' my name is pandarrr';
+        });
+        vm.register('filt', function (value) {
+            return value.filter(function (item, index) {
+                return (item.id % 2) === 1;
+            })
+        })
+        vm.run();
+
+        function test() {
+            var visible = vm.get('subInfo.visible');
+            vm.set({
+                // subInfo: {
+                //     class: 'off',
+                //     visible: !visible
+                // },
+                // list: [
+                //     { id: 4, name: 'test4', child: ['child7', 'child8'] },
+                //     { id: 5, name: 'test5', child: ['child9', 'child10'] },
+                //     { id: 6, name: 'test6', child: ['child11', 'child12'] }
+                // ],
+                book: {
+                    title: '水浒传',
+                    author: '施耐庵',
+                    price: 40,
+                    tags: ['tag3', 'tag4']
+                }
+                // 'book.tags': ['tag3', 'tag4']
+            });
+        }
+
+        function isOdd(x) {
+            return (x % 2) === 1;
+        }
+    </script>
 </body>
 
 </html>

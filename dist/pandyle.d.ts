@@ -58,45 +58,139 @@ declare namespace Pandyle {
         private updateDom_select(element, value);
     }
 }
+interface IRelation {
+    property: string;
+    elements: JQuery<HTMLElement>[];
+}
+interface IRelationCollection {
+    setRelation: (property: string, element: JQuery<HTMLElement>, parentProperty: string) => void;
+    findSelfOrChild: (key: string) => IRelation[];
+    removeChildren: (key: string) => void;
+}
+declare namespace Pandyle {
+    class RelationCollection<T> implements IRelationCollection {
+        private _util;
+        private _relations;
+        private constructor();
+        static CreateRelationCollection<T>(util: Util<T>): RelationCollection<T>;
+        setRelation(property: string, element: JQuery<HTMLElement>, parentProperty: string): void;
+        findSelfOrChild(key: string): IRelation[];
+        removeChildren(key: string): void;
+    }
+}
 declare namespace Pandyle {
     class VM<T> {
         protected _data: T;
-        private _relations;
         private _root;
-        private _methods;
-        private _filters;
-        private _converters;
+        _methods: object;
         private _variables;
         private _defaultAlias;
-        private static _uid;
+        _relationCollection: IRelationCollection;
+        private _util;
+        private _renderer;
         constructor(element: JQuery<HTMLElement>, data: T, autoRun?: boolean);
         set(newData: string, value: any): any;
         set(newData: object): any;
         get(param?: any): any;
         run(): void;
         render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string, alias?: any): void;
-        private renderSingle(ele, data, parentProperty, alias?);
-        private bindAttr(ele, parentProperty);
-        private bindIf(ele, parentProperty);
-        private renderContext(ele, parentProperty);
-        private renderChild(ele, data, parentProperty);
-        private renderEach(element, data, parentProperty);
-        private renderFor(element, data, parentProperty);
-        private renderText(element, parentProperty);
-        private convertFromPattern(element, prop, pattern, data, parentProperty);
-        private setRelation(property, element, parentProperty);
-        private isSelfOrChild(property, subProperty);
-        private isChild(property, subProperty);
-        private getValue(element, property, data);
-        private calcu(property, element, data);
-        private toDefault(type);
-        private setAlias(element, property, data?);
-        private getAliasData(element, alias);
-        private getAliasProperty(element, alias);
-        private getMethod(name);
-        private dividePipe(expression);
-        private convert(method, data);
-        private filter(method, data);
+        getMethod(name: string): Function;
+        transfer(method: string, data: any[]): any;
         register(name: string, value: any): void;
+    }
+}
+declare namespace Pandyle {
+    class Util<T> {
+        private _vm;
+        private constructor();
+        static CreateUtil<T>(vm: VM<T>): Util<T>;
+        getValue(element: JQuery<HTMLElement>, property: string, data: any): any;
+        calcu(property: string, element: JQuery<HTMLElement>, data: any): any;
+        convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty: any): string;
+        toDefault(type: string): {};
+        setAlias(element: JQuery<HTMLElement>, property: string, data?: any): void;
+        getAliasData(element: JQuery<HTMLElement>, alias: string): any;
+        getAliasProperty(element: JQuery<HTMLElement>, alias: string): any;
+        dividePipe(expression: string): {
+            property: string;
+            method: string;
+        };
+        convert(method: string, data: any): any;
+        isSelfOrChild(property: string, subProperty: string): boolean;
+        isChild(property: string, subProperty: string): boolean;
+        transfer(method: string, data: any[]): any;
+        setRelation(property: string, element: JQuery<HTMLElement>, parentProperty: string): void;
+    }
+}
+interface IPipeContext {
+    element: HTMLElement;
+    parentProperty: string;
+}
+declare namespace Pandyle {
+    abstract class DirectiveBase<T> {
+        protected _next: DirectiveBase<T>;
+        protected _util: Util<T>;
+        protected _context: IPipeContext;
+        abstract execute(): void;
+        protected next(): void;
+        protected deep(): void;
+        append(next: DirectiveBase<T>): void;
+        init(context: IPipeContext, util: Util<T>): void;
+    }
+}
+declare namespace Pandyle {
+    class PBindDirective<T> extends DirectiveBase<T> {
+        execute(): void;
+    }
+}
+declare namespace Pandyle {
+    class pComDirective<T> extends DirectiveBase<T> {
+        execute(): void;
+    }
+}
+declare namespace Pandyle {
+    class pTextDirective<T> extends DirectiveBase<T> {
+        execute(): void;
+    }
+}
+declare namespace Pandyle {
+    class PIfDirective<T> extends DirectiveBase<T> {
+        execute(): void;
+    }
+}
+declare namespace Pandyle {
+    class PEachDirective<T> extends DirectiveBase<T> {
+        execute(): void;
+    }
+}
+declare namespace Pandyle {
+    class PForDirective<T> extends DirectiveBase<T> {
+        execute(): void;
+    }
+}
+declare namespace Pandyle {
+    class PContextDirective<T> extends DirectiveBase<T> {
+        execute(): void;
+    }
+}
+declare namespace Pandyle {
+    class PipeLine<T> {
+        private _firstDirective;
+        private _lastDirective;
+        private _util;
+        private constructor();
+        private add(directive);
+        start(context: IPipeContext): void;
+        static createPipeLine<T>(util: Util<T>): PipeLine<T>;
+    }
+}
+declare namespace Pandyle {
+    class Renderer<T> {
+        private _util;
+        private _pipeline;
+        constructor(vm: VM<T>);
+        renderSingle(ele: HTMLElement, data: any, parentProperty: string, alias?: any): void;
+        renderChild(ele: HTMLElement, data: any, parentProperty: string): void;
+        renderPipe(ele: HTMLElement, parentProperty: string): void;
     }
 }
