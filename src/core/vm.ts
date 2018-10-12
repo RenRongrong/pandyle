@@ -63,19 +63,9 @@ namespace Pandyle {
                     this._relationCollection.removeChildren(key);
                 }
                 let relation = this._relationCollection.findSelfOrChild(key);
-                let currentArray = '';
                 if (relation.length > 0) {
                     for(let i = 0; i < relation.length; i++){
                         let item = relation[i];
-                        // if($.isArray(this.get(item.property))){
-                        //     this._relationCollection.removeChildren(item.property);
-                        //     currentArray = item.property;
-                        // }
-                        // if(!this._util.isChild(currentArray, item.property)){
-                        //     item.elements.forEach(ele => {
-                        //         this.render(ele);
-                        //     })
-                        // }
                         for(let j = 0; j < item.elements.length; j++){
                             let item2 = item.elements[j];
                             if(item2.data('alias')){
@@ -84,19 +74,7 @@ namespace Pandyle {
                                 item.elements.splice(j, 1);
                             }
                         }
-                        // item.elements.forEach((item2, index) => {
-                        //     if(item2.data()){
-                        //         this.render(item2);
-                        //     }else{
-                        //         item.elements.splice(index, 1);
-                        //     }
-                        // })
                     }
-                    // relation.forEach((item, index) => {
-                    //     item.elements.forEach(ele => {
-                    //         this.render(ele);
-                    //     })
-                    // })
                 }
             }
         }

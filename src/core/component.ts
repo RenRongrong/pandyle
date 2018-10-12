@@ -2,7 +2,8 @@
 namespace Pandyle {
     export interface component {
         name: string,
-        html: string
+        html: string,
+        onLoad?: ()=>void
     }
 
     export function hasComponent(name: string) {
@@ -10,7 +11,7 @@ namespace Pandyle {
     }
 
     export function addComponent(com: component) {
-        _components[com.name] = com.html;
+        _components[com.name] = com;
     }
 
     export function getComponent(name: string) {
@@ -23,12 +24,16 @@ namespace Pandyle {
         let name = element.attr('p-com');
         name = $.trim(name);
         if (hasComponent(name)) {
-            element.html(getComponent(name));
+            let com = getComponent(name);
+            element.html(com.html);
             let children = element.children();
             children.each((index, item) => {
                 $(item).data('context', element.data('context'));
             })
             element.data('children', children);
+            if(com.onLoad){
+                com.onLoad();
+            }
         } else {
             let url = '';
             if (/^@.*/.test(name)) {
@@ -55,6 +60,7 @@ namespace Pandyle {
         }
 
         function insertToDom(text: string, name: string) {
+            let component:component = {name: name, html: ''};
             text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, ($0, $1) => {
                 (new Function($1))();
                 return '';
@@ -64,16 +70,21 @@ namespace Pandyle {
                 $('head').append(style);
                 return '';
             });
-            addComponent({
-                name: name,
-                html: text
+            text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, ($0, $1) => {
+                new Function($1).call(component);
+                return '';
             });
+            component.html = text;
+            addComponent(component);
             element.html(text);
             let children = element.children();
             children.each((index, item) => {
                 $(item).data('context', element.data('context'));
             })
             element.data('children', children);
+            if(component.onLoad){
+                component.onLoad();
+            }
         }
     }
 }

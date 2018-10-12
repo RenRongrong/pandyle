@@ -20,6 +20,7 @@ declare namespace Pandyle {
     interface component {
         name: string;
         html: string;
+        onLoad?: () => void;
     }
     function hasComponent(name: string): boolean;
     function addComponent(com: component): void;

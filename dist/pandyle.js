@@ -56,7 +56,7 @@ var Pandyle;
     }
     Pandyle.hasComponent = hasComponent;
     function addComponent(com) {
-        Pandyle._components[com.name] = com.html;
+        Pandyle._components[com.name] = com;
     }
     Pandyle.addComponent = addComponent;
     function getComponent(name) {
@@ -69,12 +69,16 @@ var Pandyle;
         var name = element.attr('p-com');
         name = Pandyle.$.trim(name);
         if (hasComponent(name)) {
-            element.html(getComponent(name));
+            var com = getComponent(name);
+            element.html(com.html);
             var children = element.children();
             children.each(function (index, item) {
                 Pandyle.$(item).data('context', element.data('context'));
             });
             element.data('children', children);
+            if (com.onLoad) {
+                com.onLoad();
+            }
         }
         else {
             var url = '';
@@ -103,6 +107,7 @@ var Pandyle;
             });
         }
         function insertToDom(text, name) {
+            var component = { name: name, html: '' };
             text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, function ($0, $1) {
                 (new Function($1))();
                 return '';
@@ -112,16 +117,21 @@ var Pandyle;
                 Pandyle.$('head').append(style);
                 return '';
             });
-            addComponent({
-                name: name,
-                html: text
+            text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, function ($0, $1) {
+                new Function($1).call(component);
+                return '';
             });
+            component.html = text;
+            addComponent(component);
             element.html(text);
             var children = element.children();
             children.each(function (index, item) {
                 Pandyle.$(item).data('context', element.data('context'));
             });
             element.data('children', children);
+            if (component.onLoad) {
+                component.onLoad();
+            }
         }
     }
     Pandyle.loadComponent = loadComponent;
@@ -483,7 +493,6 @@ var Pandyle;
                     this._relationCollection.removeChildren(key);
                 }
                 var relation = this._relationCollection.findSelfOrChild(key);
-                var currentArray = '';
                 if (relation.length > 0) {
                     for (var i = 0; i < relation.length; i++) {
                         var item = relation[i];
