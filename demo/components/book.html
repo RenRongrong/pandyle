@@ -32,7 +32,9 @@
             alert('不贵，买了');
         }
     }
-    this.onLoad = function(){
+    this.onLoad = function(context){
         console.log('loaded!');
+        console.log(context);
+        console.log(context.title);
     }
 </script>

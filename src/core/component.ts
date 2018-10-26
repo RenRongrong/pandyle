@@ -3,7 +3,7 @@ namespace Pandyle {
     export interface component {
         name: string,
         html: string,
-        onLoad?: ()=>void
+        onLoad?: (context:any)=>void
     }
 
     export function hasComponent(name: string) {
@@ -14,7 +14,7 @@ namespace Pandyle {
         _components[com.name] = com;
     }
 
-    export function getComponent(name: string) {
+    export function getComponent(name: string):component {
         return _components[name];
     }
 
@@ -22,17 +22,18 @@ namespace Pandyle {
         let element = $(ele);
         element.children().remove();
         let name = element.attr('p-com');
+        let context = element.data('context');
         name = $.trim(name);
         if (hasComponent(name)) {
             let com = getComponent(name);
             element.html(com.html);
-            let children = element.children();
+            let children = element.children();       
             children.each((index, item) => {
-                $(item).data('context', element.data('context'));
+                $(item).data('context', context);
             })
             element.data('children', children);
             if(com.onLoad){
-                com.onLoad();
+                com.onLoad(context);
             }
         } else {
             let url = '';
@@ -54,17 +55,13 @@ namespace Pandyle {
                 url: url,
                 async: false,
                 success: res => {
-                    insertToDom(res, name);
+                    insertToDom(res, name, context);
                 }
             })
         }
 
-        function insertToDom(text: string, name: string) {
+        function insertToDom(text: string, name: string, context:any) {
             let component:component = {name: name, html: ''};
-            text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, ($0, $1) => {
-                (new Function($1))();
-                return '';
-            });
             text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, ($0, $1) => {
                 let style = '<style>' + $1 + '</style>';
                 $('head').append(style);
@@ -79,11 +76,11 @@ namespace Pandyle {
             element.html(text);
             let children = element.children();
             children.each((index, item) => {
-                $(item).data('context', element.data('context'));
+                $(item).data('context', context);
             })
             element.data('children', children);
             if(component.onLoad){
-                component.onLoad();
+                component.onLoad(context);
             }
         }
     }

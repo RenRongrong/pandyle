@@ -67,17 +67,18 @@ var Pandyle;
         var element = Pandyle.$(ele);
         element.children().remove();
         var name = element.attr('p-com');
+        var context = element.data('context');
         name = Pandyle.$.trim(name);
         if (hasComponent(name)) {
             var com = getComponent(name);
             element.html(com.html);
             var children = element.children();
             children.each(function (index, item) {
-                Pandyle.$(item).data('context', element.data('context'));
+                Pandyle.$(item).data('context', context);
             });
             element.data('children', children);
             if (com.onLoad) {
-                com.onLoad();
+                com.onLoad(context);
             }
         }
         else {
@@ -102,16 +103,12 @@ var Pandyle;
                 url: url,
                 async: false,
                 success: function (res) {
-                    insertToDom(res, name);
+                    insertToDom(res, name, context);
                 }
             });
         }
-        function insertToDom(text, name) {
+        function insertToDom(text, name, context) {
             var component = { name: name, html: '' };
-            text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, function ($0, $1) {
-                (new Function($1))();
-                return '';
-            });
             text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, function ($0, $1) {
                 var style = '<style>' + $1 + '</style>';
                 Pandyle.$('head').append(style);
@@ -126,11 +123,11 @@ var Pandyle;
             element.html(text);
             var children = element.children();
             children.each(function (index, item) {
-                Pandyle.$(item).data('context', element.data('context'));
+                Pandyle.$(item).data('context', context);
             });
             element.data('children', children);
             if (component.onLoad) {
-                component.onLoad();
+                component.onLoad(context);
             }
         }
     }

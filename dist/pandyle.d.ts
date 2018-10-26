@@ -20,11 +20,11 @@ declare namespace Pandyle {
     interface component {
         name: string;
         html: string;
-        onLoad?: () => void;
+        onLoad?: (context: any) => void;
     }
     function hasComponent(name: string): boolean;
     function addComponent(com: component): void;
-    function getComponent(name: string): any;
+    function getComponent(name: string): component;
     function loadComponent(ele: HTMLElement): void;
 }
 declare namespace Pandyle {
