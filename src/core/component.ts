@@ -2,7 +2,8 @@
 namespace Pandyle {
     export interface component {
         name: string,
-        html: string
+        html: string,
+        onLoad?: (context:any)=>void
     }
 
     export function hasComponent(name: string) {
@@ -10,10 +11,10 @@ namespace Pandyle {
     }
 
     export function addComponent(com: component) {
-        _components[com.name] = com.html;
+        _components[com.name] = com;
     }
 
-    export function getComponent(name: string) {
+    export function getComponent(name: string):component {
         return _components[name];
     }
 
@@ -21,14 +22,19 @@ namespace Pandyle {
         let element = $(ele);
         element.children().remove();
         let name = element.attr('p-com');
+        let context = element.data('context');
         name = $.trim(name);
         if (hasComponent(name)) {
-            element.html(getComponent(name));
-            let children = element.children();
+            let com = getComponent(name);
+            element.html(com.html);
+            let children = element.children();       
             children.each((index, item) => {
-                $(item).data('context', element.data('context'));
+                $(item).data('context', context);
             })
             element.data('children', children);
+            if(com.onLoad){
+                com.onLoad(context);
+            }
         } else {
             let url = '';
             if (/^@.*/.test(name)) {
@@ -49,31 +55,33 @@ namespace Pandyle {
                 url: url,
                 async: false,
                 success: res => {
-                    insertToDom(res, name);
+                    insertToDom(res, name, context);
                 }
             })
         }
 
-        function insertToDom(text: string, name: string) {
-            text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, ($0, $1) => {
-                (new Function($1))();
-                return '';
-            });
+        function insertToDom(text: string, name: string, context:any) {
+            let component:component = {name: name, html: ''};
             text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, ($0, $1) => {
                 let style = '<style>' + $1 + '</style>';
                 $('head').append(style);
                 return '';
             });
-            addComponent({
-                name: name,
-                html: text
+            text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, ($0, $1) => {
+                new Function($1).call(component);
+                return '';
             });
+            component.html = text;
+            addComponent(component);
             element.html(text);
             let children = element.children();
             children.each((index, item) => {
-                $(item).data('context', element.data('context'));
+                $(item).data('context', context);
             })
             element.data('children', children);
+            if(component.onLoad){
+                component.onLoad(context);
+            }
         }
     }
 }
