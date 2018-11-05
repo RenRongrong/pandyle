@@ -20,3 +20,7 @@ pandyle是一个基于jquery的MVVM库。它为jquery提供了基本的模板和
 
 [在wiki中查看文档](https://github.com/RenRongrong/pandyle/wiki)
 
+## 交流
+
+你可以加入QQ群进行技术交流：524640426，（平时较忙，可能会错过群内消息，如有需要可小窗发我QQ上）
+
