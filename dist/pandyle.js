@@ -564,7 +564,7 @@ var Pandyle;
             return util;
         };
         Util.prototype.getValue = function (element, property, data) {
-            var result = this.calcu(property, element, data);
+            var result = this.calcuExpression(property, element, data);
             var type = Pandyle.$.type(result);
             if (type === 'string' || type === 'number' || type === 'boolean' || type === 'null' || type === 'undefined') {
                 return result;
@@ -573,14 +573,29 @@ var Pandyle;
                 return Pandyle.$.extend(this.toDefault(type), result);
             }
         };
+        Util.prototype.calcuExpression = function (property, element, data) {
+            var _this = this;
+            var reg = /[^\+\-\*\/\?\:\>\=\<]+/g;
+            var funcStr = property.replace(reg, function ($0) {
+                var result = _this.calcu($0, element, data);
+                if (Pandyle.$.type(result) === 'string' && result !== '') {
+                    result = "'" + result + "'";
+                }
+                return result;
+            });
+            return new Function('return ' + funcStr)();
+        };
         Util.prototype.calcu = function (property, element, data) {
             var _this = this;
             var devided = this.dividePipe(property);
             property = devided.property;
+            if (property.match(/^('|"|\d).*$/)) {
+                return new Function('return ' + property)();
+            }
             var method = devided.method;
             var nodes = property.match(/[@\w]+((?:\(.*?\))*|(?:\[.*?\])*)/g);
             if (!nodes) {
-                return '';
+                return property;
             }
             var result = nodes.reduce(function (obj, current) {
                 var arr = /^([@\w]+)([\(|\[].*)*/.exec(current);
@@ -631,7 +646,7 @@ var Pandyle;
         };
         Util.prototype.convertFromPattern = function (element, prop, pattern, data, parentProperty) {
             var _this = this;
-            var reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\|\s]*?)\s*}}/g;
+            var reg = /{{\s*(.*?)\s*}}/g;
             var related = false;
             if (reg.test(pattern)) {
                 if (!element.data('binding')[prop]) {

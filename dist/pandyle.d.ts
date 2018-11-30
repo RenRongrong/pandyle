@@ -1,3 +1,4 @@
+/// <reference path="../src/index.d.ts" />
 /// <reference types="jquery" />
 declare namespace Pandyle {
     const _variables: any;
@@ -72,7 +73,7 @@ declare namespace Pandyle {
     class RelationCollection<T> implements IRelationCollection {
         private _util;
         private _relations;
-        private constructor();
+        private constructor(util);
         static CreateRelationCollection<T>(util: Util<T>): RelationCollection<T>;
         setRelation(property: string, element: JQuery<HTMLElement>, parentProperty: string): void;
         findSelfOrChild(key: string): IRelation[];
@@ -103,9 +104,10 @@ declare namespace Pandyle {
 declare namespace Pandyle {
     class Util<T> {
         private _vm;
-        private constructor();
+        private constructor(vm);
         static CreateUtil<T>(vm: VM<T>): Util<T>;
         getValue(element: JQuery<HTMLElement>, property: string, data: any): any;
+        calcuExpression(property: string, element: JQuery<HTMLElement>, data: any): any;
         calcu(property: string, element: JQuery<HTMLElement>, data: any): any;
         convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty: any): string;
         toDefault(type: string): {};
@@ -179,7 +181,7 @@ declare namespace Pandyle {
         private _firstDirective;
         private _lastDirective;
         private _util;
-        private constructor();
+        private constructor(util);
         private add(directive);
         start(context: IPipeContext): void;
         static createPipeLine<T>(util: Util<T>): PipeLine<T>;

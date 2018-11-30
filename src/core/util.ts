@@ -21,13 +21,28 @@ namespace Pandyle {
          * @param data 数据上下文
          */
         public getValue(element: JQuery<HTMLElement>, property: string, data: any) {
-            let result = this.calcu(property, element, data);
+            //let result = this.calcu(property, element, data);
+            let result = this.calcuExpression(property, element, data);
             let type = $.type(result);
             if (type === 'string' || type === 'number' || type === 'boolean' || type === 'null' || type === 'undefined') {
                 return result;
             } else {
                 return $.extend(this.toDefault(type), result);
             }
+        }
+
+        public calcuExpression(property:string, element:JQuery<HTMLElement>, data:any){
+            let reg = /[^\+\-\*\/\?\:\>\=\<]+/g;
+            let funcStr = property.replace(reg, ($0) =>{
+                let result = this.calcu($0, element, data);
+                if($.type(result) === 'string' && result !== ''){
+                    result = "'" + result + "'";
+                }
+                return result;
+            })
+            return new Function('return ' + funcStr)();
+            // let items = property.split(/\+|\-|\*|\/|\?|\:|\>\=?|\<\=?|\={1,3}/);
+            
         }
 
         /**
@@ -39,10 +54,13 @@ namespace Pandyle {
         public calcu(property: string, element: JQuery<HTMLElement>, data: any) {
             let devided = this.dividePipe(property);
             property = devided.property;
+            if(property.match(/^('|"|\d).*$/)){
+                return new Function('return ' + property)();
+            }
             let method = devided.method;
             let nodes = property.match(/[@\w]+((?:\(.*?\))*|(?:\[.*?\])*)/g);
             if (!nodes) {
-                return '';
+                return property;
             }
             let result = nodes.reduce((obj, current) => {
                 let arr = /^([@\w]+)([\(|\[].*)*/.exec(current);
@@ -100,7 +118,8 @@ namespace Pandyle {
          * @param parentProperty 父级字段的名称
          */
         public convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty) {
-            let reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\|\s]*?)\s*}}/g;
+            //let reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\|\s]*?)\s*}}/g;
+            let reg = /{{\s*(.*?)\s*}}/g;
             let related = false;
             if (reg.test(pattern)) {
                 if (!element.data('binding')[prop]) {
