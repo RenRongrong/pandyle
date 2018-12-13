@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script>
+    <script src="../dist/pandyle.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div class="main">
+        <div p-for="list">{{name}}</div>
+    </div>
+
+    <script>
+        $('.main').vm({
+            list: [
+                {id: 1, name: 'test1'},
+                {id: 2, name: 'test2'},
+                {id: 3, name: 'test3'}
+            ]
+        })
+    </script>
+</body>
+</html>

@@ -25,7 +25,9 @@ namespace Pandyle {
                 let property = this._util.dividePipe(expression).property;
                 let target: any[] = this._util.calcu(expression, element, data);
                 if (!element.data('pattern')) {
-                    element.data('pattern', element.prop('outerHTML'));
+                    let outerHtml:string = element.prop('outerHTML');
+                    outerHtml = outerHtml.replace(/jQuery\d*\="\d*"/, '');
+                    element.data('pattern', outerHtml);
                     this._util.setRelation(property, element, parentProperty);
                 };
                 let fullProp = property;
