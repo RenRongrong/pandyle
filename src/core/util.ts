@@ -22,7 +22,7 @@ namespace Pandyle {
          */
         public getValue(element: JQuery<HTMLElement>, property: string, data: any) {
             //let result = this.calcu(property, element, data);
-            let result = this.calcuExpression(property, element, data);
+            let result = unescape(this.calcuExpression(property, element, data));
             let type = $.type(result);
             if (type === 'string' || type === 'number' || type === 'boolean' || type === 'null' || type === 'undefined') {
                 return result;
@@ -35,8 +35,8 @@ namespace Pandyle {
             let reg = /[^\+\-\*\/\?\:\>\=\<]+/g;
             let funcStr = property.replace(reg, ($0) =>{
                 let result = this.calcu($0, element, data);
-                if($.type(result) === 'string' && result !== ''){
-                    result = "'" + result + "'";
+                if($.type(result) === 'string'){
+                    result = "'" + escape(result) + "'";
                 }
                 return result;
             })

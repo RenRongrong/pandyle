@@ -251,7 +251,7 @@ var Pandyle;
         };
         Inputs.prototype.bindChange = function () {
             var _this = this;
-            this._root.on('change viewChange', 'input,textarea,select', function (e) {
+            this._root.on('change viewChange keyup', 'input,textarea,select', function (e) {
                 var ele = Pandyle.$(e.currentTarget);
                 var tagName = ele.prop('tagName');
                 var name = ele.prop('name');
@@ -564,7 +564,7 @@ var Pandyle;
             return util;
         };
         Util.prototype.getValue = function (element, property, data) {
-            var result = this.calcuExpression(property, element, data);
+            var result = unescape(this.calcuExpression(property, element, data));
             var type = Pandyle.$.type(result);
             if (type === 'string' || type === 'number' || type === 'boolean' || type === 'null' || type === 'undefined') {
                 return result;
@@ -578,8 +578,8 @@ var Pandyle;
             var reg = /[^\+\-\*\/\?\:\>\=\<]+/g;
             var funcStr = property.replace(reg, function ($0) {
                 var result = _this.calcu($0, element, data);
-                if (Pandyle.$.type(result) === 'string' && result !== '') {
-                    result = "'" + result + "'";
+                if (Pandyle.$.type(result) === 'string') {
+                    result = "'" + escape(result) + "'";
                 }
                 return result;
             });
