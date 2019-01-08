@@ -575,7 +575,7 @@ var Pandyle;
         };
         Util.prototype.calcuExpression = function (property, element, data) {
             var _this = this;
-            var reg = /[^\+\-\*\/\?\:\>\=\<]+/g;
+            var reg = /[^\+\-\*\/\?\:\>\=\<\|\&]+/g;
             var funcStr = property.replace(reg, function ($0) {
                 var result = _this.calcu($0, element, data);
                 if (Pandyle.$.type(result) === 'string') {
@@ -589,6 +589,9 @@ var Pandyle;
             var _this = this;
             var devided = this.dividePipe(property);
             property = devided.property;
+            if (['null', 'undefined', 'true', 'false'].indexOf(property) > -1) {
+                return new Function('return ' + property)();
+            }
             if (property.match(/^('|"|\d).*$/)) {
                 return new Function('return ' + property)();
             }
