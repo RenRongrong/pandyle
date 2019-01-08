@@ -575,7 +575,7 @@ var Pandyle;
         };
         Util.prototype.calcuExpression = function (property, element, data) {
             var _this = this;
-            var reg = /[^\+\-\*\/\?\:\>\=\<\|\&]+/g;
+            var reg = /[^\+\-\*\/\?\:\>\=\<\|\&\!]+/g;
             var funcStr = property.replace(reg, function ($0) {
                 var result = _this.calcu($0, element, data);
                 if (Pandyle.$.type(result) === 'string') {

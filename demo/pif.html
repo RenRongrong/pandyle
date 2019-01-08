@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="main">
-        <div p-if="{{name === null}}">空值</div>
+        <div p-if="{{!name}}">空值</div>
         <div p-if="{{name !== null}}">{{name}}</div>
     </div>
 
