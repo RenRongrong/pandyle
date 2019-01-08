@@ -32,7 +32,7 @@ namespace Pandyle {
         }
 
         public calcuExpression(property:string, element:JQuery<HTMLElement>, data:any){
-            let reg = /[^\+\-\*\/\?\:\>\=\<]+/g;
+            let reg = /[^\+\-\*\/\?\:\>\=\<\|\&]+/g;
             let funcStr = property.replace(reg, ($0) =>{
                 let result = this.calcu($0, element, data);
                 if($.type(result) === 'string'){
@@ -54,6 +54,9 @@ namespace Pandyle {
         public calcu(property: string, element: JQuery<HTMLElement>, data: any) {
             let devided = this.dividePipe(property);
             property = devided.property;
+            if(['null', 'undefined', 'true', 'false'].indexOf(property) > -1){
+                return new Function('return ' + property)();
+            }
             if(property.match(/^('|"|\d).*$/)){
                 return new Function('return ' + property)();
             }
