@@ -3,7 +3,7 @@ namespace Pandyle {
     export interface component {
         name: string,
         html: string,
-        onLoad?: (context:any)=>void
+        onLoad?: (context:any, root:HTMLElement)=>void
     }
 
     export function hasComponent(name: string) {
@@ -33,7 +33,7 @@ namespace Pandyle {
             })
             element.data('children', children);
             if(com.onLoad){
-                com.onLoad(context);
+                com.onLoad(context, ele);
             }
         } else {
             let url = '';
@@ -55,12 +55,12 @@ namespace Pandyle {
                 url: url,
                 async: false,
                 success: res => {
-                    insertToDom(res, name, context);
+                    insertToDom(res, name, context, ele);
                 }
             })
         }
 
-        function insertToDom(text: string, name: string, context:any) {
+        function insertToDom(text: string, name: string, context:any, root:HTMLElement) {
             let component:component = {name: name, html: ''};
             text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, ($0, $1) => {
                 let style = '<style>' + $1 + '</style>';
@@ -80,7 +80,7 @@ namespace Pandyle {
             })
             element.data('children', children);
             if(component.onLoad){
-                component.onLoad(context);
+                component.onLoad(context, root);
             }
         }
     }

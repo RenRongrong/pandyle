@@ -78,7 +78,7 @@ var Pandyle;
             });
             element.data('children', children);
             if (com.onLoad) {
-                com.onLoad(context);
+                com.onLoad(context, ele);
             }
         }
         else {
@@ -103,11 +103,11 @@ var Pandyle;
                 url: url,
                 async: false,
                 success: function (res) {
-                    insertToDom(res, name, context);
+                    insertToDom(res, name, context, ele);
                 }
             });
         }
-        function insertToDom(text, name, context) {
+        function insertToDom(text, name, context, root) {
             var component = { name: name, html: '' };
             text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, function ($0, $1) {
                 var style = '<style>' + $1 + '</style>';
@@ -127,7 +127,7 @@ var Pandyle;
             });
             element.data('children', children);
             if (component.onLoad) {
-                component.onLoad(context);
+                component.onLoad(context, root);
             }
         }
     }
@@ -564,8 +564,11 @@ var Pandyle;
             return util;
         };
         Util.prototype.getValue = function (element, property, data) {
-            var result = unescape(this.calcuExpression(property, element, data));
+            var result = this.calcuExpression(property, element, data);
             var type = Pandyle.$.type(result);
+            if (type === 'string') {
+                result = unescape(result);
+            }
             if (type === 'string' || type === 'number' || type === 'boolean' || type === 'null' || type === 'undefined') {
                 return result;
             }
@@ -576,14 +579,20 @@ var Pandyle;
         Util.prototype.calcuExpression = function (property, element, data) {
             var _this = this;
             var reg = /[^\+\-\*\/\?\:\>\=\<\|\&\!]+/g;
-            var funcStr = property.replace(reg, function ($0) {
-                var result = _this.calcu($0, element, data);
-                if (Pandyle.$.type(result) === 'string') {
-                    result = "'" + escape(result) + "'";
-                }
-                return result;
-            });
-            return new Function('return ' + funcStr)();
+            var reg2 = /[\+\-\*\/\?\:\>\=\<\|\&\!]/g;
+            if (reg2.test(property)) {
+                var funcStr = property.replace(reg, function ($0) {
+                    var result = _this.calcu($0, element, data);
+                    if (Pandyle.$.type(result) === 'string') {
+                        result = "'" + escape(result) + "'";
+                    }
+                    return result;
+                });
+                return new Function('return ' + funcStr)();
+            }
+            else {
+                return this.calcu(property, element, data);
+            }
         };
         Util.prototype.calcu = function (property, element, data) {
             var _this = this;

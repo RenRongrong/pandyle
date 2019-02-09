@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../dist/pandyle.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="main">
+        <div p-com="book" p-context="book1"></div>
+        <div p-com="book" p-context="book2"></div>
+    </div>
+
+    <script>
+        var vm = $('.main').vm({
+            book1: {
+                title: 'book1',
+                author: 'rrr',
+                price: 20,
+                num: 10,
+                tags: ['tag1', 'tag2', 'tag3'],
+                add: getAddFunc('book1'),
+                buy: buyBook('book1')
+            },
+            book2: {
+                title: 'book2',
+                author: 'aaa',
+                price: 30,
+                num: 20,
+                tags: ['tag1', 'tag2', 'tag3'],
+                add: getAddFunc('book2'),
+                buy: buyBook2(this)
+            }
+        })
+
+        function buyBook(name) {
+            return function () {
+                var book = vm.get(name);
+                console.log(book);
+            }
+
+        }
+
+        function buyBook2(obj) {
+            return function () {
+                console.log(obj);
+            }
+        }
+
+        function getAddFunc(name) {
+            return function () {
+                var num = vm.get(name).num + 1;
+                vm.set(name + '.num', num);
+            }
+        }
+    </script>
+</body>
+
+</html>

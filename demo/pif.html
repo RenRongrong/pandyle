@@ -11,12 +11,12 @@
 <body>
     <div class="main">
         <div p-if="{{!name}}">空值</div>
-        <div p-if="{{name !== null}}">{{name}}</div>
+        <div p-if="{{name !== null}}">{{name + '\nhello'}}</div>
     </div>
 
     <script>
         $('.main').vm({
-            name: null
+            name: 'rrr'
         })
     </script>
 </body>

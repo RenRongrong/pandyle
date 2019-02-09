@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../dist/pandyle.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="main">
+        <div p-context="data|{name: name, price:price, num:num, add: add}">
+            <div>{{name}}</div>
+            <div>{{price}}</div>
+            <div>{{num}}</div>
+            <button id="btn">add</button>
+        </div>
+    </div>
+
+    <script>
+        var vm = $('.main').vm({
+            data: {
+                name: 'book1',
+                price: 30,
+                num: 0,
+                add: function () {
+                    var num = vm.get('data.num');
+                    vm.set('data.num', num + 1);
+                }
+            }
+        })
+        $('#btn').click(function () {
+            var add = $(this).data('context').add;
+            add();
+        })
+    </script>
+</body>
+
+</html>

@@ -2,10 +2,12 @@
     <p class="title">书名：{{title}}</p>
     <p class="author">作者：{{author}}</p>
     <p class="price">价格：{{price}}</p>
+    <p class="num">数量：{{num}}</p>
     <div p-each="tags">
         <span>{{@self}}</span>
     </div>
-    <button p-bind="onclick: buy({{price}})">购买</button>
+    <button class="buy">购买</button>
+    <button class="add">增加</button>
 </div>
 <style>
     .book {
@@ -32,9 +34,12 @@
             alert('不贵，买了');
         }
     }
-    this.onLoad = function(context){
-        console.log('loaded!');
-        console.log(context);
-        console.log(context.title);
+    this.onLoad = function(context, root){
+        $(root).on('click', '.add', function(){
+            context.add();
+        })
+        $(root).on('click', '.buy', function(){
+            context.buy();
+        })
     }
 </script>

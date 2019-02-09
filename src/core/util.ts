@@ -22,8 +22,11 @@ namespace Pandyle {
          */
         public getValue(element: JQuery<HTMLElement>, property: string, data: any) {
             //let result = this.calcu(property, element, data);
-            let result = unescape(this.calcuExpression(property, element, data));
+            let result = this.calcuExpression(property, element, data);
             let type = $.type(result);
+            if (type === 'string') {
+                result = unescape(result);
+            }
             if (type === 'string' || type === 'number' || type === 'boolean' || type === 'null' || type === 'undefined') {
                 return result;
             } else {
@@ -31,18 +34,24 @@ namespace Pandyle {
             }
         }
 
-        public calcuExpression(property:string, element:JQuery<HTMLElement>, data:any){
+        public calcuExpression(property: string, element: JQuery<HTMLElement>, data: any) {
             let reg = /[^\+\-\*\/\?\:\>\=\<\|\&\!]+/g;
-            let funcStr = property.replace(reg, ($0) =>{
-                let result = this.calcu($0, element, data);
-                if($.type(result) === 'string'){
-                    result = "'" + escape(result) + "'";
-                }
-                return result;
-            })
-            return new Function('return ' + funcStr)();
-            // let items = property.split(/\+|\-|\*|\/|\?|\:|\>\=?|\<\=?|\={1,3}/);
+            let reg2 = /[\+\-\*\/\?\:\>\=\<\|\&\!]/g;
+            if(reg2.test(property)){
+                let funcStr = property.replace(reg, ($0) => {
+                    let result = this.calcu($0, element, data);
+                    if ($.type(result) === 'string') {
+                        result = "'" + escape(result) + "'";
+                    }
+                    return result;
+                })
+                return new Function('return ' + funcStr)();
+            }else{
+                return this.calcu(property, element, data);
+            }
             
+            // let items = property.split(/\+|\-|\*|\/|\?|\:|\>\=?|\<\=?|\={1,3}/);
+
         }
 
         /**
@@ -54,10 +63,10 @@ namespace Pandyle {
         public calcu(property: string, element: JQuery<HTMLElement>, data: any) {
             let devided = this.dividePipe(property);
             property = devided.property;
-            if(['null', 'undefined', 'true', 'false'].indexOf(property) > -1){
+            if (['null', 'undefined', 'true', 'false'].indexOf(property) > -1) {
                 return new Function('return ' + property)();
             }
-            if(property.match(/^('|"|\d).*$/)){
+            if (property.match(/^('|"|\d).*$/)) {
                 return new Function('return ' + property)();
             }
             let method = devided.method;
@@ -105,11 +114,11 @@ namespace Pandyle {
                     return tempData;
                 }
             }, data);
-            if(method){
+            if (method) {
                 return this.transfer(method, result);
-            }else{
+            } else {
                 return result;
-            }          
+            }
         }
 
         /**
@@ -189,7 +198,7 @@ namespace Pandyle {
             return data[alias].property;
         }
 
-        
+
 
         public dividePipe(expression: string) {
             let array = expression.split('|');
@@ -243,11 +252,11 @@ namespace Pandyle {
             return reg.test(subProperty);
         }
 
-        public transfer(method:string, data: any[]){
+        public transfer(method: string, data: any[]) {
             return this._vm.transfer(method, data);
         }
 
-        public setRelation(property:string, element:JQuery<HTMLElement>, parentProperty:string){
+        public setRelation(property: string, element: JQuery<HTMLElement>, parentProperty: string) {
             this._vm._relationCollection.setRelation(property, element, parentProperty);
         }
     }

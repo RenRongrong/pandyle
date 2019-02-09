@@ -28,9 +28,7 @@ namespace Pandyle {
                     data = element.data('ocontext');
                 } else {
                     data = element.data('context');
-                    // element.data('ocontext', data);
                 }
-                // let data = element.data('context');
                 let target: any = this._util.calcu(property, element, data);
                 if (method) {
                     target = this._util.convert(method, $.extend({}, target));
