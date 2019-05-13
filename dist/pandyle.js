@@ -236,11 +236,16 @@ var Pandyle;
             }
         };
         Inputs.prototype.initData_check = function (element, name, value) {
-            if (Pandyle.$.isEmptyObject(this.getDataByName(name))) {
-                this.setData(name, []);
+            if (Pandyle.$('input[name="' + name + '"]').length === 1) {
+                this.setData(name, element.prop('checked') ? true : false);
             }
-            if (element.prop('checked')) {
-                this.getDataByName(name).push(value);
+            else {
+                if (Pandyle.$.isEmptyObject(this.getDataByName(name))) {
+                    this.setData(name, []);
+                }
+                if (element.prop('checked')) {
+                    this.getDataByName(name).push(value);
+                }
             }
         };
         Inputs.prototype.initData_normal = function (element, name, value) {
@@ -294,12 +299,18 @@ var Pandyle;
             }
         };
         Inputs.prototype.onChange_check = function (element, name, value) {
-            if (element.prop('checked')) {
-                this.getDataByName(name).push(value);
+            var data = this.getDataByName(name);
+            if (Pandyle.$.type(data) === 'boolean') {
+                this.setData(name, !data);
             }
             else {
-                var index = this.getDataByName(name).indexOf(value);
-                this.getDataByName(name).splice(index, 1);
+                if (element.prop('checked')) {
+                    data.push(value);
+                }
+                else {
+                    var index = data.indexOf(value);
+                    data.splice(index, 1);
+                }
             }
         };
         Inputs.prototype.onChange_select = function (element, name, value) {

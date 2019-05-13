@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,22 +9,41 @@
     <script src="../dist/pandyle.js"></script>
     <title>Document</title>
 </head>
+
 <body>
     <div class="main">
         <div>{{name}}</div>
         <div>{{phone}}</div>
     </div>
     <div class="inputs">
-        <input type="text" name="name">
-        <input type="text" name="phone">
+        <div>
+            <input type="text" name="name">
+            <input type="text" name="phone">
+        </div>
+        <div>
+            <input type="checkbox" name="swiches.s1">开关一
+            <input type="checkbox" name="swiches.s2">开关二
+        </div>
+        <div>
+            <p><input type="checkbox" name="attr.hobby" value="游泳">游泳</p>
+            <p><input type="checkbox" name="attr.hobby" value="篮球">篮球</p>
+            <p><input type="checkbox" name="attr.hobby" value="足球">足球</p>
+        </div>
     </div>
 
+    <button onclick="print()">打印数据</button>
+
     <script>
-        var vm = $('.main').vm({name: '', phone: ''});
+        var vm = $('.main').vm({ name: '', phone: '' });
         var inputs = $('.inputs').inputs();
-        inputs.callBack = function(name, value){
-            vm.set(name, value);
+        // inputs.callBack = function (name, value) {
+        //     vm.set(name, value);
+        // }
+
+        function print() {
+            console.log(inputs);
         }
     </script>
 </body>
+
 </html>

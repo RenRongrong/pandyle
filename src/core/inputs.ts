@@ -76,12 +76,16 @@ namespace Pandyle {
         }
 
         private initData_check(element: JQuery<HTMLElement>, name: string, value: any) {
-            if ($.isEmptyObject(this.getDataByName(name))) {
-                this.setData(name, []);
-            }
-            if (element.prop('checked')) {
-                this.getDataByName(name).push(value);
-            }
+            if($('input[name="' + name + '"]').length === 1){
+                this.setData(name, element.prop('checked') ? true : false);
+            }else{
+                if ($.isEmptyObject(this.getDataByName(name))) {
+                    this.setData(name, []);
+                }
+                if (element.prop('checked')) {
+                    this.getDataByName(name).push(value);
+                }
+            }          
         }
 
         private initData_normal(element: JQuery<HTMLElement>, name: string, value: any) {
@@ -140,11 +144,16 @@ namespace Pandyle {
         }
 
         private onChange_check(element: JQuery<HTMLElement>, name: string, value: any) {
-            if (element.prop('checked')) {
-                this.getDataByName(name).push(value);
-            } else {
-                let index = this.getDataByName(name).indexOf(value);
-                this.getDataByName(name).splice(index, 1);
+            let data = this.getDataByName(name);
+            if($.type(data) === 'boolean'){
+                this.setData(name, !data);
+            }else{
+                if (element.prop('checked')) {
+                    data.push(value);
+                } else {
+                    let index = data.indexOf(value);
+                    data.splice(index, 1);
+                }
             }
         }
 
