@@ -12,11 +12,19 @@
 
 <body>
     <div class="main">
-        <div p-com="book" p-context="book1"></div>
-        <div p-com="book" p-context="book2"></div>
+        <div p-com="test"></div>
+        <div p-com="MyCom.book" p-context="book1"></div>
+        <div p-com="Menu.menu"></div>
     </div>
 
     <script>
+        Pandyle.config({
+            comPath: {
+                Default: './otherComponents/{name}.html',
+                Menu: './otherComponents/menu/{name}.html',
+                MyCom: './components/{name}.html'
+            }
+        })
         var vm = $('.main').vm({
             book1: {
                 title: 'book1',
