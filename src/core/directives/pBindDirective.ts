@@ -1,4 +1,5 @@
 /// <reference path="../util.ts" />
+/// <reference path="../interfaces/IDomData.ts" />
 
 namespace Pandyle {
     export class PBindDirective<T> extends DirectiveBase<T> {
