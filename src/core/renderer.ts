@@ -11,10 +11,7 @@ namespace Pandyle{
 
         public renderSingle(ele: HTMLElement, data: any, parentProperty: string, alias?: any){
             let element = $(ele);
-            if(!element.data('pandyle')){
-                element.data('pandyle', {});
-            }
-            let domData: IDomData = element.data('pandyle');
+            let domData = Pandyle.getDomData(element);
 
             if(!domData.context){
                 domData.context = data;
@@ -61,7 +58,7 @@ namespace Pandyle{
         public renderChild(ele: HTMLElement, data: any, parentProperty: string){
             let $this = this;
             let element = $(ele);
-            let domData:IDomData = element.data('pandyle');
+            let domData = Pandyle.getDomData(element);
             if(!domData.children){
                 domData.children = element.children();
             }
@@ -75,7 +72,7 @@ namespace Pandyle{
                 // let alias = element.data('alias');
                 children.each((index, item) => {
                     let child = $(item);
-                    let childDomData:IDomData = child.data('pandyle');
+                    let childDomData = Pandyle.getDomData(child);
                     if(!childDomData.context){
                         childDomData.context = data;
                     }

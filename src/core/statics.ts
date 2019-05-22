@@ -18,8 +18,6 @@ namespace Pandyle{
         return reg.test(target);
     }
 
-    
-
     export function register(name: string, value: any) {
         if ($.isFunction(value)) {
             if (hasSuffix(name, 'Filter')) {
@@ -43,6 +41,13 @@ namespace Pandyle{
         for(let item in options){
             _config[item] = options[item];
         }
+    }
+
+    export function getDomData(element: JQuery<HTMLElement>):IDomData{
+        if(!element.data('pandyle')){
+            element.data('pandyle', {});
+        }
+        return element.data('pandyle');
     }
 
 

@@ -1,6 +1,8 @@
 /// <reference path="../util.ts" />
 /// <reference path="directiveBase.ts" />
 
+/**@todo 使用domData管理数据 */
+
 namespace Pandyle {
     export class PContextDirective<T> extends DirectiveBase<T>{
         public execute(): void {
