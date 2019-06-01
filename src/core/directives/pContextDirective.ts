@@ -1,23 +1,27 @@
 /// <reference path="../util.ts" />
 /// <reference path="directiveBase.ts" />
 
-/**@todo 使用domData管理数据 */
-
 namespace Pandyle {
     export class PContextDirective<T> extends DirectiveBase<T>{
         public execute(): void {
             let element = $(this._context.element);
             let parentProperty = this._context.parentProperty;
-            if (element.attr('p-context')) {
-                element.data('binding')['Context'] = {
+            let domData = Pandyle.getDomData(element);
+            let binding = domData.binding;
+            if (element.attr('p-context')) {               
+                binding['Context'] = {
                     pattern: element.attr('p-context'),
                     related: false
-                };
+                }
+                // element.data('binding')['Context'] = {
+                //     pattern: element.attr('p-context'),
+                //     related: false
+                // };
                 element.removeAttr('p-context');
             }
-            if (element.data('binding')['Context']) {
+            if (binding['Context']) {
                 let data;
-                let expression = element.data('binding')['Context'].pattern;
+                let expression = binding['Context'].pattern;
                 let divided = this._util.dividePipe(expression);
                 let property = divided.property;
                 let method = divided.method;
@@ -26,29 +30,42 @@ namespace Pandyle {
                     fullProp = parentProperty + '.' + property;
                 }
 
-                if (element.data('ocontext')) {
-                    data = element.data('ocontext');
-                } else {
-                    data = element.data('context');
+                if(domData.ocontext){
+                    data = domData.ocontext;
+                }else{
+                    data = domData.context;
                 }
+                // if (element.data('ocontext')) {
+                //     data = element.data('ocontext');
+                // } else {
+                //     data = element.data('context');
+                // }
                 let target: any = this._util.calcu(property, element, data);
                 if (method) {
                     target = this._util.convert(method, $.extend({}, target));
                 }
-                if (!element.data('ocontext')) {
+                if(!domData.ocontext){
                     this._util.setAlias(element, fullProp, target);
                     this._util.setRelation(property, $(element), parentProperty);
-                    element.data('ocontext', data);
+                    domData.ocontext = data;
                 }
+                // if (!element.data('ocontext')) {
+                //     this._util.setAlias(element, fullProp, target);
+                //     this._util.setRelation(property, $(element), parentProperty);
+                //     element.data('ocontext', data);
+                // }
+                domData.context = target;
+                domData.oparentProperty = fullProp;
 
-                element.data({
-                    context: target,
-                    oparentProperty: fullProp
-                })
+                // element.data({
+                //     context: target,
+                //     oparentProperty: fullProp
+                // })
                 element.children().each((index, ele) => {
-                    $(ele).data({
-                        context: target
-                    })
+                    Pandyle.getDomData($(ele)).context = target;
+                    // $(ele).data({
+                    //     context: target
+                    // })
                 })
 
                 this._context.parentProperty = fullProp;
