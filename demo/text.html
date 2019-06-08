@@ -10,13 +10,18 @@
 </head>
 <body>
     <div class="main">
-        <div>{{name ? '空值' : name}}</div>
+        <div>{{name|add}}</div>
+        <!-- <div>{{!name ? '空值' : name}}</div> -->
     </div>
 
     <script>
-        $('.main').vm({
-            name: true
-        })
+        var vm = $('.main').vm({
+            name: 'rrr'
+        }, false);
+        vm.register('add', function (value) {
+            return value + ' my name is pandarrr';
+        });
+        vm.run();
     </script>
 </body>
 </html>

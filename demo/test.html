@@ -46,7 +46,8 @@
                 title: '三国演义',
                 author: '罗贯中',
                 price: 50,
-                tags: ['tag1', 'tag2']
+                tags: ['tag1', 'tag2'],
+                num: 10
             }
         }, false);
         vm.register('add', function (value) {
@@ -62,15 +63,15 @@
         function test() {
             var visible = vm.get('subInfo.visible');
             vm.set({
-                // subInfo: {
-                //     class: 'off',
-                //     visible: !visible
-                // },
-                // list: [
-                //     { id: 4, name: 'test4', child: ['child7', 'child8'] },
-                //     { id: 5, name: 'test5', child: ['child9', 'child10'] },
-                //     { id: 6, name: 'test6', child: ['child11', 'child12'] }
-                // ],
+                subInfo: {
+                    class: 'off',
+                    visible: !visible
+                },
+                list: [
+                    { id: 4, name: 'test4', child: ['child7', 'child8'] },
+                    { id: 5, name: 'test5', child: ['child9', 'child10'] },
+                    { id: 6, name: 'test6', child: ['child11', 'child12'] }
+                ],
                 book: {
                     title: '水浒传',
                     author: '施耐庵',

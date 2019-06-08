@@ -68,11 +68,16 @@ namespace Pandyle {
                         let item = relation[i];
                         for(let j = 0; j < item.elements.length; j++){
                             let item2 = item.elements[j];
-                            if(item2.data('alias')){
+                            if(Pandyle.getDomData(item2).alias){
                                 this.render(item2);
                             }else{
                                 item.elements.splice(j, 1);
                             }
+                            // if(item2.data('alias')){
+                            //     this.render(item2);
+                            // }else{
+                            //     item.elements.splice(j, 1);
+                            // }
                         }
                     }
                 }

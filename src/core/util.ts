@@ -35,9 +35,9 @@ namespace Pandyle {
         }
 
         public calcuExpression(property: string, element: JQuery<HTMLElement>, data: any) {
-            let reg = /[^\+\-\*\/\?\:\>\=\<\|\&\!]+/g;
-            let reg2 = /[\+\-\*\/\?\:\>\=\<\|\&\!]/g;
-            if(reg2.test(property)){
+            let reg = /([^\+\-\*\/\?\:\>\=\<\!]|(\|\|)|(\&\&))+/g;
+            let reg2 = /[\+\-\*\/\?\:\>\=\<\!]|(\|\|)|(\&\&)/g;
+            if (reg2.test(property)) {
                 let funcStr = property.replace(reg, ($0) => {
                     let result = this.calcu($0, element, data);
                     if ($.type(result) === 'string') {
@@ -46,10 +46,10 @@ namespace Pandyle {
                     return result;
                 })
                 return new Function('return ' + funcStr)();
-            }else{
+            } else {
                 return this.calcu(property, element, data);
             }
-            
+
             // let items = property.split(/\+|\-|\*|\/|\?|\:|\>\=?|\<\=?|\={1,3}/);
 
         }
@@ -133,20 +133,29 @@ namespace Pandyle {
             //let reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\|\s]*?)\s*}}/g;
             let reg = /{{\s*(.*?)\s*}}/g;
             let related = false;
+            let domData = Pandyle.getDomData(element);
             if (reg.test(pattern)) {
-                if (!element.data('binding')[prop]) {
-                    element.data('binding')[prop] = {
+                if (!domData.binding[prop]) {
+                    domData.binding[prop] = {
                         pattern: pattern,
                         related: false
                     }
                 }
-                related = element.data('binding')[prop].related;
+                related = domData.binding[prop].related;
+                // if (!element.data('binding')[prop]) {
+                //     element.data('binding')[prop] = {
+                //         pattern: pattern,
+                //         related: false
+                //     }
+                // }
+                // related = element.data('binding')[prop].related;
             }
             let result = pattern.replace(reg, ($0, $1) => {
                 let property = this.dividePipe($1).property;
                 if (!related) {
                     this._vm._relationCollection.setRelation(property, element, parentProperty);
-                    element.data('binding')[prop].related = true;
+                    domData.binding[prop].related = true;
+                    // element.data('binding')[prop].related = true;
                 }
                 return this.getValue(element, $1, data);
             });
@@ -174,28 +183,42 @@ namespace Pandyle {
         }
 
         public setAlias(element: JQuery<HTMLElement>, property: string, data?: any) {
-            let targetData = data || element.data('context');
-            element.data('alias').self = {
+            let domData = Pandyle.getDomData(element);
+            let targetData = data || domData.context;
+            domData.alias.self = {
                 data: targetData,
                 property: property
-            };
+            }
+            // let targetData = data || element.data('context');
+            // element.data('alias').self = {
+            //     data: targetData,
+            //     property: property
+            // };
             if (element.attr('p-as')) {
                 let alias = element.attr('p-as');
-                element.data('alias')[alias] = {
+                domData.alias[alias] = {
                     data: targetData,
                     property: property
                 }
+                // element.data('alias')[alias] = {
+                //     data: targetData,
+                //     property: property
+                // }
             }
         }
 
         public getAliasData(element: JQuery<HTMLElement>, alias: string) {
-            let data = element.data('alias');
-            return data[alias].data;
+            let domData = Pandyle.getDomData(element);
+            return domData.alias[alias].data;
+            // let data = element.data('alias');
+            // return data[alias].data;
         }
 
         public getAliasProperty(element: JQuery<HTMLElement>, alias: string) {
-            let data = element.data('alias');
-            return data[alias].property;
+            let domData = Pandyle.getDomData(element);
+            return domData.alias[alias].property;
+            // let data = element.data('alias');
+            // return data[alias].property;
         }
 
 
