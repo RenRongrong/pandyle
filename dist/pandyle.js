@@ -48,6 +48,13 @@ var Pandyle;
         }
     }
     Pandyle.config = config;
+    function getDomData(element) {
+        if (!element.data('pandyle')) {
+            element.data('pandyle', {});
+        }
+        return element.data('pandyle');
+    }
+    Pandyle.getDomData = getDomData;
 })(Pandyle || (Pandyle = {}));
 var Pandyle;
 (function (Pandyle) {
@@ -67,16 +74,18 @@ var Pandyle;
         var element = Pandyle.$(ele);
         element.children().remove();
         var name = element.attr('p-com');
-        var context = element.data('context');
+        var domData = Pandyle.getDomData(element);
+        var context = domData.context;
         name = Pandyle.$.trim(name);
         if (hasComponent(name)) {
             var com = getComponent(name);
             element.html(com.html);
             var children = element.children();
             children.each(function (index, item) {
-                Pandyle.$(item).data('context', context);
+                var childrenDomData = Pandyle.getDomData(Pandyle.$(item));
+                childrenDomData.context = context;
             });
-            element.data('children', children);
+            domData.children = children;
             if (com.onLoad) {
                 com.onLoad(context, ele);
             }
@@ -123,9 +132,9 @@ var Pandyle;
             element.html(text);
             var children = element.children();
             children.each(function (index, item) {
-                Pandyle.$(item).data('context', context);
+                Pandyle.getDomData(Pandyle.$(item)).context = context;
             });
-            element.data('children', children);
+            Pandyle.getDomData(element).children = children;
             if (component.onLoad) {
                 component.onLoad(context, root);
             }
@@ -506,7 +515,7 @@ var Pandyle;
                         var item = relation[i];
                         for (var j = 0; j < item.elements.length; j++) {
                             var item2 = item.elements[j];
-                            if (item2.data('alias')) {
+                            if (Pandyle.getDomData(item2).alias) {
                                 this.render(item2);
                             }
                             else {
@@ -589,8 +598,8 @@ var Pandyle;
         };
         Util.prototype.calcuExpression = function (property, element, data) {
             var _this = this;
-            var reg = /[^\+\-\*\/\?\:\>\=\<\|\&\!]+/g;
-            var reg2 = /[\+\-\*\/\?\:\>\=\<\|\&\!]/g;
+            var reg = /([^\+\-\*\/\?\:\>\=\<\!]|(\|\|)|(\&\&))+/g;
+            var reg2 = /[\+\-\*\/\?\:\>\=\<\!]|(\|\|)|(\&\&)/g;
             if (reg2.test(property)) {
                 var funcStr = property.replace(reg, function ($0) {
                     var result = _this.calcu($0, element, data);
@@ -671,20 +680,21 @@ var Pandyle;
             var _this = this;
             var reg = /{{\s*(.*?)\s*}}/g;
             var related = false;
+            var domData = Pandyle.getDomData(element);
             if (reg.test(pattern)) {
-                if (!element.data('binding')[prop]) {
-                    element.data('binding')[prop] = {
+                if (!domData.binding[prop]) {
+                    domData.binding[prop] = {
                         pattern: pattern,
                         related: false
                     };
                 }
-                related = element.data('binding')[prop].related;
+                related = domData.binding[prop].related;
             }
             var result = pattern.replace(reg, function ($0, $1) {
                 var property = _this.dividePipe($1).property;
                 if (!related) {
                     _this._vm._relationCollection.setRelation(property, element, parentProperty);
-                    element.data('binding')[prop].related = true;
+                    domData.binding[prop].related = true;
                 }
                 return _this.getValue(element, $1, data);
             });
@@ -709,26 +719,27 @@ var Pandyle;
             }
         };
         Util.prototype.setAlias = function (element, property, data) {
-            var targetData = data || element.data('context');
-            element.data('alias').self = {
+            var domData = Pandyle.getDomData(element);
+            var targetData = data || domData.context;
+            domData.alias.self = {
                 data: targetData,
                 property: property
             };
             if (element.attr('p-as')) {
                 var alias = element.attr('p-as');
-                element.data('alias')[alias] = {
+                domData.alias[alias] = {
                     data: targetData,
                     property: property
                 };
             }
         };
         Util.prototype.getAliasData = function (element, alias) {
-            var data = element.data('alias');
-            return data[alias].data;
+            var domData = Pandyle.getDomData(element);
+            return domData.alias[alias].data;
         };
         Util.prototype.getAliasProperty = function (element, alias) {
-            var data = element.data('alias');
-            return data[alias].property;
+            var domData = Pandyle.getDomData(element);
+            return domData.alias[alias].property;
         };
         Util.prototype.dividePipe = function (expression) {
             var array = expression.split('|');
@@ -813,21 +824,22 @@ var Pandyle;
         }
         PBindDirective.prototype.execute = function () {
             var ele = Pandyle.$(this._context.element);
+            var domData = Pandyle.getDomData(ele);
             if (ele.attr('p-bind')) {
                 var binds = Pandyle.$(ele).attr('p-bind').split('^');
                 binds.forEach(function (bindInfo, index) {
                     var array = bindInfo.match(/^\s*([\w-]+)\s*:\s*(.*)$/);
                     var attr = array[1];
                     var value = array[2].replace(/\s*$/, '');
-                    ele.data('binding')[attr] = {
+                    domData.binding[attr] = {
                         pattern: value,
                         related: false
                     };
                 });
                 ele.removeAttr('p-bind');
             }
-            var bindings = ele.data('binding');
-            var data = ele.data('context');
+            var bindings = domData.binding;
+            var data = domData.context;
             for (var a in bindings) {
                 if (['text', 'If', 'Each', 'For', 'Context'].indexOf(a) < 0) {
                     Pandyle.$(ele).attr(a, this._util.convertFromPattern(Pandyle.$(ele), a, bindings[a].pattern, data, this._context.parentProperty));
@@ -866,11 +878,12 @@ var Pandyle;
         }
         pTextDirective.prototype.execute = function () {
             var element = Pandyle.$(this._context.element);
+            var domData = Pandyle.getDomData(element);
             if (element.children().length === 0) {
-                var data = element.data('context');
+                var data = domData.context;
                 var text = element.text();
-                if (element.data('binding').text) {
-                    text = element.data('binding').text.pattern;
+                if (domData.binding['text']) {
+                    text = domData.binding['text'].pattern;
                 }
                 var result = this._util.convertFromPattern(element, 'text', text, data, this._context.parentProperty);
                 element.html(result);
@@ -890,33 +903,34 @@ var Pandyle;
         PIfDirective.prototype.execute = function () {
             var ele = Pandyle.$(this._context.element);
             var parentProperty = this._context.parentProperty;
+            var domData = Pandyle.getDomData(ele);
             if (ele.attr('p-if')) {
-                ele.data('binding')['If'] = {
+                domData.binding['If'] = {
                     pattern: ele.attr('p-if'),
                     related: false
                 };
                 ele.removeAttr('p-if');
             }
-            if (ele.data('binding')['If']) {
+            if (domData.binding['If']) {
                 var parentElement = ele.parent();
-                if (!ele.data('parent')) {
-                    ele.data('parent', parentElement);
+                if (!domData.parent) {
+                    domData.parent = parentElement;
                 }
-                var expression = ele.data('binding')['If'].pattern;
-                var data = ele.data('context');
+                var expression = domData.binding['If'].pattern;
+                var data = domData.context;
                 var convertedExpression = this._util.convertFromPattern(ele, 'If', expression, data, parentProperty);
                 var judge = new Function('return ' + convertedExpression);
                 if (judge()) {
                     if (ele.parent().length === 0) {
-                        var pindex_1 = ele.data('pindex');
-                        var pre = ele.data('parent').children().filter(function (inex, element) {
-                            return Pandyle.$(element).data('pindex') == (pindex_1 - 1);
+                        var pindex_1 = domData.pIndex;
+                        var pre = domData.parent.children().filter(function (index, element) {
+                            return Pandyle.getDomData(Pandyle.$(element)).pIndex === (pindex_1 - 1);
                         });
                         if (pre.length > 0) {
                             ele.insertAfter(pre);
                         }
                         else {
-                            ele.data('parent').prepend(ele);
+                            domData.parent.prepend(ele);
                         }
                     }
                     this.next();
@@ -943,47 +957,46 @@ var Pandyle;
         PEachDirective.prototype.execute = function () {
             var $this = this;
             var element = Pandyle.$(this._context.element);
-            var data = element.data('context');
+            var domData = Pandyle.getDomData(element);
+            var data = domData.context;
             var parentProperty = this._context.parentProperty;
             if (element.attr('p-each')) {
-                element.data('binding')['Each'] = {
+                domData.binding['Each'] = {
                     pattern: element.attr('p-each'),
                     related: false
                 };
                 element.removeAttr('p-each');
             }
-            if (element.data('binding')['Each']) {
-                var expression = element.data('binding')['Each'].pattern.replace(/\s/g, '');
+            if (domData.binding['Each']) {
+                var expression = domData.binding['Each'].pattern.replace(/\s/g, '');
                 var property = this._util.dividePipe(expression).property;
                 var target = this._util.calcu(expression, element, data);
-                if (!element.data('pattern')) {
-                    element.data('pattern', element.html());
+                if (!domData.pattern) {
+                    domData.pattern = element.html();
                     this._util.setRelation(property, element, parentProperty);
                 }
-                ;
                 var fullProp_1 = property;
                 if (parentProperty !== '') {
                     fullProp_1 = parentProperty + '.' + property;
                 }
                 ;
-                var alias_1 = element.data('alias');
-                var htmlText = element.data('pattern');
+                var alias_1 = domData.alias;
+                var htmlText = domData.pattern;
                 var children_1 = Pandyle.$(htmlText);
                 element.children().remove();
-                if (element.data('children')) {
-                    element.data('children').remove();
+                if (domData.children) {
+                    domData.children.remove();
                 }
                 target.forEach(function (value, index) {
                     var newChildren = children_1.clone(true, true);
                     var _alias = Pandyle.$.extend({}, alias_1, { index: { data: index, property: '@index' } });
-                    newChildren.data({
-                        context: value,
-                        parentProperty: fullProp_1.concat('[', index.toString(), ']'),
-                        alias: _alias
-                    });
+                    var childrenDomData = Pandyle.getDomData(newChildren);
+                    childrenDomData.context = value;
+                    childrenDomData.parentProperty = fullProp_1.concat('[', index.toString(), ']'),
+                        childrenDomData.alias = _alias;
                     element.append(newChildren);
                 });
-                element.data('children', element.children());
+                domData.children = element.children();
             }
             this.next();
         };
@@ -1001,27 +1014,28 @@ var Pandyle;
         PForDirective.prototype.execute = function () {
             var $this = this;
             var element = Pandyle.$(this._context.element);
-            var data = element.data('context');
+            var domData = Pandyle.getDomData(element);
+            var data = domData.context;
             var parentProperty = this._context.parentProperty;
             if (element.attr('p-for')) {
-                element.data('binding')['For'] = {
+                domData.binding['For'] = {
                     pattern: element.attr('p-for'),
                     related: false
                 };
                 element.removeAttr('p-for');
             }
-            if (element.data('binding')['For']) {
+            if (domData.binding['For']) {
                 var parentElement = element.parent();
-                if (!element.data('parent')) {
-                    element.data('parent', parentElement);
+                if (!domData.parent) {
+                    domData.parent = parentElement;
                 }
-                var expression = element.data('binding')['For'].pattern.replace(/\s/g, '');
+                var expression = domData.binding['For'].pattern.replace(/\s/g, '');
                 var property = this._util.dividePipe(expression).property;
                 var target = this._util.calcu(expression, element, data);
-                if (!element.data('pattern')) {
+                if (!domData.pattern) {
                     var outerHtml = element.prop('outerHTML');
                     outerHtml = outerHtml.replace(/jQuery\d*\="\d*"/, '');
-                    element.data('pattern', outerHtml);
+                    domData.pattern = outerHtml;
                     this._util.setRelation(property, element, parentProperty);
                 }
                 ;
@@ -1030,36 +1044,35 @@ var Pandyle;
                     fullProp_2 = parentProperty + '.' + property;
                 }
                 ;
-                var alias_2 = element.data('alias');
-                var htmlText = element.data('pattern');
+                var alias_2 = domData.alias;
+                var htmlText = domData.pattern;
                 var children_2 = Pandyle.$(htmlText);
                 element.children().remove();
-                if (element.data('children')) {
-                    element.data('children').remove();
+                if (domData.children) {
+                    domData.children.remove();
                 }
                 var div_1 = Pandyle.$('<div />');
                 target.forEach(function (value, index) {
                     var newChildren = children_2.clone(true, true);
                     var _alias = Pandyle.$.extend({}, alias_2, { index: { data: index, property: '@index' } });
-                    newChildren.data({
-                        context: value,
-                        parentProperty: fullProp_2.concat('[', index.toString(), ']'),
-                        alias: _alias
-                    });
+                    var childrenDomData = Pandyle.getDomData(newChildren);
+                    childrenDomData.context = value;
+                    childrenDomData.parentProperty = fullProp_2.concat('[', index.toString(), ']'),
+                        childrenDomData.alias = _alias;
                     div_1.append(newChildren);
                 });
                 var actualChildren = div_1.children();
-                element.data('children', actualChildren);
+                domData.children = actualChildren;
                 element.detach();
-                var pindex_2 = element.data('pindex');
-                var pre = element.data('parent').children().filter(function (inex, ele) {
-                    return Pandyle.$(ele).data('pindex') == (pindex_2 - 1);
+                var pindex_2 = domData.pIndex;
+                var pre = domData.parent.children().filter(function (index, ele) {
+                    return Pandyle.getDomData(Pandyle.$(ele)).pIndex === (pindex_2 - 1);
                 });
                 if (pre.length > 0) {
                     actualChildren.insertAfter(pre);
                 }
                 else {
-                    element.data('parent').prepend(actualChildren);
+                    domData.parent.prepend(actualChildren);
                 }
             }
             this.next();
@@ -1078,16 +1091,18 @@ var Pandyle;
         PContextDirective.prototype.execute = function () {
             var element = Pandyle.$(this._context.element);
             var parentProperty = this._context.parentProperty;
+            var domData = Pandyle.getDomData(element);
+            var binding = domData.binding;
             if (element.attr('p-context')) {
-                element.data('binding')['Context'] = {
+                binding['Context'] = {
                     pattern: element.attr('p-context'),
                     related: false
                 };
                 element.removeAttr('p-context');
             }
-            if (element.data('binding')['Context']) {
+            if (binding['Context']) {
                 var data = void 0;
-                var expression = element.data('binding')['Context'].pattern;
+                var expression = binding['Context'].pattern;
                 var divided = this._util.dividePipe(expression);
                 var property = divided.property;
                 var method = divided.method;
@@ -1095,29 +1110,25 @@ var Pandyle;
                 if (parentProperty !== '') {
                     fullProp = parentProperty + '.' + property;
                 }
-                if (element.data('ocontext')) {
-                    data = element.data('ocontext');
+                if (domData.ocontext) {
+                    data = domData.ocontext;
                 }
                 else {
-                    data = element.data('context');
+                    data = domData.context;
                 }
                 var target_1 = this._util.calcu(property, element, data);
                 if (method) {
                     target_1 = this._util.convert(method, Pandyle.$.extend({}, target_1));
                 }
-                if (!element.data('ocontext')) {
+                if (!domData.ocontext) {
                     this._util.setAlias(element, fullProp, target_1);
                     this._util.setRelation(property, Pandyle.$(element), parentProperty);
-                    element.data('ocontext', data);
+                    domData.ocontext = data;
                 }
-                element.data({
-                    context: target_1,
-                    oparentProperty: fullProp
-                });
+                domData.context = target_1;
+                domData.oparentProperty = fullProp;
                 element.children().each(function (index, ele) {
-                    Pandyle.$(ele).data({
-                        context: target_1
-                    });
+                    Pandyle.getDomData(Pandyle.$(ele)).context = target_1;
                 });
                 this._context.parentProperty = fullProp;
             }
@@ -1257,43 +1268,46 @@ var Pandyle;
         ;
         Renderer.prototype.renderSingle = function (ele, data, parentProperty, alias) {
             var element = Pandyle.$(ele);
-            if (!element.data('context')) {
-                element.data('context', data);
+            var domData = Pandyle.getDomData(element);
+            if (!domData.context) {
+                domData.context = data;
             }
-            if (!element.data('binding')) {
-                element.data('binding', {});
+            if (!domData.binding) {
+                domData.binding = {};
             }
-            if (!element.data('parentProperty')) {
-                element.data('parentProperty', parentProperty);
+            if (!domData.parentProperty) {
+                domData.parentProperty = parentProperty;
             }
-            if (alias && !Pandyle.$.isEmptyObject(alias) && !(element.data('alias'))) {
-                element.data('alias', alias);
+            if (alias && !Pandyle.$.isEmptyObject(alias) && !domData.alias) {
+                domData.alias = alias;
             }
-            data = element.data('context');
-            parentProperty = element.data('parentProperty');
+            data = domData.context;
+            parentProperty = domData.parentProperty;
             this._util.setAlias(element, parentProperty, data);
             this.renderPipe(ele, parentProperty);
-            data = element.data('context');
-            if (element.data('oparentProperty')) {
-                parentProperty = element.data('oparentProperty');
+            data = domData.context;
+            if (domData.oparentProperty) {
+                parentProperty = domData.oparentProperty;
             }
             this.renderChild(ele, data, parentProperty);
         };
         Renderer.prototype.renderChild = function (ele, data, parentProperty) {
             var $this = this;
             var element = Pandyle.$(ele);
-            if (!element.data('children')) {
-                element.data('children', element.children());
+            var domData = Pandyle.getDomData(element);
+            if (!domData.children) {
+                domData.children = element.children();
             }
-            var children = element.data('children');
+            var children = domData.children;
             if (children.length > 0) {
-                var alias_3 = element.data('alias');
+                var alias_3 = domData.alias;
                 children.each(function (index, item) {
                     var child = Pandyle.$(item);
-                    if (!child.data('context')) {
-                        child.data('context', data);
+                    var childDomData = Pandyle.getDomData(child);
+                    if (!childDomData.context) {
+                        childDomData.context = data;
                     }
-                    child.data('pindex', index);
+                    childDomData.pIndex = index;
                     $this.renderSingle(child[0], data, parentProperty, Pandyle.$.extend({}, alias_3));
                 });
             }

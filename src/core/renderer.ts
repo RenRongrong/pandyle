@@ -11,25 +11,28 @@ namespace Pandyle{
 
         public renderSingle(ele: HTMLElement, data: any, parentProperty: string, alias?: any){
             let element = $(ele);
-            if (!element.data('context')) {
-                element.data('context', data);
+            let domData = Pandyle.getDomData(element);
+
+            if(!domData.context){
+                domData.context = data;
             }
-            if (!element.data('binding')) {
-                element.data('binding', {});
+            if(!domData.binding){
+                domData.binding = {};
             }
-            if(!element.data('parentProperty')){
-                element.data('parentProperty', parentProperty);
+            if(!domData.parentProperty){
+                domData.parentProperty = parentProperty;
             }
-            if (alias && !$.isEmptyObject(alias) && !(element.data('alias'))) {
-                element.data('alias', alias);
+            if(alias && !$.isEmptyObject(alias) && !domData.alias){
+                domData.alias = alias;
             }
-            data = element.data('context');
-            parentProperty = element.data('parentProperty');
+            data = domData.context;
+            parentProperty = domData.parentProperty;
+            
             this._util.setAlias(element, parentProperty, data);
             this.renderPipe(ele, parentProperty);
-            data = element.data('context');
-            if(element.data('oparentProperty')){
-                parentProperty = element.data('oparentProperty');
+            data = domData.context;
+            if(domData.oparentProperty){
+                parentProperty = domData.oparentProperty;
             }
             this.renderChild(ele, data, parentProperty);
         }
@@ -37,18 +40,20 @@ namespace Pandyle{
         public renderChild(ele: HTMLElement, data: any, parentProperty: string){
             let $this = this;
             let element = $(ele);
-            if(!element.data('children')){
-                element.data('children', element.children());
+            let domData = Pandyle.getDomData(element);
+            if(!domData.children){
+                domData.children = element.children();
             }
-            let children:JQuery<HTMLElement> = element.data('children');
+            let children = domData.children;
             if (children.length > 0) {
-                let alias = element.data('alias');
+                let alias = domData.alias;
                 children.each((index, item) => {
                     let child = $(item);
-                    if(!child.data('context')){
-                        child.data('context', data);
+                    let childDomData = Pandyle.getDomData(child);
+                    if(!childDomData.context){
+                        childDomData.context = data;
                     }
-                    child.data('pindex', index);
+                    childDomData.pIndex = index;
                     $this.renderSingle(child[0], data, parentProperty, $.extend({}, alias));
                 })
             }

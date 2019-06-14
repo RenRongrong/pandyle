@@ -22,16 +22,18 @@ namespace Pandyle {
         let element = $(ele);
         element.children().remove();
         let name = element.attr('p-com');
-        let context = element.data('context');
+        let domData = Pandyle.getDomData(element);
+        let context = domData.context;
         name = $.trim(name);
         if (hasComponent(name)) {
             let com = getComponent(name);
             element.html(com.html);
             let children = element.children();       
             children.each((index, item) => {
-                $(item).data('context', context);
+                let childrenDomData = Pandyle.getDomData($(item));
+                childrenDomData.context = context;
             })
-            element.data('children', children);
+            domData.children =children;
             if(com.onLoad){
                 com.onLoad(context, ele);
             }
@@ -66,7 +68,7 @@ namespace Pandyle {
                 let style = '<style>' + $1 + '</style>';
                 $('head').append(style);
                 return '';
-            });
+            });  
             text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, ($0, $1) => {
                 new Function($1).call(component);
                 return '';
@@ -76,9 +78,9 @@ namespace Pandyle {
             element.html(text);
             let children = element.children();
             children.each((index, item) => {
-                $(item).data('context', context);
+                Pandyle.getDomData($(item)).context = context;
             })
-            element.data('children', children);
+            Pandyle.getDomData(element).children = children;
             if(component.onLoad){
                 component.onLoad(context, root);
             }

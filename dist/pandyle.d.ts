@@ -16,6 +16,7 @@ declare namespace Pandyle {
         elements: JQuery<HTMLElement>[];
     }
     function config(options: JSON): void;
+    function getDomData(element: JQuery<HTMLElement>): IDomData;
 }
 declare namespace Pandyle {
     interface component {
@@ -73,7 +74,7 @@ declare namespace Pandyle {
     class RelationCollection<T> implements IRelationCollection {
         private _util;
         private _relations;
-        private constructor();
+        private constructor(util);
         static CreateRelationCollection<T>(util: Util<T>): RelationCollection<T>;
         setRelation(property: string, element: JQuery<HTMLElement>, parentProperty: string): void;
         findSelfOrChild(key: string): IRelation[];
@@ -104,7 +105,7 @@ declare namespace Pandyle {
 declare namespace Pandyle {
     class Util<T> {
         private _vm;
-        private constructor();
+        private constructor(vm);
         static CreateUtil<T>(vm: VM<T>): Util<T>;
         getValue(element: JQuery<HTMLElement>, property: string, data: any): any;
         calcuExpression(property: string, element: JQuery<HTMLElement>, data: any): any;
@@ -113,7 +114,7 @@ declare namespace Pandyle {
         toDefault(type: string): {};
         setAlias(element: JQuery<HTMLElement>, property: string, data?: any): void;
         getAliasData(element: JQuery<HTMLElement>, alias: string): any;
-        getAliasProperty(element: JQuery<HTMLElement>, alias: string): any;
+        getAliasProperty(element: JQuery<HTMLElement>, alias: string): string;
         dividePipe(expression: string): {
             property: string;
             method: string;
@@ -140,6 +141,30 @@ declare namespace Pandyle {
         append(next: DirectiveBase<T>): void;
         init(context: IPipeContext, util: Util<T>): void;
     }
+}
+interface IDomData {
+    context?: any;
+    binding?: IBinding;
+    pattern?: string;
+    children?: JQuery<HTMLElement>;
+    parent?: JQuery<HTMLElement>;
+    parentProperty?: string;
+    oparentProperty?: string;
+    alias?: IAlias;
+    pIndex?: number;
+    ocontext?: any;
+}
+interface IBinding {
+    [key: string]: {
+        pattern: string;
+        related: boolean;
+    };
+}
+interface IAlias {
+    [key: string]: {
+        data: any;
+        property: string;
+    };
 }
 declare namespace Pandyle {
     class PBindDirective<T> extends DirectiveBase<T> {
@@ -181,7 +206,7 @@ declare namespace Pandyle {
         private _firstDirective;
         private _lastDirective;
         private _util;
-        private constructor();
+        private constructor(util);
         private add(directive);
         start(context: IPipeContext): void;
         static createPipeLine<T>(util: Util<T>): PipeLine<T>;

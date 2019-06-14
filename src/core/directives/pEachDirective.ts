@@ -6,45 +6,45 @@ namespace Pandyle{
         public execute(): void {
             let $this = this;
             let element = $(this._context.element);
-            let data = element.data('context');
+            let domData = Pandyle.getDomData(element);
+            let data = domData.context;
             let parentProperty = this._context.parentProperty;
             if (element.attr('p-each')) {
-                element.data('binding')['Each'] = {
+                domData.binding['Each'] = {
                     pattern: element.attr('p-each'),
                     related: false
-                };
+                }
                 element.removeAttr('p-each');
             }
-            if (element.data('binding')['Each']) {
-                let expression = element.data('binding')['Each'].pattern.replace(/\s/g, '');
+            if (domData.binding['Each']) {
+                let expression = domData.binding['Each'].pattern.replace(/\s/g, '');
                 let property = this._util.dividePipe(expression).property;
-                let target: any[] = this._util.calcu(expression, element, data);         
-                if (!element.data('pattern')) {
-                    element.data('pattern', element.html());
+                let target: any[] = this._util.calcu(expression, element, data);
+                if(!domData.pattern){
+                    domData.pattern = element.html();
                     this._util.setRelation(property, element, parentProperty);
-                };
+                }      
                 let fullProp = property;
                 if (parentProperty !== '') {
                     fullProp = parentProperty + '.' + property;
                 };
-                let alias = element.data('alias');
-                let htmlText = element.data('pattern');
+                let alias = domData.alias;
+                let htmlText = domData.pattern;
                 let children = $(htmlText);
                 element.children().remove();
-                if(element.data('children')){
-                    element.data('children').remove();
+                if(domData.children){
+                    domData.children.remove();
                 }
                 target.forEach((value, index) => {
                     let newChildren = children.clone(true, true);
                     let _alias = $.extend({}, alias, { index: { data: index, property: '@index' } });
-                    newChildren.data({
-                        context: value,
-                        parentProperty: fullProp.concat('[', index.toString(), ']'),
-                        alias: _alias
-                    });
+                    let childrenDomData = Pandyle.getDomData(newChildren);
+                    childrenDomData.context = value;
+                    childrenDomData.parentProperty = fullProp.concat('[', index.toString(), ']'),
+                    childrenDomData.alias = _alias;
                     element.append(newChildren);
                 })
-                element.data('children', element.children());
+                domData.children = element.children();
             }
             this.next();
         }
