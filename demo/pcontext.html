@@ -27,13 +27,16 @@
                 price: 30,
                 num: 0,
                 add: function () {
-                    var num = vm.get('data.num');
-                    vm.set('data.num', num + 1);
+                    var newData = vm.get('data');
+                    newData.num++;
+                    vm.set('data', newData);
                 }
             }
         })
         $('#btn').click(function () {
-            var add = $(this).data('context').add;
+            var domData = Pandyle.getDomData($(this));
+            console.log(domData);
+            var add = domData.context.add;
             add();
         })
     </script>

@@ -28,30 +28,12 @@ namespace Pandyle{
             data = domData.context;
             parentProperty = domData.parentProperty;
             
-            // if (!element.data('context')) {
-            //     element.data('context', data);
-            // }
-            // if (!element.data('binding')) {
-            //     element.data('binding', {});
-            // }
-            // if(!element.data('parentProperty')){
-            //     element.data('parentProperty', parentProperty);
-            // }
-            // if (alias && !$.isEmptyObject(alias) && !(element.data('alias'))) {
-            //     element.data('alias', alias);
-            // }
-            // data = element.data('context');
-            // parentProperty = element.data('parentProperty');
             this._util.setAlias(element, parentProperty, data);
             this.renderPipe(ele, parentProperty);
             data = domData.context;
             if(domData.oparentProperty){
                 parentProperty = domData.oparentProperty;
             }
-            // data = element.data('context');
-            // if(element.data('oparentProperty')){
-            //     parentProperty = element.data('oparentProperty');
-            // }
             this.renderChild(ele, data, parentProperty);
         }
 
@@ -63,13 +45,8 @@ namespace Pandyle{
                 domData.children = element.children();
             }
             let children = domData.children;
-            // if(!element.data('children')){
-            //     element.data('children', element.children());
-            // }
-            // let children:JQuery<HTMLElement> = element.data('children');
             if (children.length > 0) {
                 let alias = domData.alias;
-                // let alias = element.data('alias');
                 children.each((index, item) => {
                     let child = $(item);
                     let childDomData = Pandyle.getDomData(child);
@@ -77,10 +54,6 @@ namespace Pandyle{
                         childDomData.context = data;
                     }
                     childDomData.pIndex = index;
-                    // if(!child.data('context')){
-                    //     child.data('context', data);
-                    // }
-                    // child.data('pindex', index);
                     $this.renderSingle(child[0], data, parentProperty, $.extend({}, alias));
                 })
             }

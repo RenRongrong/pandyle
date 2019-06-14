@@ -21,7 +21,6 @@ namespace Pandyle {
          * @param data 数据上下文
          */
         public getValue(element: JQuery<HTMLElement>, property: string, data: any) {
-            //let result = this.calcu(property, element, data);
             let result = this.calcuExpression(property, element, data);
             let type = $.type(result);
             if (type === 'string') {
@@ -49,9 +48,6 @@ namespace Pandyle {
             } else {
                 return this.calcu(property, element, data);
             }
-
-            // let items = property.split(/\+|\-|\*|\/|\?|\:|\>\=?|\<\=?|\={1,3}/);
-
         }
 
         /**
@@ -130,7 +126,6 @@ namespace Pandyle {
          * @param parentProperty 父级字段的名称
          */
         public convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty) {
-            //let reg = /{{\s*([\w\.\[\]\(\)\,\$@\{\}\d\+\-\*\/\|\s]*?)\s*}}/g;
             let reg = /{{\s*(.*?)\s*}}/g;
             let related = false;
             let domData = Pandyle.getDomData(element);
@@ -142,20 +137,12 @@ namespace Pandyle {
                     }
                 }
                 related = domData.binding[prop].related;
-                // if (!element.data('binding')[prop]) {
-                //     element.data('binding')[prop] = {
-                //         pattern: pattern,
-                //         related: false
-                //     }
-                // }
-                // related = element.data('binding')[prop].related;
             }
             let result = pattern.replace(reg, ($0, $1) => {
                 let property = this.dividePipe($1).property;
                 if (!related) {
                     this._vm._relationCollection.setRelation(property, element, parentProperty);
                     domData.binding[prop].related = true;
-                    // element.data('binding')[prop].related = true;
                 }
                 return this.getValue(element, $1, data);
             });
@@ -189,36 +176,23 @@ namespace Pandyle {
                 data: targetData,
                 property: property
             }
-            // let targetData = data || element.data('context');
-            // element.data('alias').self = {
-            //     data: targetData,
-            //     property: property
-            // };
             if (element.attr('p-as')) {
                 let alias = element.attr('p-as');
                 domData.alias[alias] = {
                     data: targetData,
                     property: property
                 }
-                // element.data('alias')[alias] = {
-                //     data: targetData,
-                //     property: property
-                // }
             }
         }
 
         public getAliasData(element: JQuery<HTMLElement>, alias: string) {
             let domData = Pandyle.getDomData(element);
             return domData.alias[alias].data;
-            // let data = element.data('alias');
-            // return data[alias].data;
         }
 
         public getAliasProperty(element: JQuery<HTMLElement>, alias: string) {
             let domData = Pandyle.getDomData(element);
             return domData.alias[alias].property;
-            // let data = element.data('alias');
-            // return data[alias].property;
         }
 
 

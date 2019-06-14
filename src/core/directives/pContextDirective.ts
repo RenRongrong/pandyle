@@ -13,10 +13,6 @@ namespace Pandyle {
                     pattern: element.attr('p-context'),
                     related: false
                 }
-                // element.data('binding')['Context'] = {
-                //     pattern: element.attr('p-context'),
-                //     related: false
-                // };
                 element.removeAttr('p-context');
             }
             if (binding['Context']) {
@@ -35,11 +31,6 @@ namespace Pandyle {
                 }else{
                     data = domData.context;
                 }
-                // if (element.data('ocontext')) {
-                //     data = element.data('ocontext');
-                // } else {
-                //     data = element.data('context');
-                // }
                 let target: any = this._util.calcu(property, element, data);
                 if (method) {
                     target = this._util.convert(method, $.extend({}, target));
@@ -49,23 +40,11 @@ namespace Pandyle {
                     this._util.setRelation(property, $(element), parentProperty);
                     domData.ocontext = data;
                 }
-                // if (!element.data('ocontext')) {
-                //     this._util.setAlias(element, fullProp, target);
-                //     this._util.setRelation(property, $(element), parentProperty);
-                //     element.data('ocontext', data);
-                // }
                 domData.context = target;
                 domData.oparentProperty = fullProp;
 
-                // element.data({
-                //     context: target,
-                //     oparentProperty: fullProp
-                // })
                 element.children().each((index, ele) => {
                     Pandyle.getDomData($(ele)).context = target;
-                    // $(ele).data({
-                    //     context: target
-                    // })
                 })
 
                 this._context.parentProperty = fullProp;

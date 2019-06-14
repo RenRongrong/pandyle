@@ -17,17 +17,11 @@ namespace Pandyle {
                         pattern: value,
                         related: false
                     }
-                    // ele.data('binding')[attr] = {
-                    //     pattern: value,
-                    //     related: false
-                    // }
                 });
                 ele.removeAttr('p-bind');
             }
             let bindings = domData.binding;
             let data = domData.context;
-            // let bindings = ele.data('binding');
-            // let data = ele.data('context');
             for (let a in bindings) {
                 if(['text', 'If', 'Each', 'For', 'Context'].indexOf(a) < 0){
                     $(ele).attr(a, this._util.convertFromPattern($(ele), a, bindings[a].pattern, data, this._context.parentProperty));

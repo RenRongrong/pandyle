@@ -12,10 +12,6 @@ namespace Pandyle {
                     pattern: ele.attr('p-if'),
                     related: false
                 }
-                // ele.data('binding')['If'] = {
-                //     pattern: ele.attr('p-if'),
-                //     related: false
-                // };
                 ele.removeAttr('p-if');
             }
             if (domData.binding['If']) {
@@ -23,32 +19,20 @@ namespace Pandyle {
                 if(!domData.parent){
                     domData.parent = parentElement;
                 }
-                // if (!ele.data('parent')) {
-                //     ele.data('parent', parentElement);
-                // }
-
                 let expression = domData.binding['If'].pattern;
                 let data = domData.context;
-                // let expression: string = ele.data('binding')['If'].pattern;
-                // let data = ele.data('context');
                 let convertedExpression = this._util.convertFromPattern(ele, 'If', expression, data, parentProperty);
                 let judge = new Function('return ' + convertedExpression);
-
                 if (judge()) {
                     if (ele.parent().length === 0) {
                         let pindex = domData.pIndex;
                         let pre = domData.parent.children().filter((index, element) => {
                             return Pandyle.getDomData($(element)).pIndex === (pindex - 1);
                         })
-                        // let pindex = ele.data('pindex');
-                        // let pre = ele.data('parent').children().filter((inex, element) => {
-                        //     return $(element).data('pindex') == (pindex - 1);
-                        // })
                         if (pre.length > 0) {
                             ele.insertAfter(pre);
                         } else {
                             domData.parent.prepend(ele);
-                            // ele.data('parent').prepend(ele);
                         }
                     }
                     this.next();
@@ -59,6 +43,5 @@ namespace Pandyle {
                 this.next();
             }
         }
-
     }
 }
