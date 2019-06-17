@@ -1,21 +1,29 @@
 /// <reference path="statics.ts" />
 namespace Pandyle {
-    export class Component {
+    export class Component implements IComponent {
         public readonly name: string;
-        private html: string;
-        public readonly onLoad?: (context:any, root:HTMLElement) => void;
+        public html: string;
+        public onLoad: <T>(context: any, root: HTMLElement, vm:VM<T>) => void;
+        private setPrivateData(element: JQuery<HTMLElement>, data: any) {
+            Pandyle.getDomData(element).alias.private = {
+                data: data,
+                property: '@private'
+            }
+        }
 
-        public constructor(component: IComponent){
-            this.name = component.name;
-            this.html = component.html;
-            this.onLoad = component.onLoad;
+        private getPrivateData(root: JQuery<HTMLElement>){
+            return Pandyle.getDomData(root).alias.private.data;
+        }
+
+        public constructor(name:string, html:string){
+            this.name = name;
+            this.html = html;
         }
     }
-
     export interface IComponent {
         name: string,
         html: string,
-        onLoad?: (context:any, root:HTMLElement)=>void
+        onLoad?: <T>(context: any, root: HTMLElement, vm:VM<T>) => void
     }
 
     export function hasComponent(name: string) {
@@ -26,28 +34,33 @@ namespace Pandyle {
         _components[com.name] = com;
     }
 
-    export function getComponent(name: string):IComponent {
+    export function getComponent(name: string): IComponent {
         return _components[name];
     }
 
-    export function loadComponent(ele: HTMLElement) {
+    export function loadComponent<T>(ele: HTMLElement, vm:VM<T>) {
         let element = $(ele);
-        element.children().remove();
         let name = element.attr('p-com');
         let domData = Pandyle.getDomData(element);
+        if (name === domData.componentName) {
+            return;
+        } else {
+            domData.componentName = name;
+        }
+        element.children().remove();
         let context = domData.context;
         name = $.trim(name);
         if (hasComponent(name)) {
             let com = getComponent(name);
             element.html(com.html);
-            let children = element.children();       
+            let children = element.children();
             children.each((index, item) => {
                 let childrenDomData = Pandyle.getDomData($(item));
                 childrenDomData.context = context;
             })
-            domData.children =children;
-            if(com.onLoad){
-                com.onLoad(context, ele);
+            domData.children = children;
+            if (com.onLoad) {
+                com.onLoad(context, ele, vm);
             }
         } else {
             let url = '';
@@ -69,22 +82,23 @@ namespace Pandyle {
                 url: url,
                 async: false,
                 success: res => {
-                    insertToDom(res, name, context, ele);
+                    insertToDom(res, name, context, ele, vm);
                 }
             })
         }
 
-        function insertToDom(text: string, name: string, context:any, root:HTMLElement) {
-            let component:IComponent = {name: name, html: ''};
+        function insertToDom<T>(text: string, name: string, context: any, root: HTMLElement, vm:VM<T>) {
+            // let component: IComponent = { name: name, html: '' };
+            let component = new Component(name, text);
             text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, ($0, $1) => {
                 let style = '<style>' + $1 + '</style>';
                 $('head').append(style);
                 return '';
-            });  
+            });
             text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, ($0, $1) => {
                 new Function($1).call(component);
                 return '';
-            });
+            });           
             component.html = text;
             addComponent(component);
             element.html(text);
@@ -93,8 +107,8 @@ namespace Pandyle {
                 Pandyle.getDomData($(item)).context = context;
             })
             Pandyle.getDomData(element).children = children;
-            if(component.onLoad){
-                component.onLoad(context, root);
+            if (component.onLoad) {
+                component.onLoad(context, root, vm);
             }
         }
     }

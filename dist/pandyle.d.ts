@@ -19,15 +19,23 @@ declare namespace Pandyle {
     function getDomData(element: JQuery<HTMLElement>): IDomData;
 }
 declare namespace Pandyle {
-    interface component {
+    class Component implements IComponent {
+        readonly name: string;
+        html: string;
+        onLoad: <T>(context: any, root: HTMLElement, vm: VM<T>) => void;
+        private setPrivateData(element, data);
+        private getPrivateData(root);
+        constructor(name: string, html: string);
+    }
+    interface IComponent {
         name: string;
         html: string;
-        onLoad?: (context: any, root: HTMLElement) => void;
+        onLoad?: <T>(context: any, root: HTMLElement, vm: VM<T>) => void;
     }
     function hasComponent(name: string): boolean;
-    function addComponent(com: component): void;
-    function getComponent(name: string): component;
-    function loadComponent(ele: HTMLElement): void;
+    function addComponent(com: IComponent): void;
+    function getComponent(name: string): IComponent;
+    function loadComponent<T>(ele: HTMLElement, vm: VM<T>): void;
 }
 declare namespace Pandyle {
     class Inputs {
@@ -104,7 +112,7 @@ declare namespace Pandyle {
 }
 declare namespace Pandyle {
     class Util<T> {
-        private _vm;
+        vm: VM<T>;
         private constructor(vm);
         static CreateUtil<T>(vm: VM<T>): Util<T>;
         getValue(element: JQuery<HTMLElement>, property: string, data: any): any;
@@ -153,6 +161,7 @@ interface IDomData {
     alias?: IAlias;
     pIndex?: number;
     ocontext?: any;
+    componentName?: string;
 }
 interface IBinding {
     [key: string]: {

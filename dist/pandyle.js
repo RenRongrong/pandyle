@@ -58,6 +58,23 @@ var Pandyle;
 })(Pandyle || (Pandyle = {}));
 var Pandyle;
 (function (Pandyle) {
+    var Component = (function () {
+        function Component(name, html) {
+            this.name = name;
+            this.html = html;
+        }
+        Component.prototype.setPrivateData = function (element, data) {
+            Pandyle.getDomData(element).alias.private = {
+                data: data,
+                property: '@private'
+            };
+        };
+        Component.prototype.getPrivateData = function (root) {
+            return Pandyle.getDomData(root).alias.private.data;
+        };
+        return Component;
+    }());
+    Pandyle.Component = Component;
     function hasComponent(name) {
         return typeof Pandyle._components[name] !== 'undefined';
     }
@@ -70,11 +87,17 @@ var Pandyle;
         return Pandyle._components[name];
     }
     Pandyle.getComponent = getComponent;
-    function loadComponent(ele) {
+    function loadComponent(ele, vm) {
         var element = Pandyle.$(ele);
-        element.children().remove();
         var name = element.attr('p-com');
         var domData = Pandyle.getDomData(element);
+        if (name === domData.componentName) {
+            return;
+        }
+        else {
+            domData.componentName = name;
+        }
+        element.children().remove();
         var context = domData.context;
         name = Pandyle.$.trim(name);
         if (hasComponent(name)) {
@@ -87,7 +110,7 @@ var Pandyle;
             });
             domData.children = children;
             if (com.onLoad) {
-                com.onLoad(context, ele);
+                com.onLoad(context, ele, vm);
             }
         }
         else {
@@ -112,12 +135,12 @@ var Pandyle;
                 url: url,
                 async: false,
                 success: function (res) {
-                    insertToDom(res, name, context, ele);
+                    insertToDom(res, name, context, ele, vm);
                 }
             });
         }
-        function insertToDom(text, name, context, root) {
-            var component = { name: name, html: '' };
+        function insertToDom(text, name, context, root, vm) {
+            var component = new Component(name, text);
             text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, function ($0, $1) {
                 var style = '<style>' + $1 + '</style>';
                 Pandyle.$('head').append(style);
@@ -136,7 +159,7 @@ var Pandyle;
             });
             Pandyle.getDomData(element).children = children;
             if (component.onLoad) {
-                component.onLoad(context, root);
+                component.onLoad(context, root, vm);
             }
         }
     }
@@ -577,7 +600,7 @@ var Pandyle;
 (function (Pandyle) {
     var Util = (function () {
         function Util(vm) {
-            this._vm = vm;
+            this.vm = vm;
         }
         Util.CreateUtil = function (vm) {
             var util = new Util(vm);
@@ -660,7 +683,7 @@ var Pandyle;
                                     return (new Function('return ' + p))();
                                 }
                             });
-                            var func = obj2 || _this._vm.getMethod(property) || Pandyle.getMethod(property) || window[property];
+                            var func = obj2 || _this.vm.getMethod(property) || Pandyle.getMethod(property) || window[property];
                             return func.apply(_this, computedParams);
                         }
                     }, tempData);
@@ -693,7 +716,7 @@ var Pandyle;
             var result = pattern.replace(reg, function ($0, $1) {
                 var property = _this.dividePipe($1).property;
                 if (!related) {
-                    _this._vm._relationCollection.setRelation(property, element, parentProperty);
+                    _this.vm._relationCollection.setRelation(property, element, parentProperty);
                     domData.binding[prop].related = true;
                 }
                 return _this.getValue(element, $1, data);
@@ -767,7 +790,7 @@ var Pandyle;
                 }, {});
             }
             else {
-                return this._vm._methods[method](data);
+                return this.vm._methods[method](data);
             }
         };
         Util.prototype.isSelfOrChild = function (property, subProperty) {
@@ -782,10 +805,10 @@ var Pandyle;
             return reg.test(subProperty);
         };
         Util.prototype.transfer = function (method, data) {
-            return this._vm.transfer(method, data);
+            return this.vm.transfer(method, data);
         };
         Util.prototype.setRelation = function (property, element, parentProperty) {
-            this._vm._relationCollection.setRelation(property, element, parentProperty);
+            this.vm._relationCollection.setRelation(property, element, parentProperty);
         };
         return Util;
     }());
@@ -861,7 +884,7 @@ var Pandyle;
         pComDirective.prototype.execute = function () {
             var ele = Pandyle.$(this._context.element);
             if (ele.attr('p-com')) {
-                Pandyle.loadComponent(this._context.element);
+                Pandyle.loadComponent(this._context.element, this._util.vm);
             }
             this.next();
         };

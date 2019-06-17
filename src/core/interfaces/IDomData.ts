@@ -8,7 +8,8 @@ interface IDomData{
     oparentProperty?: string,
     alias?: IAlias,
     pIndex?: number,
-    ocontext?: any
+    ocontext?: any,
+    componentName?: string
 }
 
 interface IBinding{
