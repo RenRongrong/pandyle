@@ -1,6 +1,18 @@
 /// <reference path="statics.ts" />
 namespace Pandyle {
-    export interface component {
+    export class Component {
+        public readonly name: string;
+        private html: string;
+        public readonly onLoad?: (context:any, root:HTMLElement) => void;
+
+        public constructor(component: IComponent){
+            this.name = component.name;
+            this.html = component.html;
+            this.onLoad = component.onLoad;
+        }
+    }
+
+    export interface IComponent {
         name: string,
         html: string,
         onLoad?: (context:any, root:HTMLElement)=>void
@@ -10,11 +22,11 @@ namespace Pandyle {
         return typeof _components[name] !== 'undefined';
     }
 
-    export function addComponent(com: component) {
+    export function addComponent(com: IComponent) {
         _components[com.name] = com;
     }
 
-    export function getComponent(name: string):component {
+    export function getComponent(name: string):IComponent {
         return _components[name];
     }
 
@@ -63,7 +75,7 @@ namespace Pandyle {
         }
 
         function insertToDom(text: string, name: string, context:any, root:HTMLElement) {
-            let component:component = {name: name, html: ''};
+            let component:IComponent = {name: name, html: ''};
             text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, ($0, $1) => {
                 let style = '<style>' + $1 + '</style>';
                 $('head').append(style);
