@@ -1139,19 +1139,19 @@ var Pandyle;
                 else {
                     data = domData.context;
                 }
-                var target_1 = this._util.calcu(property, element, data);
+                var target = this._util.calcu(property, element, data);
                 if (method) {
-                    target_1 = this._util.convert(method, Pandyle.$.extend({}, target_1));
+                    target = this._util.convert(method, Pandyle.$.extend({}, target));
                 }
                 if (!domData.ocontext) {
-                    this._util.setAlias(element, fullProp, target_1);
+                    this._util.setAlias(element, fullProp, target);
                     this._util.setRelation(property, Pandyle.$(element), parentProperty);
                     domData.ocontext = data;
                 }
-                domData.context = target_1;
+                domData.context = target;
                 domData.oparentProperty = fullProp;
-                element.children().each(function (index, ele) {
-                    Pandyle.getDomData(Pandyle.$(ele)).context = target_1;
+                element.find('*').each(function (index, ele) {
+                    Pandyle.getDomData(Pandyle.$(ele)).context = null;
                 });
                 this._context.parentProperty = fullProp;
             }

@@ -88,7 +88,6 @@ namespace Pandyle {
         }
 
         function insertToDom<T>(text: string, name: string, context: any, root: HTMLElement, vm:VM<T>) {
-            // let component: IComponent = { name: name, html: '' };
             let component = new Component(name, text);
             text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, ($0, $1) => {
                 let style = '<style>' + $1 + '</style>';
