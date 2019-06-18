@@ -15,6 +15,7 @@
         <div p-com="test"></div>
         <div p-com="MyCom.book" p-context="book1"></div>
         <div p-com="Menu.menu"></div>
+        <div p-com="list" p-context="list"></div>
     </div>
 
     <script>
@@ -43,7 +44,8 @@
                 tags: ['tag1', 'tag2', 'tag3'],
                 add: getAddFunc('book2'),
                 buy: buyBook2(this)
-            }
+            },
+            list: ['选项1', '选项2']
         })
 
         function buyBook(name) {
