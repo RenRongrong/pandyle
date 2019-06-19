@@ -15,7 +15,8 @@
         <div p-com="test"></div>
         <div p-com="MyCom.book" p-context="book1"></div>
         <div p-com="Menu.menu"></div>
-        <div p-com="list" p-context="list"></div>
+        <div p-com="list" p-context="@root|{title: '列表1', name: 'checkList', list:list}"></div>
+        <button onclick="showData()">click me</button>
     </div>
 
     <script>
@@ -45,7 +46,16 @@
                 add: getAddFunc('book2'),
                 buy: buyBook2(this)
             },
-            list: ['选项1', '选项2']
+            list: [
+                {
+                    value: 1,
+                    name: '选项1'
+                },
+                {
+                    value: 2,
+                    name: '选项2'
+                }
+            ]
         })
 
         function buyBook(name) {
@@ -67,6 +77,10 @@
                 var num = vm.get(name).num + 1;
                 vm.set(name + '.num', num);
             }
+        }
+
+        function showData(){
+            console.log($('.main').inputs().data());
         }
     </script>
 </body>

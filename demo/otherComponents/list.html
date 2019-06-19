@@ -1,7 +1,53 @@
-<div>
-    <div p-each="@private.list">
-        <div style="width:14px;height:14px;background: blue;border-radius: 2px;padding-top:2px;padding-left:1px;box-sizing: border-box">
-            <div style="width:10px;height:4px;transform:rotateZ(-45deg);border-left:2px solid white;border-bottom:2px solid white;"></div>
+<div class="list">
+    <div>{{@private.title}}</div>
+    <label p-for="@private.list" style="clear: both">
+        <div class="list-box">
+            <div class="list-box-inner"></div>
         </div>
-    </div>
+        <div>{{name}}</div>
+        <input type="checkbox" style="display: none" p-bind="name:{{@private.name}} ^ value:{{value}}">
+    </label>
 </div>
+
+<style>
+    .list .list-box {
+        float: left;
+        width: 14px;
+        height: 14px;
+        border: 1px solid blue;
+        border-radius: 2px;
+        padding-top: 2px;
+        padding-left: 1px;
+        box-sizing: border-box;
+        margin-top: 4px;
+        margin-right: 5px;
+    }
+
+    .list .list-box.selected {
+        background: blue;
+    }
+
+    .list .list-box-inner {
+        width: 10px;
+        height: 4px;
+        transform: rotateZ(-45deg);
+        border-left: 2px solid white;
+        border-bottom: 2px solid white;
+        opacity: 0;
+        transition: all .3s;
+    }
+
+    .list .list-box.selected .list-box-inner{
+        opacity: 1;
+    }
+</style>
+
+<script>
+    this.onLoad = function (context, root, vm) {
+        this.setPrivateData($(root), context);
+        $(root).on('change', 'input', function (e) {
+            var target = e.currentTarget;
+            $(target).siblings('.list-box').toggleClass('selected');
+        })
+    }
+</script>
