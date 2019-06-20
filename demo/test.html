@@ -24,7 +24,7 @@
         <div p-context="subInfo">
             <div>{{class}}</div>
         </div>
-        <div p-com="@/demo/components/book.html" p-context="book"></div>
+        <div p-com="book" p-context="book"></div>
 
         <button onclick="test()">click me</button>
     </div>
@@ -76,7 +76,8 @@
                     title: '水浒传',
                     author: '施耐庵',
                     price: 40,
-                    tags: ['tag3', 'tag4']
+                    tags: ['tag3', 'tag4'],
+                    num: 2
                 }
                 // 'book.tags': ['tag3', 'tag4']
             });

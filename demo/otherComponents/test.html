@@ -1,1 +1,30 @@
-<div>hello</div>
+<div>
+    <div>hello</div>
+    <div>{{@private.name}}</div>
+    <div>{{@private.age}}</div>
+    <button>click me</button>
+</div>
+
+<script>
+    this.onLoad = function(context, root, vm){
+        var ele = $(root);
+        var _this = this;
+        this.setPrivateData(ele, {
+            name: 'rrr',
+            age: 30,
+            step: 1
+        })
+
+        ele.click(function(){
+            console.log('rrr');
+            var privateData = _this.getPrivateData(ele);
+            console.log(privateData);
+            privateData.name = privateData.name + privateData.step;
+            privateData.age = privateData.age + privateData.step;
+            privateData.step++;
+            console.log(privateData);
+            console.log(vm);
+            vm.render(ele);
+        })
+    }
+</script>

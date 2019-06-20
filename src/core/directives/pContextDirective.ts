@@ -43,8 +43,8 @@ namespace Pandyle {
                 domData.context = target;
                 domData.oparentProperty = fullProp;
 
-                element.children().each((index, ele) => {
-                    Pandyle.getDomData($(ele)).context = target;
+                element.find('*').each((index, ele) => {
+                    Pandyle.getDomData($(ele)).context = null
                 })
 
                 this._context.parentProperty = fullProp;

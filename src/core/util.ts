@@ -3,10 +3,10 @@
 
 namespace Pandyle {
     export class Util<T>{
-        private _vm: VM<T>;
+        public vm: VM<T>;
 
         private constructor(vm: VM<T>) {
-            this._vm = vm;
+            this.vm = vm;
         }
 
         public static CreateUtil<T>(vm: VM<T>) {
@@ -101,7 +101,7 @@ namespace Pandyle {
                                     return (new Function('return ' + p))();
                                 }
                             });
-                            let func: Function = obj2 || this._vm.getMethod(property) || getMethod(property) || window[property];
+                            let func: Function = obj2 || this.vm.getMethod(property) || getMethod(property) || window[property];
                             return func.apply(this, computedParams);
                         }
                     }, tempData);
@@ -141,7 +141,7 @@ namespace Pandyle {
             let result = pattern.replace(reg, ($0, $1) => {
                 let property = this.dividePipe($1).property;
                 if (!related) {
-                    this._vm._relationCollection.setRelation(property, element, parentProperty);
+                    this.vm._relationCollection.setRelation(property, element, parentProperty);
                     domData.binding[prop].related = true;
                 }
                 return this.getValue(element, $1, data);
@@ -222,7 +222,7 @@ namespace Pandyle {
                     return pre;
                 }, {})
             } else {
-                return this._vm._methods[method](data);
+                return this.vm._methods[method](data);
             }
         }
 
@@ -250,11 +250,11 @@ namespace Pandyle {
         }
 
         public transfer(method: string, data: any[]) {
-            return this._vm.transfer(method, data);
+            return this.vm.transfer(method, data);
         }
 
         public setRelation(property: string, element: JQuery<HTMLElement>, parentProperty: string) {
-            this._vm._relationCollection.setRelation(property, element, parentProperty);
+            this.vm._relationCollection.setRelation(property, element, parentProperty);
         }
     }
 }

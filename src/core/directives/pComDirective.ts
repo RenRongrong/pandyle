@@ -7,7 +7,7 @@ namespace Pandyle {
         public execute(): void {
             let ele = $(this._context.element);
             if (ele.attr('p-com')) {
-                loadComponent(this._context.element);
+                loadComponent(this._context.element, this._util.vm);
             }
             this.next();
         }

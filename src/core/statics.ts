@@ -49,6 +49,4 @@ namespace Pandyle{
         }
         return element.data('pandyle');
     }
-
-
 }
