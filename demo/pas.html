@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../dist/pandyle.js"></script>
+</head>
+<body>
+    <div class="main">
+        <div p-context="book" p-as="a">
+            <div p-context="author">
+                <div>{{name}}</div>
+                <div>{{@a.price}}</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var vm = $('.main').vm({
+            book: {
+                author: {
+                    name: 'rrr'
+                },
+                price: 100
+            }
+        })
+    </script>
+</body>
+</html>
