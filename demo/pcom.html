@@ -17,6 +17,9 @@
         <div p-com="Menu.menu"></div>
         <div p-com="list" p-context="@root|{title: '列表1', name: 'checkList', list:list}"></div>
         <button onclick="showData()">click me</button>
+        <div p-for="components" p-as="item">
+            <div p-bind="p-com:{{@item.type}}" p-context="@item.data"></div>
+        </div>
     </div>
 
     <script>
@@ -27,33 +30,56 @@
                 MyCom: './components/{name}.html'
             }
         })
+
+        var book1 = {
+            title: 'book1',
+            author: 'rrr',
+            price: 20,
+            num: 10,
+            tags: ['tag1', 'tag2', 'tag3'],
+            add: getAddFunc('book1'),
+            buy: buyBook('book1')
+        };
+
+        var book2 = {
+            title: 'book2',
+            author: 'aaa',
+            price: 30,
+            num: 20,
+            tags: ['tag1', 'tag2', 'tag3'],
+            add: getAddFunc('book2'),
+            buy: buyBook2(this)
+        };
+
+        var list = [
+            {
+                value: 1,
+                name: '选项1'
+            },
+            {
+                value: 2,
+                name: '选项2'
+            }
+        ]
         var vm = $('.main').vm({
-            book1: {
-                title: 'book1',
-                author: 'rrr',
-                price: 20,
-                num: 10,
-                tags: ['tag1', 'tag2', 'tag3'],
-                add: getAddFunc('book1'),
-                buy: buyBook('book1')
-            },
-            book2: {
-                title: 'book2',
-                author: 'aaa',
-                price: 30,
-                num: 20,
-                tags: ['tag1', 'tag2', 'tag3'],
-                add: getAddFunc('book2'),
-                buy: buyBook2(this)
-            },
-            list: [
+            book1: book1,
+            book2: book2,
+            list: list,
+            components: [
                 {
-                    value: 1,
-                    name: '选项1'
+                    type: 'test'
                 },
                 {
-                    value: 2,
-                    name: '选项2'
+                    type: 'MyCom.book',
+                    data: book1
+                },
+                {
+                    type: 'list',
+                    data: {
+                        title: '列表1',
+                        name: 'checkList',
+                        list: list
+                    }
                 }
             ]
         })
@@ -79,7 +105,7 @@
             }
         }
 
-        function showData(){
+        function showData() {
             console.log($('.main').inputs().data());
         }
     </script>

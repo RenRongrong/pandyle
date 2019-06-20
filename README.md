@@ -6,9 +6,64 @@ pandyle是一个基于jquery的MVVM库。它为jquery提供了基本的模板和
 
 - 简单：非常简单易上手，无需学习webpack、es6等前端知识，基本看一遍文档即可进行开发
 - 兼容性良好：pandyle的兼容性取决于jquery版本，因此使用1.X版本的jquery即可兼容至ie8浏览器
-- 约定优先的组件：pandyle采用约定优先的原则来设计组件，默认情况下只需在components目录下创建html文件即可作为组件使用，无需任何代码
 - 输入与视图模型分离：pandyle使用inputs类来独立的处理用户输入，根据表单元素的name属性自动生成数据模型，无需事先定义
 - 同步操作：pandyle的所有操作都是同步的，代码逻辑清晰的同时保证了同其他jQuery插件的良好兼容
+- 资源化的组件：pandyle将组件视为一种资源，这意味着你可以像加载图片一样任意加载你想要的任意组件，只需在p-com指令中写上组件的路径即可，无需事先编译或引入特定的组件代码。此外，在pandyle中，你可以很轻松的使用p-bind来动态的绑定组件，使页面能够完全根据数据来动态生成，如以下示例：
+
+    
+        <div class="main">
+            <div p-for="components" p-as="item">
+                <div p-bind="p-com:{{@item.type}}" p-context="@item.data">
+            </div>
+        </div>
+
+        <script>
+            Pandyle.config({
+                comPath: {
+                    Default: './otherComponents/{name}.html',
+                    Menu: './otherComponents/menu/{name}.html',
+                    MyCom: './components/{name}.html'
+                }
+            })
+    
+            var book1 = {
+                title: 'book1',
+                author: 'rrr',
+                price: 20,
+                num: 10,
+                tags: ['tag1', 'tag2', 'tag3']
+            };
+    
+            var list = [
+                {
+                    value: 1,
+                    name: '选项1'
+                },
+                {
+                    value: 2,
+                    name: '选项2'
+                }
+            ]
+            var vm = $('.main').vm({
+                components: [
+                    {
+                        type: 'test'
+                    },
+                    {
+                        type: 'MyCom.book',
+                        data: book1
+                    },
+                    {
+                        type: 'list',
+                        data: {
+                            title: '列表1',
+                            name: 'checkList',
+                            list: list
+                        }
+                    }
+                ]
+            })
+        </script>
 
 ## 适用场景
 
