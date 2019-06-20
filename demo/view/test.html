@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/dist/pandyle.js"></script>
+    <!-- <script src="../dist/pandyle.min.js"></script> -->
+</head>
+
+<body>
+    <div class="main">
+        <div p-bind="class: {{class}}-on">{{message|add}}</div>
+        <div p-bind="class: {{subInfo.class}}">
+            <p p-if="{{subInfo.visible}}">this is visible</p>
+        </div>
+        <div p-each="list" class="list">
+            <p>{{name + '$' + id}} {{@index + 1}}</p>
+            <!-- <p p-for="child">{{@self}}</p> -->
+        </div>
+        <div p-context="subInfo">
+            <div>{{class}}</div>
+        </div>
+        <div p-com="@/demo/components/book.html" p-context="book"></div>
+
+        <button onclick="test()">click me</button>
+    </div>
+
+    <script>
+        var vm = $('.main').vm({
+            message: 'hello world',
+            class: 'active',
+            subInfo: {
+                class: 'on',
+                visible: true
+            },
+            list: [
+                { id: 1, name: 'test1', child: ['child1', 'child2'] },
+                { id: 2, name: 'test2', child: ['child3', 'child4'] },
+                { id: 3, name: 'test3', child: ['child5', 'child6'] }
+            ],
+            book: {
+                title: '三国演义',
+                author: '罗贯中',
+                price: 50,
+                tags: ['tag1', 'tag2'],
+                num: 10
+            }
+        }, false);
+        vm.register('add', function (value) {
+            return value + ' my name is pandarrr';
+        });
+        vm.register('filt', function (value) {
+            return value.filter(function (item, index) {
+                return (item.id % 2) === 1;
+            })
+        })
+        vm.run();
+
+        function test() {
+            var visible = vm.get('subInfo.visible');
+            vm.set({
+                subInfo: {
+                    class: 'off',
+                    visible: !visible
+                },
+                list: [
+                    { id: 4, name: 'test4', child: ['child7', 'child8'] },
+                    { id: 5, name: 'test5', child: ['child9', 'child10'] },
+                    { id: 6, name: 'test6', child: ['child11', 'child12'] }
+                ],
+                book: {
+                    title: '水浒传',
+                    author: '施耐庵',
+                    price: 40,
+                    tags: ['tag3', 'tag4'],
+                    num: 2
+                }
+                // 'book.tags': ['tag3', 'tag4']
+            });
+        }
+
+        function isOdd(x) {
+            return (x % 2) === 1;
+        }
+    </script>
+</body>
+
+</html>
