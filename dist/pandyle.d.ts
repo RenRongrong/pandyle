@@ -1,5 +1,4 @@
 /// <reference path="../src/index.d.ts" />
-/// <reference types="jquery" />
 declare namespace Pandyle {
     const _variables: any;
     const _methods: any;
