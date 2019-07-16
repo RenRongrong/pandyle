@@ -36,7 +36,7 @@ if (!Array.prototype.forEach)
 }
 if (!Array.prototype.map)
 {
-  Array.prototype.map = function(fun /*, thisp*/)
+  Array.prototype.map = function(fun /*, thisp?:any*/)
   {
     var len = this.length;
     if (typeof fun != "function")

@@ -1270,7 +1270,7 @@ if (!Array.prototype.forEach) {
     };
 }
 if (!Array.prototype.map) {
-    Array.prototype.map = function (fun) {
+    Array.prototype.map = function (fun, thisArg) {
         var len = this.length;
         if (typeof fun != "function")
             throw new TypeError();
