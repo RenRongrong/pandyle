@@ -827,6 +827,13 @@ var Pandyle;
         };
         DirectiveBase.prototype.deep = function () {
         };
+        DirectiveBase.prototype.error = function (directiveName, errorMessage, domData) {
+            console.error("\u5728\u6267\u884C" + directiveName + "\u6307\u4EE4\u65F6\u53D1\u751F\u9519\u8BEF\u3002\u9519\u8BEF\u4FE1\u606F\uFF1A" + errorMessage);
+            console.log('当前元素为：');
+            console.log(this._context.element);
+            console.log('当前元素的数据上下文：');
+            console.log(domData);
+        };
         DirectiveBase.prototype.append = function (next) {
             this._next = next;
         };
@@ -848,27 +855,32 @@ var Pandyle;
         PBindDirective.prototype.execute = function () {
             var ele = Pandyle.$(this._context.element);
             var domData = Pandyle.getDomData(ele);
-            if (ele.attr('p-bind')) {
-                var binds = Pandyle.$(ele).attr('p-bind').split('^');
-                binds.forEach(function (bindInfo, index) {
-                    var array = bindInfo.match(/^\s*([\w-]+)\s*:\s*(.*)$/);
-                    var attr = array[1];
-                    var value = array[2].replace(/\s*$/, '');
-                    domData.binding[attr] = {
-                        pattern: value,
-                        related: false
-                    };
-                });
-                ele.removeAttr('p-bind');
-            }
-            var bindings = domData.binding;
-            var data = domData.context;
-            for (var a in bindings) {
-                if (['text', 'If', 'Each', 'For', 'Context'].indexOf(a) < 0) {
-                    Pandyle.$(ele).attr(a, this._util.convertFromPattern(Pandyle.$(ele), a, bindings[a].pattern, data, this._context.parentProperty));
+            try {
+                if (ele.attr('p-bind')) {
+                    var binds = Pandyle.$(ele).attr('p-bind').split('^');
+                    binds.forEach(function (bindInfo, index) {
+                        var array = bindInfo.match(/^\s*([\w-]+)\s*:\s*(.*)$/);
+                        var attr = array[1];
+                        var value = array[2].replace(/\s*$/, '');
+                        domData.binding[attr] = {
+                            pattern: value,
+                            related: false
+                        };
+                    });
+                    ele.removeAttr('p-bind');
                 }
+                var bindings = domData.binding;
+                var data = domData.context;
+                for (var a in bindings) {
+                    if (['text', 'If', 'Each', 'For', 'Context'].indexOf(a) < 0) {
+                        Pandyle.$(ele).attr(a, this._util.convertFromPattern(Pandyle.$(ele), a, bindings[a].pattern, data, this._context.parentProperty));
+                    }
+                }
+                this.next();
             }
-            this.next();
+            catch (err) {
+                this.error('p-bind', err.message, domData);
+            }
         };
         return PBindDirective;
     }(Pandyle.DirectiveBase));
@@ -883,10 +895,16 @@ var Pandyle;
         }
         pComDirective.prototype.execute = function () {
             var ele = Pandyle.$(this._context.element);
-            if (ele.attr('p-com')) {
-                Pandyle.loadComponent(this._context.element, this._util.vm);
+            var domData = Pandyle.getDomData(ele);
+            try {
+                if (ele.attr('p-com')) {
+                    Pandyle.loadComponent(this._context.element, this._util.vm);
+                }
+                this.next();
             }
-            this.next();
+            catch (err) {
+                this.error('p-com', err.message, domData);
+            }
         };
         return pComDirective;
     }(Pandyle.DirectiveBase));
@@ -902,14 +920,19 @@ var Pandyle;
         pTextDirective.prototype.execute = function () {
             var element = Pandyle.$(this._context.element);
             var domData = Pandyle.getDomData(element);
-            if (element.children().length === 0) {
-                var data = domData.context;
-                var text = element.text();
-                if (domData.binding['text']) {
-                    text = domData.binding['text'].pattern;
+            try {
+                if (element.children().length === 0) {
+                    var data = domData.context;
+                    var text = element.text();
+                    if (domData.binding['text']) {
+                        text = domData.binding['text'].pattern;
+                    }
+                    var result = this._util.convertFromPattern(element, 'text', text, data, this._context.parentProperty);
+                    element.html(result);
                 }
-                var result = this._util.convertFromPattern(element, 'text', text, data, this._context.parentProperty);
-                element.html(result);
+            }
+            catch (err) {
+                this.error('文本插值', err.message, domData);
             }
         };
         return pTextDirective;
@@ -927,43 +950,48 @@ var Pandyle;
             var ele = Pandyle.$(this._context.element);
             var parentProperty = this._context.parentProperty;
             var domData = Pandyle.getDomData(ele);
-            if (ele.attr('p-if')) {
-                domData.binding['If'] = {
-                    pattern: ele.attr('p-if'),
-                    related: false
-                };
-                ele.removeAttr('p-if');
-            }
-            if (domData.binding['If']) {
-                var parentElement = ele.parent();
-                if (!domData.parent) {
-                    domData.parent = parentElement;
+            try {
+                if (ele.attr('p-if')) {
+                    domData.binding['If'] = {
+                        pattern: ele.attr('p-if'),
+                        related: false
+                    };
+                    ele.removeAttr('p-if');
                 }
-                var expression = domData.binding['If'].pattern;
-                var data = domData.context;
-                var convertedExpression = this._util.convertFromPattern(ele, 'If', expression, data, parentProperty);
-                var judge = new Function('return ' + convertedExpression);
-                if (judge()) {
-                    if (ele.parent().length === 0) {
-                        var pindex_1 = domData.pIndex;
-                        var pre = domData.parent.children().filter(function (index, element) {
-                            return Pandyle.getDomData(Pandyle.$(element)).pIndex === (pindex_1 - 1);
-                        });
-                        if (pre.length > 0) {
-                            ele.insertAfter(pre);
-                        }
-                        else {
-                            domData.parent.prepend(ele);
-                        }
+                if (domData.binding['If']) {
+                    var parentElement = ele.parent();
+                    if (!domData.parent) {
+                        domData.parent = parentElement;
                     }
-                    this.next();
+                    var expression = domData.binding['If'].pattern;
+                    var data = domData.context;
+                    var convertedExpression = this._util.convertFromPattern(ele, 'If', expression, data, parentProperty);
+                    var judge = new Function('return ' + convertedExpression);
+                    if (judge()) {
+                        if (ele.parent().length === 0) {
+                            var pindex_1 = domData.pIndex;
+                            var pre = domData.parent.children().filter(function (index, element) {
+                                return Pandyle.getDomData(Pandyle.$(element)).pIndex === (pindex_1 - 1);
+                            });
+                            if (pre.length > 0) {
+                                ele.insertAfter(pre);
+                            }
+                            else {
+                                domData.parent.prepend(ele);
+                            }
+                        }
+                        this.next();
+                    }
+                    else {
+                        ele.detach();
+                    }
                 }
                 else {
-                    ele.detach();
+                    this.next();
                 }
             }
-            else {
-                this.next();
+            catch (err) {
+                this.error('p-if', err.message, domData);
             }
         };
         return PIfDirective;
@@ -981,47 +1009,52 @@ var Pandyle;
             var $this = this;
             var element = Pandyle.$(this._context.element);
             var domData = Pandyle.getDomData(element);
-            var data = domData.context;
-            var parentProperty = this._context.parentProperty;
-            if (element.attr('p-each')) {
-                domData.binding['Each'] = {
-                    pattern: element.attr('p-each'),
-                    related: false
-                };
-                element.removeAttr('p-each');
+            try {
+                var data = domData.context;
+                var parentProperty = this._context.parentProperty;
+                if (element.attr('p-each')) {
+                    domData.binding['Each'] = {
+                        pattern: element.attr('p-each'),
+                        related: false
+                    };
+                    element.removeAttr('p-each');
+                }
+                if (domData.binding['Each']) {
+                    var expression = domData.binding['Each'].pattern.replace(/\s/g, '');
+                    var property = this._util.dividePipe(expression).property;
+                    var target = this._util.calcu(expression, element, data);
+                    if (!domData.pattern) {
+                        domData.pattern = element.html();
+                        this._util.setRelation(property, element, parentProperty);
+                    }
+                    var fullProp_1 = property;
+                    if (parentProperty !== '') {
+                        fullProp_1 = parentProperty + '.' + property;
+                    }
+                    ;
+                    var alias_1 = domData.alias;
+                    var htmlText = domData.pattern;
+                    var children_1 = Pandyle.$(htmlText);
+                    element.children().remove();
+                    if (domData.children) {
+                        domData.children.remove();
+                    }
+                    target.forEach(function (value, index) {
+                        var newChildren = children_1.clone(true, true);
+                        var _alias = Pandyle.$.extend({}, alias_1, { index: { data: index, property: '@index' } });
+                        var childrenDomData = Pandyle.getDomData(newChildren);
+                        childrenDomData.context = value;
+                        childrenDomData.parentProperty = fullProp_1.concat('[', index.toString(), ']'),
+                            childrenDomData.alias = _alias;
+                        element.append(newChildren);
+                    });
+                    domData.children = element.children();
+                }
+                this.next();
             }
-            if (domData.binding['Each']) {
-                var expression = domData.binding['Each'].pattern.replace(/\s/g, '');
-                var property = this._util.dividePipe(expression).property;
-                var target = this._util.calcu(expression, element, data);
-                if (!domData.pattern) {
-                    domData.pattern = element.html();
-                    this._util.setRelation(property, element, parentProperty);
-                }
-                var fullProp_1 = property;
-                if (parentProperty !== '') {
-                    fullProp_1 = parentProperty + '.' + property;
-                }
-                ;
-                var alias_1 = domData.alias;
-                var htmlText = domData.pattern;
-                var children_1 = Pandyle.$(htmlText);
-                element.children().remove();
-                if (domData.children) {
-                    domData.children.remove();
-                }
-                target.forEach(function (value, index) {
-                    var newChildren = children_1.clone(true, true);
-                    var _alias = Pandyle.$.extend({}, alias_1, { index: { data: index, property: '@index' } });
-                    var childrenDomData = Pandyle.getDomData(newChildren);
-                    childrenDomData.context = value;
-                    childrenDomData.parentProperty = fullProp_1.concat('[', index.toString(), ']'),
-                        childrenDomData.alias = _alias;
-                    element.append(newChildren);
-                });
-                domData.children = element.children();
+            catch (err) {
+                this.error('p-each', err.message, domData);
             }
-            this.next();
         };
         return PEachDirective;
     }(Pandyle.DirectiveBase));
@@ -1038,67 +1071,72 @@ var Pandyle;
             var $this = this;
             var element = Pandyle.$(this._context.element);
             var domData = Pandyle.getDomData(element);
-            var data = domData.context;
-            var parentProperty = this._context.parentProperty;
-            if (element.attr('p-for')) {
-                domData.binding['For'] = {
-                    pattern: element.attr('p-for'),
-                    related: false
-                };
-                element.removeAttr('p-for');
+            try {
+                var data = domData.context;
+                var parentProperty = this._context.parentProperty;
+                if (element.attr('p-for')) {
+                    domData.binding['For'] = {
+                        pattern: element.attr('p-for'),
+                        related: false
+                    };
+                    element.removeAttr('p-for');
+                }
+                if (domData.binding['For']) {
+                    var parentElement = element.parent();
+                    if (!domData.parent) {
+                        domData.parent = parentElement;
+                    }
+                    var expression = domData.binding['For'].pattern.replace(/\s/g, '');
+                    var property = this._util.dividePipe(expression).property;
+                    var target = this._util.calcu(expression, element, data);
+                    if (!domData.pattern) {
+                        var outerHtml = element.prop('outerHTML');
+                        outerHtml = outerHtml.replace(/jQuery\d*\="\d*"/, '');
+                        domData.pattern = outerHtml;
+                        this._util.setRelation(property, element, parentProperty);
+                    }
+                    ;
+                    var fullProp_2 = property;
+                    if (parentProperty !== '') {
+                        fullProp_2 = parentProperty + '.' + property;
+                    }
+                    ;
+                    var alias_2 = domData.alias;
+                    var htmlText = domData.pattern;
+                    var children_2 = Pandyle.$(htmlText);
+                    element.children().remove();
+                    if (domData.children) {
+                        domData.children.remove();
+                    }
+                    var div_1 = Pandyle.$('<div />');
+                    target.forEach(function (value, index) {
+                        var newChildren = children_2.clone(true, true);
+                        var _alias = Pandyle.$.extend({}, alias_2, { index: { data: index, property: '@index' } });
+                        var childrenDomData = Pandyle.getDomData(newChildren);
+                        childrenDomData.context = value;
+                        childrenDomData.parentProperty = fullProp_2.concat('[', index.toString(), ']'),
+                            childrenDomData.alias = _alias;
+                        div_1.append(newChildren);
+                    });
+                    var actualChildren = div_1.children();
+                    domData.children = actualChildren;
+                    element.detach();
+                    var pindex_2 = domData.pIndex;
+                    var pre = domData.parent.children().filter(function (index, ele) {
+                        return Pandyle.getDomData(Pandyle.$(ele)).pIndex === (pindex_2 - 1);
+                    });
+                    if (pre.length > 0) {
+                        actualChildren.insertAfter(pre);
+                    }
+                    else {
+                        domData.parent.prepend(actualChildren);
+                    }
+                }
+                this.next();
             }
-            if (domData.binding['For']) {
-                var parentElement = element.parent();
-                if (!domData.parent) {
-                    domData.parent = parentElement;
-                }
-                var expression = domData.binding['For'].pattern.replace(/\s/g, '');
-                var property = this._util.dividePipe(expression).property;
-                var target = this._util.calcu(expression, element, data);
-                if (!domData.pattern) {
-                    var outerHtml = element.prop('outerHTML');
-                    outerHtml = outerHtml.replace(/jQuery\d*\="\d*"/, '');
-                    domData.pattern = outerHtml;
-                    this._util.setRelation(property, element, parentProperty);
-                }
-                ;
-                var fullProp_2 = property;
-                if (parentProperty !== '') {
-                    fullProp_2 = parentProperty + '.' + property;
-                }
-                ;
-                var alias_2 = domData.alias;
-                var htmlText = domData.pattern;
-                var children_2 = Pandyle.$(htmlText);
-                element.children().remove();
-                if (domData.children) {
-                    domData.children.remove();
-                }
-                var div_1 = Pandyle.$('<div />');
-                target.forEach(function (value, index) {
-                    var newChildren = children_2.clone(true, true);
-                    var _alias = Pandyle.$.extend({}, alias_2, { index: { data: index, property: '@index' } });
-                    var childrenDomData = Pandyle.getDomData(newChildren);
-                    childrenDomData.context = value;
-                    childrenDomData.parentProperty = fullProp_2.concat('[', index.toString(), ']'),
-                        childrenDomData.alias = _alias;
-                    div_1.append(newChildren);
-                });
-                var actualChildren = div_1.children();
-                domData.children = actualChildren;
-                element.detach();
-                var pindex_2 = domData.pIndex;
-                var pre = domData.parent.children().filter(function (index, ele) {
-                    return Pandyle.getDomData(Pandyle.$(ele)).pIndex === (pindex_2 - 1);
-                });
-                if (pre.length > 0) {
-                    actualChildren.insertAfter(pre);
-                }
-                else {
-                    domData.parent.prepend(actualChildren);
-                }
+            catch (err) {
+                this.error('p-for', err.message, domData);
             }
-            this.next();
         };
         return PForDirective;
     }(Pandyle.DirectiveBase));
@@ -1116,46 +1154,51 @@ var Pandyle;
             var parentProperty = this._context.parentProperty;
             var domData = Pandyle.getDomData(element);
             var binding = domData.binding;
-            if (element.attr('p-context')) {
-                binding['Context'] = {
-                    pattern: element.attr('p-context'),
-                    related: false
-                };
-                element.removeAttr('p-context');
+            try {
+                if (element.attr('p-context')) {
+                    binding['Context'] = {
+                        pattern: element.attr('p-context'),
+                        related: false
+                    };
+                    element.removeAttr('p-context');
+                }
+                if (binding['Context']) {
+                    var data = void 0;
+                    var expression = binding['Context'].pattern;
+                    var divided = this._util.dividePipe(expression);
+                    var property = divided.property;
+                    var method = divided.method;
+                    var fullProp = property;
+                    if (parentProperty !== '') {
+                        fullProp = parentProperty + '.' + property;
+                    }
+                    if (domData.ocontext) {
+                        data = domData.ocontext;
+                    }
+                    else {
+                        data = domData.context;
+                    }
+                    var target = this._util.calcu(property, element, data);
+                    if (method) {
+                        target = this._util.convert(method, Pandyle.$.extend({}, target));
+                    }
+                    if (!domData.ocontext) {
+                        this._util.setAlias(element, fullProp, target);
+                        this._util.setRelation(property, Pandyle.$(element), parentProperty);
+                        domData.ocontext = data;
+                    }
+                    domData.context = target;
+                    domData.oparentProperty = fullProp;
+                    element.find('*').each(function (index, ele) {
+                        Pandyle.getDomData(Pandyle.$(ele)).context = null;
+                    });
+                    this._context.parentProperty = fullProp;
+                }
+                this.next();
             }
-            if (binding['Context']) {
-                var data = void 0;
-                var expression = binding['Context'].pattern;
-                var divided = this._util.dividePipe(expression);
-                var property = divided.property;
-                var method = divided.method;
-                var fullProp = property;
-                if (parentProperty !== '') {
-                    fullProp = parentProperty + '.' + property;
-                }
-                if (domData.ocontext) {
-                    data = domData.ocontext;
-                }
-                else {
-                    data = domData.context;
-                }
-                var target = this._util.calcu(property, element, data);
-                if (method) {
-                    target = this._util.convert(method, Pandyle.$.extend({}, target));
-                }
-                if (!domData.ocontext) {
-                    this._util.setAlias(element, fullProp, target);
-                    this._util.setRelation(property, Pandyle.$(element), parentProperty);
-                    domData.ocontext = data;
-                }
-                domData.context = target;
-                domData.oparentProperty = fullProp;
-                element.find('*').each(function (index, ele) {
-                    Pandyle.getDomData(Pandyle.$(ele)).context = null;
-                });
-                this._context.parentProperty = fullProp;
+            catch (err) {
+                this.error('p-context', err.message, domData);
             }
-            this.next();
         };
         return PContextDirective;
     }(Pandyle.DirectiveBase));
@@ -1241,23 +1284,23 @@ if (!Array.prototype.map) {
     };
 }
 if (!Array.prototype.reduce) {
-    Array.prototype.reduce = function (callback, opt_initialValue) {
+    Array.prototype.reduce = function (callbackfn, initialValue) {
         'use strict';
         if (null === this || 'undefined' === typeof this) {
             throw new TypeError('Array.prototype.reduce called on null or undefined');
         }
-        if ('function' !== typeof callback) {
-            throw new TypeError(callback + ' is not a function');
+        if ('function' !== typeof callbackfn) {
+            throw new TypeError(callbackfn + ' is not a function');
         }
         var index, value, length = this.length >>> 0, isValueSet = false;
         if (1 < arguments.length) {
-            value = opt_initialValue;
+            value = initialValue;
             isValueSet = true;
         }
         for (index = 0; length > index; ++index) {
             if (this.hasOwnProperty(index)) {
                 if (isValueSet) {
-                    value = callback(value, this[index], index, this);
+                    value = callbackfn(value, this[index], index, this);
                 }
                 else {
                     value = this[index];

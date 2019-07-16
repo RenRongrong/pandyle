@@ -52,7 +52,7 @@ if (!Array.prototype.map)
   };
 }
 if (!Array.prototype.reduce) {
-    Array.prototype.reduce = function(callback, opt_initialValue){
+    Array.prototype.reduce = function(callbackfn:(previouseValue:any,currentValue:any, currentIndex:number, array:any[]) => any, initialValue?:any){
       'use strict';
       if (null === this || 'undefined' === typeof this) {
         // At the moment all modern browsers, that support strict mode, have
@@ -61,20 +61,20 @@ if (!Array.prototype.reduce) {
         throw new TypeError(
             'Array.prototype.reduce called on null or undefined');
       }
-      if ('function' !== typeof callback) {
-        throw new TypeError(callback + ' is not a function');
+      if ('function' !== typeof callbackfn) {
+        throw new TypeError(callbackfn + ' is not a function');
       }
       var index, value,
           length = this.length >>> 0,
           isValueSet = false;
       if (1 < arguments.length) {
-        value = opt_initialValue;
+        value = initialValue;
         isValueSet = true;
       }
       for (index = 0; length > index; ++index) {
         if (this.hasOwnProperty(index)) {
           if (isValueSet) {
-            value = callback(value, this[index], index, this);
+            value = callbackfn(value, this[index], index, this);
           }
           else {
             value = this[index];

@@ -64,7 +64,7 @@ namespace Pandyle{
                 element: ele,
                 parentProperty: parentProperty
             };
-            this._pipeline.start(context);
+            this._pipeline.start(context);        
         }
     }
 }
