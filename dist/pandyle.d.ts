@@ -74,6 +74,7 @@ interface IRelation {
 }
 interface IRelationCollection {
     setRelation: (property: string, element: JQuery<HTMLElement>, parentProperty: string) => void;
+    findSelf: (key: string) => IRelation[];
     findSelfOrChild: (key: string) => IRelation[];
     removeChildren: (key: string) => void;
 }
@@ -84,6 +85,7 @@ declare namespace Pandyle {
         private constructor(util);
         static CreateRelationCollection<T>(util: Util<T>): RelationCollection<T>;
         setRelation(property: string, element: JQuery<HTMLElement>, parentProperty: string): void;
+        findSelf(key: string): IRelation[];
         findSelfOrChild(key: string): IRelation[];
         removeChildren(key: string): void;
     }
@@ -102,11 +104,15 @@ declare namespace Pandyle {
         set(newData: string, value: any): any;
         set(newData: object): any;
         get(param?: any): any;
+        append(arrayName: string, value: any): void;
         run(): void;
         render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string, alias?: any): void;
         getMethod(name: string): Function;
         transfer(method: string, data: any[]): any;
         register(name: string, value: any): void;
+        private updateDataAndGetElementToRerender(_newData);
+        private getTargetData(key);
+        private getLastProperty(key);
     }
 }
 declare namespace Pandyle {
@@ -196,13 +202,24 @@ declare namespace Pandyle {
     }
 }
 declare namespace Pandyle {
-    class PEachDirective<T> extends DirectiveBase<T> {
+    abstract class iteratorBase<T> extends DirectiveBase<T> {
+        protected _directiveName: string;
+        protected _directiveBinding: string;
         execute(): void;
+        abstract addChildren(element: JQuery<HTMLElement>, targetArray: any[], fullProp: string): void;
+        static generateChild(domData: IDomData, index: number, value: any, fullProp: string): JQuery<HTMLElement>;
     }
 }
 declare namespace Pandyle {
-    class PForDirective<T> extends DirectiveBase<T> {
-        execute(): void;
+    class PEachDirective<T> extends iteratorBase<T> {
+        constructor();
+        addChildren(element: JQuery<HTMLElement>, targetArray: any[], fullProp: string): void;
+    }
+}
+declare namespace Pandyle {
+    class PForDirective<T> extends iteratorBase<T> {
+        constructor();
+        addChildren(element: JQuery<HTMLElement>, targetArray: any[], fullProp: string): void;
     }
 }
 declare namespace Pandyle {
