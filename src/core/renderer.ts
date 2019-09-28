@@ -22,7 +22,7 @@ namespace Pandyle{
             if(!domData.parentProperty){
                 domData.parentProperty = parentProperty;
             }
-            if(alias && !$.isEmptyObject(alias) && !domData.alias){
+            if(alias && !$.isEmptyObject(alias)){
                 domData.alias = alias;
             }
             data = domData.context;

@@ -1384,7 +1384,7 @@ var Pandyle;
             if (!domData.parentProperty) {
                 domData.parentProperty = parentProperty;
             }
-            if (alias && !Pandyle.$.isEmptyObject(alias) && !domData.alias) {
+            if (alias && !Pandyle.$.isEmptyObject(alias)) {
                 domData.alias = alias;
             }
             data = domData.context;
