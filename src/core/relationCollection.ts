@@ -39,6 +39,10 @@ namespace Pandyle {
             }
         }
 
+        public findSelf(key:string){
+            return this._relations.filter(value => value.property === key);
+        }
+
         public findSelfOrChild(key:string){
             return this._relations.filter(value => this._util.isSelfOrChild(key, value.property));
         }

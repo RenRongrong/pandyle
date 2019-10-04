@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="main">
-        <div p-for="list">{{name}}</div>
+        <div p-each="list"><span>{{name}}</span></div>
         <button onclick="addName()">click me</button>
     </div>
 

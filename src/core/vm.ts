@@ -30,7 +30,7 @@ namespace Pandyle {
                     property: '@window'
                 }
             }
-            
+
             this._util = Util.CreateUtil(this);
             this._relationCollection = RelationCollection.CreateRelationCollection(this._util);
             this._renderer = new Renderer(this);
@@ -40,43 +40,47 @@ namespace Pandyle {
             }
         }
 
-        public set(newData:string, value:any);
+        public set(newData: string, value: any);
         public set(newData: object);
-        public set(newData: any, value?:any) {
+        public set(newData: any, value?: any) {
             let _newData = {};
-            if(arguments.length === 2){
+            if (arguments.length === 2) {
                 _newData[newData] = value;
-            }else{
+            } else {
                 _newData = newData;
             }
-            for (let key in _newData) {
-                let properties = key.split(/[\[\]\.]/).filter(s => s != '');
-                let lastProperty = properties.pop();
-                let target = this._data;
-                if (properties.length > 0) {
-                    target = properties.reduce((obj, current) => {
-                        return obj[current];
-                    }, this._data);
-                }
-                target[lastProperty] = _newData[key];
-                if ($.isArray(target[lastProperty])) {
-                    this._relationCollection.removeChildren(key);
-                }
-                let relation = this._relationCollection.findSelfOrChild(key);
-                if (relation.length > 0) {
-                    for(let i = 0; i < relation.length; i++){
-                        let item = relation[i];
-                        for(let j = 0; j < item.elements.length; j++){
-                            let item2 = item.elements[j];
-                            if(Pandyle.getDomData(item2).alias){
-                                this.render(item2);
-                            }else{
-                                item.elements.splice(j, 1);
-                            }
-                        }
-                    }
-                }
-            }
+            let elementsToRerender = this.updateDataAndGetElementToRerender(_newData);
+            elementsToRerender.forEach(item => {
+                this.render(item);
+            })
+            // for (let key in _newData) {
+            //     let properties = key.split(/[\[\]\.]/).filter(s => s != '');
+            //     let lastProperty = properties.pop();
+            //     let target = this._data;
+            //     if (properties.length > 0) {
+            //         target = properties.reduce((obj, current) => {
+            //             return obj[current];
+            //         }, this._data);
+            //     }
+            //     target[lastProperty] = _newData[key];
+            //     if ($.isArray(target[lastProperty])) {
+            //         this._relationCollection.removeChildren(key);
+            //     }
+            //     let relation = this._relationCollection.findSelfOrChild(key);
+            //     if (relation.length > 0) {
+            //         for(let i = 0; i < relation.length; i++){
+            //             let item = relation[i];
+            //             for(let j = 0; j < item.elements.length; j++){
+            //                 let item2 = item.elements[j];
+            //                 if(Pandyle.getDomData(item2).alias){
+            //                     this.render(item2);
+            //                 }else{
+            //                     item.elements.splice(j, 1);
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
         }
 
         public get(param?: any) {
@@ -99,6 +103,33 @@ namespace Pandyle {
             }
         }
 
+        /**
+         * 
+         * @param arrayName 数组名称
+         * @param value 要添加的数据
+         */
+        public append(arrayName: string, value: any) {
+            let lastProperty = this.getLastProperty(arrayName);
+            let target = this.getTargetData(arrayName);
+            let array: any[] = target[lastProperty];
+            array.push(value);
+            let relations = this._relationCollection.findSelf(arrayName);
+            relations.forEach(relation => {
+                relation.elements.forEach(element => {
+                    let domData = Pandyle.getDomData(element);
+                    let newChildren = iteratorBase.generateChild(domData, element.children().length, value, arrayName);
+                    if (domData.binding['For']) {
+                        domData.children.last().after(newChildren);
+                        var arr = [];
+                        arr.push.call(domData.children, newChildren[0]);
+                    }else{
+                        element.append(newChildren);
+                    }
+                    this.render(newChildren);
+                })
+            })
+        }
+
         public run() {
             this.render(this._root, this._data, '', this._defaultAlias);
         }
@@ -115,7 +146,7 @@ namespace Pandyle {
                 this._renderer.renderSingle(ele, data, parentProperty, $.extend({}, alias));
             })
         }
-        
+
         public getMethod(name: string): Function {
             return this._methods[name];
         }
@@ -130,6 +161,53 @@ namespace Pandyle {
             } else {
                 this._variables[name] = value;
             }
+        }
+
+        private updateDataAndGetElementToRerender(_newData: any) {
+            var elementsToRerender: JQuery<HTMLElement>[] = [];
+            for (let key in _newData) {
+                let lastProperty = this.getLastProperty(key);
+                let target = this.getTargetData(key);
+                target[lastProperty] = _newData[key];
+                if ($.isArray(target[lastProperty])) {
+                    this._relationCollection.removeChildren(key);
+                }
+                let relation = this._relationCollection.findSelfOrChild(key);
+                if (relation.length > 0) {
+                    for (let i = 0; i < relation.length; i++) {
+                        let item = relation[i];
+                        for (let j = 0; j < item.elements.length; j++) {
+                            let item2 = item.elements[j];
+                            if (Pandyle.getDomData(item2).alias) {
+                                if (elementsToRerender.indexOf(item2) < 0) {
+                                    elementsToRerender.push(item2);
+                                }
+                            } else {
+                                item.elements.splice(j, 1);
+                            }
+                        }
+                    }
+                }
+            }
+            return elementsToRerender;
+        }
+
+        private getTargetData(key: string) {
+            let properties = key.split(/[\[\]\.]/).filter(s => s != '');
+            properties.pop();
+            let target = this._data;
+            if (properties.length > 0) {
+                target = properties.reduce((obj, current) => {
+                    return obj[current];
+                }, this._data);
+            }
+            return target;
+        }
+
+        private getLastProperty(key: string) {
+            let properties = key.split(/[\[\]\.]/).filter(s => s != '');
+            let lastProperty = properties.pop();
+            return lastProperty;
         }
     }
 }

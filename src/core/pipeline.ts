@@ -6,6 +6,7 @@
 /// <reference path="directives/pEachDirective.ts" />
 /// <reference path="directives/pForDirective.ts" />
 /// <reference path="directives/pContextDirective.ts" />
+/// <reference path="directives/pOnDirective.ts" />
 /// <reference path="interfaces/IPipeContext.ts" />
 
 namespace Pandyle {
@@ -40,6 +41,7 @@ namespace Pandyle {
                 .add(new PForDirective<T>())
                 .add(new PEachDirective<T>())
                 .add(new PBindDirective<T>())
+                .add(new POnDirective<T>())
                 .add(new pComDirective<T>())
                 .add(new pTextDirective<T>());
             return pipe;

@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
     <script src="../dist/pandyle.js"></script>
     <title>Document</title>
 </head>
 <body>
     <div class="main">
-        <div>{{name|add}}</div>
+        <div p-bind="class:{{age.num}}">{{age.num|add}}</div>
         <!-- <div>{{!name ? '空值' : name}}</div> -->
     </div>
 

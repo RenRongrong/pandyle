@@ -6,10 +6,15 @@ namespace Pandyle {
 
         public execute(): void {
             let ele = $(this._context.element);
-            if (ele.attr('p-com')) {
-                loadComponent(this._context.element, this._util.vm);
+            let domData = Pandyle.getDomData(ele);
+            try {
+                if (ele.attr('p-com')) {
+                    loadComponent(this._context.element, this._util.vm);
+                }
+                this.next();
+            } catch (err) {
+                this.error('p-com', err.message, domData);
             }
-            this.next();
         }
 
     }
