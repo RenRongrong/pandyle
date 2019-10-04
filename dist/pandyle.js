@@ -1098,7 +1098,7 @@ var Pandyle;
                 this.next();
             }
             catch (err) {
-                this.error('p-for', err.message, domData);
+                this.error(this._directiveName, err.message, domData);
             }
         };
         iteratorBase.generateChild = function (domData, index, value, fullProp) {
@@ -1246,6 +1246,40 @@ var Pandyle;
 })(Pandyle || (Pandyle = {}));
 var Pandyle;
 (function (Pandyle) {
+    var POnDirective = (function (_super) {
+        __extends(POnDirective, _super);
+        function POnDirective() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        POnDirective.prototype.execute = function () {
+            var _this = this;
+            var ele = Pandyle.$(this._context.element);
+            var domData = Pandyle.getDomData(ele);
+            try {
+                if (ele.attr('p-on')) {
+                    var binds = Pandyle.$(ele).attr('p-on').split('^');
+                    binds.forEach(function (bindInfo, index) {
+                        var array = bindInfo.match(/^\s*([\w-]+)\s*:\s*(.*)$/);
+                        var event = array[1];
+                        var handler = array[2].replace(/\s*$/, '');
+                        ele.on(event, function () {
+                            _this._util.calcu(handler, ele, domData.context);
+                        });
+                    });
+                    ele.removeAttr('p-on');
+                }
+                this.next();
+            }
+            catch (err) {
+                this.error('p-on', err.message, domData);
+            }
+        };
+        return POnDirective;
+    }(Pandyle.DirectiveBase));
+    Pandyle.POnDirective = POnDirective;
+})(Pandyle || (Pandyle = {}));
+var Pandyle;
+(function (Pandyle) {
     var PipeLine = (function () {
         function PipeLine(util) {
             this._util = util;
@@ -1272,6 +1306,7 @@ var Pandyle;
                 .add(new Pandyle.PForDirective())
                 .add(new Pandyle.PEachDirective())
                 .add(new Pandyle.PBindDirective())
+                .add(new Pandyle.POnDirective())
                 .add(new Pandyle.pComDirective())
                 .add(new Pandyle.pTextDirective());
             return pipe;
@@ -1385,7 +1420,14 @@ var Pandyle;
                 domData.parentProperty = parentProperty;
             }
             if (alias && !Pandyle.$.isEmptyObject(alias)) {
-                domData.alias = alias;
+                if (domData.alias) {
+                    var index = domData.alias.index;
+                    domData.alias = Pandyle.$.extend(domData.alias, alias);
+                    index ? domData.alias.index = index : '';
+                }
+                else {
+                    domData.alias = alias;
+                }
             }
             data = domData.context;
             parentProperty = domData.parentProperty;

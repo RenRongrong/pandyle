@@ -51,7 +51,7 @@ namespace Pandyle {
                 }
                 this.next();
             } catch (err) {
-                this.error('p-for', err.message, domData);
+                this.error(this._directiveName, err.message, domData);
             }
         }
 

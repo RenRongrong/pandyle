@@ -228,6 +228,11 @@ declare namespace Pandyle {
     }
 }
 declare namespace Pandyle {
+    class POnDirective<T> extends DirectiveBase<T> {
+        execute(): void;
+    }
+}
+declare namespace Pandyle {
     class PipeLine<T> {
         private _firstDirective;
         private _lastDirective;

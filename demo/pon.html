@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../dist/pandyle.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div class="main">
+        <div p-for="list">
+            <span>{{name}}</span>
+            <button p-on="click:showDetail(@index, name, info)">详情</button>
+        </div>
+    </div>
+
+    <script>
+        function showDetail(index, name, info){
+            var str = `
+                编号：${index},
+                姓名：${name},
+                详情：性别  ${info.sex};   年龄  ${info.age}
+            `;
+            alert(str);
+        }
+
+        $('.main').vm({
+            list: [
+                {
+                    name: '测试一',
+                    info: {
+                        sex: '男',
+                        age: 30
+                    }
+                },
+                {
+                    name: '测试二',
+                    info: {
+                        sex: '女',
+                        age: 29
+                    }
+                }
+            ]
+        })
+    </script>
+</body>
+</html>
