@@ -41,6 +41,10 @@ namespace Pandyle {
                 parentProperty = domData.oparentProperty;
             }
             this.renderChild(ele, data, parentProperty);
+
+            if(domData.afterRender){
+                domData.afterRender();
+            }
         }
 
         public renderChild(ele: HTMLElement, data: any, parentProperty: string) {

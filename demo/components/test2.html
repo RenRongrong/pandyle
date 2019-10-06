@@ -1,6 +1,10 @@
 <div>
     <div>this is test for link and script in component v2</div>
     <button class="btn1">say hello2</button>
+
+    <div p-for="list">
+        <div p-bind="id:item{{@index + 1}}">{{@self}}</div>
+    </div>
 </div>
 
 <link rel="stylesheet" href="/demo/css/demo.css">
@@ -14,6 +18,12 @@
     this.onLoad = function (context, root, vm) {
         $(root).find('button').click(function () {
             hello();
+        })
+
+        this.afterRender($(root), function(){
+            $('#item3').click(function(){
+                alert('this is item3');
+            })
         })
     }
 </script>

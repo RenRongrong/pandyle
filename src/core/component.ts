@@ -11,6 +11,10 @@ namespace Pandyle {
             }
         }
 
+        private afterRender(element:JQuery<HTMLElement>, handler: ()=>void){
+            Pandyle.getDomData(element).afterRender = handler;
+        }
+
         private getPrivateData(root: JQuery<HTMLElement>){
             return Pandyle.getDomData(root).alias.private.data;
         }

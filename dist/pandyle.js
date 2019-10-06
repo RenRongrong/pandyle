@@ -69,6 +69,9 @@ var Pandyle;
                 property: '@private'
             };
         };
+        Component.prototype.afterRender = function (element, handler) {
+            Pandyle.getDomData(element).afterRender = handler;
+        };
         Component.prototype.getPrivateData = function (root) {
             return Pandyle.getDomData(root).alias.private.data;
         };
@@ -1449,6 +1452,9 @@ var Pandyle;
                 parentProperty = domData.oparentProperty;
             }
             this.renderChild(ele, data, parentProperty);
+            if (domData.afterRender) {
+                domData.afterRender();
+            }
         };
         Renderer.prototype.renderChild = function (ele, data, parentProperty) {
             var $this = this;

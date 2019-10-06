@@ -9,7 +9,8 @@ interface IDomData{
     alias?: IAlias,
     pIndex?: number,
     ocontext?: any,
-    componentName?: string
+    componentName?: string,
+    afterRender: () => void
 }
 
 interface IBinding{
