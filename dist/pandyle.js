@@ -142,8 +142,19 @@ var Pandyle;
         function insertToDom(text, name, context, root, vm) {
             var component = new Component(name, text);
             text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, function ($0, $1) {
-                var style = '<style>' + $1 + '</style>';
-                Pandyle.$('head').append(style);
+                Pandyle.$('head').append($0);
+                return '';
+            });
+            text = text.replace(/<\s*link.*href\s*\=\s*["'](.*)["'].*>/g, function ($0, $1) {
+                if (Pandyle.$('head link[href="' + $1 + '"]').length === 0) {
+                    Pandyle.$('head').append($0);
+                }
+                return '';
+            });
+            text = text.replace(/<\s*script.*src\s*\=\s*["'](.*)["'].*><\/script\s*>/g, function ($0, $1) {
+                if (Pandyle.$('head script[src="' + $1 + '"]').length === 0) {
+                    Pandyle.$('head').append($0);
+                }
                 return '';
             });
             text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, function ($0, $1) {

@@ -1,0 +1,19 @@
+<div>
+    <div>this is test for link and script in component v2</div>
+    <button class="btn1">say hello2</button>
+</div>
+
+<link rel="stylesheet" href="/demo/css/demo.css">
+<style>
+    .btn1{
+        background: blue;
+    }
+</style>
+<script src="/demo/js/demo.js"></script>
+<script>
+    this.onLoad = function (context, root, vm) {
+        $(root).find('button').click(function () {
+            hello();
+        })
+    }
+</script>
