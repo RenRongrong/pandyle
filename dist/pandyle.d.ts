@@ -23,6 +23,7 @@ declare namespace Pandyle {
         html: string;
         onLoad: <T>(context: any, root: HTMLElement, vm: VM<T>) => void;
         private setPrivateData(element, data);
+        private afterRender(element, handler);
         private getPrivateData(root);
         constructor(name: string, html: string);
     }
@@ -168,6 +169,7 @@ interface IDomData {
     pIndex?: number;
     ocontext?: any;
     componentName?: string;
+    afterRender: () => void;
 }
 interface IBinding {
     [key: string]: {

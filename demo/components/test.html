@@ -1,0 +1,14 @@
+<div>
+    <div>this is test for link and script in component</div>
+    <button>say hello</button>
+</div>
+
+<link rel="stylesheet" href="/demo/css/demo.css">
+<script src="/demo/js/demo.js"></script>
+<script>
+    this.onLoad = function(context, root, vm){
+        $(root).find('button').click(function(){
+            hello();
+        })
+    }
+</script>

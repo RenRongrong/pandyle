@@ -11,6 +11,10 @@ namespace Pandyle {
             }
         }
 
+        private afterRender(element:JQuery<HTMLElement>, handler: ()=>void){
+            Pandyle.getDomData(element).afterRender = handler;
+        }
+
         private getPrivateData(root: JQuery<HTMLElement>){
             return Pandyle.getDomData(root).alias.private.data;
         }
@@ -90,8 +94,20 @@ namespace Pandyle {
         function insertToDom<T>(text: string, name: string, context: any, root: HTMLElement, vm:VM<T>) {
             let component = new Component(name, text);
             text = text.replace(/<\s*style\s*>((?:.|\r|\n)*?)<\/style\s*>/g, ($0, $1) => {
-                let style = '<style>' + $1 + '</style>';
-                $('head').append(style);
+                //let style = '<style>' + $1 + '</style>';
+                $('head').append($0);
+                return '';
+            });
+            text = text.replace(/<\s*link.*href\s*\=\s*["'](.*)["'].*>/g, ($0, $1) => {
+                if($('head link[href="' + $1 + '"]').length === 0){
+                    $('head').append($0);
+                }
+                return '';
+            });
+            text = text.replace(/<\s*script.*src\s*\=\s*["'](.*)["'].*><\/script\s*>/g, ($0, $1) => {
+                if($('head script[src="' + $1 + '"]').length === 0){
+                    $('head').append($0);
+                }
                 return '';
             });
             text = text.replace(/<\s*script\s*>((?:.|\r|\n)*?)<\/script\s*>/g, ($0, $1) => {
