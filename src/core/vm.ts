@@ -53,34 +53,6 @@ namespace Pandyle {
             elementsToRerender.forEach(item => {
                 this.render(item);
             })
-            // for (let key in _newData) {
-            //     let properties = key.split(/[\[\]\.]/).filter(s => s != '');
-            //     let lastProperty = properties.pop();
-            //     let target = this._data;
-            //     if (properties.length > 0) {
-            //         target = properties.reduce((obj, current) => {
-            //             return obj[current];
-            //         }, this._data);
-            //     }
-            //     target[lastProperty] = _newData[key];
-            //     if ($.isArray(target[lastProperty])) {
-            //         this._relationCollection.removeChildren(key);
-            //     }
-            //     let relation = this._relationCollection.findSelfOrChild(key);
-            //     if (relation.length > 0) {
-            //         for(let i = 0; i < relation.length; i++){
-            //             let item = relation[i];
-            //             for(let j = 0; j < item.elements.length; j++){
-            //                 let item2 = item.elements[j];
-            //                 if(Pandyle.getDomData(item2).alias){
-            //                     this.render(item2);
-            //                 }else{
-            //                     item.elements.splice(j, 1);
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
         }
 
         public get(param?: any) {
@@ -169,10 +141,15 @@ namespace Pandyle {
                 let lastProperty = this.getLastProperty(key);
                 let target = this.getTargetData(key);
                 target[lastProperty] = _newData[key];
-                if ($.isArray(target[lastProperty])) {
-                    this._relationCollection.removeChildren(key);
-                }
                 let relation = this._relationCollection.findSelfOrChild(key);
+                for (let i = 0; i < relation.length; i++) {
+                    let item = relation[i];
+                    let itemKey = item.property;
+                    if($.isArray(this.getDataByKey(itemKey))){
+                        this._relationCollection.removeChildren(itemKey);
+                    }
+                }
+                relation = this._relationCollection.findSelfOrChild(key);
                 if (relation.length > 0) {
                     for (let i = 0; i < relation.length; i++) {
                         let item = relation[i];
@@ -198,6 +175,20 @@ namespace Pandyle {
             let target = this._data;
             if (properties.length > 0) {
                 target = properties.reduce((obj, current) => {
+                    return obj[current];
+                }, this._data);
+            }
+            return target;
+        }
+
+        private getDataByKey(key: string){
+            let properties = key.split(/[\[\]\.]/).filter(s => s != '');
+            let target = this._data;
+            if(properties.length > 0){
+                target = properties.reduce((obj, current) => {
+                    if(!obj){
+                        return null;
+                    }
                     return obj[current];
                 }, this._data);
             }
