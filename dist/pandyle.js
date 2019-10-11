@@ -635,6 +635,7 @@ var Pandyle;
                             }
                             else {
                                 item.elements.splice(j, 1);
+                                j--;
                             }
                         }
                     }
