@@ -113,6 +113,7 @@ declare namespace Pandyle {
         register(name: string, value: any): void;
         private updateDataAndGetElementToRerender(_newData);
         private getTargetData(key);
+        private getDataByKey(key);
         private getLastProperty(key);
     }
 }

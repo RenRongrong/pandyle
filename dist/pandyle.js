@@ -614,10 +614,15 @@ var Pandyle;
                 var lastProperty = this.getLastProperty(key);
                 var target = this.getTargetData(key);
                 target[lastProperty] = _newData[key];
-                if (Pandyle.$.isArray(target[lastProperty])) {
-                    this._relationCollection.removeChildren(key);
-                }
                 var relation = this._relationCollection.findSelfOrChild(key);
+                for (var i = 0; i < relation.length; i++) {
+                    var item = relation[i];
+                    var itemKey = item.property;
+                    if (Pandyle.$.isArray(this.getDataByKey(itemKey))) {
+                        this._relationCollection.removeChildren(itemKey);
+                    }
+                }
+                relation = this._relationCollection.findSelfOrChild(key);
                 if (relation.length > 0) {
                     for (var i = 0; i < relation.length; i++) {
                         var item = relation[i];
@@ -643,6 +648,19 @@ var Pandyle;
             var target = this._data;
             if (properties.length > 0) {
                 target = properties.reduce(function (obj, current) {
+                    return obj[current];
+                }, this._data);
+            }
+            return target;
+        };
+        VM.prototype.getDataByKey = function (key) {
+            var properties = key.split(/[\[\]\.]/).filter(function (s) { return s != ''; });
+            var target = this._data;
+            if (properties.length > 0) {
+                target = properties.reduce(function (obj, current) {
+                    if (!obj) {
+                        return null;
+                    }
                     return obj[current];
                 }, this._data);
             }
