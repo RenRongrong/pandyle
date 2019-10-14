@@ -106,6 +106,7 @@ declare namespace Pandyle {
         set(newData: object): any;
         get(param?: any): any;
         append(arrayName: string, value: any): void;
+        appendArray(arrayName: string, value: any[]): void;
         run(): void;
         render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string, alias?: any): void;
         getMethod(name: string): Function;

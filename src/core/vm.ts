@@ -94,10 +94,36 @@ namespace Pandyle {
                         domData.children.last().after(newChildren);
                         var arr = [];
                         arr.push.call(domData.children, newChildren[0]);
-                    }else{
+                    } else {
                         element.append(newChildren);
                     }
                     this.render(newChildren);
+                })
+            })
+        }
+
+        public appendArray(arrayName: string, value: any[]) {
+            let lastProperty = this.getLastProperty(arrayName);
+            let target = this.getTargetData(arrayName);
+            let array: any[] = target[lastProperty];
+            value.forEach((item) => {
+                array.push(item);
+            })
+            let relations = this._relationCollection.findSelf(arrayName);
+            relations.forEach(relation => {
+                relation.elements.forEach(element => {
+                    let domData = Pandyle.getDomData(element);
+                    value.forEach((currentValue) => {
+                        let newChildren = iteratorBase.generateChild(domData, element.children().length, currentValue, arrayName);
+                        if (domData.binding['For']) {
+                            domData.children.last().after(newChildren);
+                            var arr = [];
+                            arr.push.call(domData.children, newChildren[0]);
+                        } else {
+                            element.append(newChildren);
+                        }
+                        this.render(newChildren);
+                    })                 
                 })
             })
         }
@@ -145,7 +171,7 @@ namespace Pandyle {
                 for (let i = 0; i < relation.length; i++) {
                     let item = relation[i];
                     let itemKey = item.property;
-                    if($.isArray(this.getDataByKey(itemKey))){
+                    if ($.isArray(this.getDataByKey(itemKey))) {
                         this._relationCollection.removeChildren(itemKey);
                     }
                 }
@@ -182,12 +208,12 @@ namespace Pandyle {
             return target;
         }
 
-        private getDataByKey(key: string){
+        private getDataByKey(key: string) {
             let properties = key.split(/[\[\]\.]/).filter(s => s != '');
             let target = this._data;
-            if(properties.length > 0){
+            if (properties.length > 0) {
                 target = properties.reduce((obj, current) => {
-                    if(!obj){
+                    if (!obj) {
                         return null;
                     }
                     return obj[current];

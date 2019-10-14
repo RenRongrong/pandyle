@@ -585,6 +585,33 @@ var Pandyle;
                 });
             });
         };
+        VM.prototype.appendArray = function (arrayName, value) {
+            var _this = this;
+            var lastProperty = this.getLastProperty(arrayName);
+            var target = this.getTargetData(arrayName);
+            var array = target[lastProperty];
+            value.forEach(function (item) {
+                array.push(item);
+            });
+            var relations = this._relationCollection.findSelf(arrayName);
+            relations.forEach(function (relation) {
+                relation.elements.forEach(function (element) {
+                    var domData = Pandyle.getDomData(element);
+                    value.forEach(function (currentValue) {
+                        var newChildren = Pandyle.iteratorBase.generateChild(domData, element.children().length, currentValue, arrayName);
+                        if (domData.binding['For']) {
+                            domData.children.last().after(newChildren);
+                            var arr = [];
+                            arr.push.call(domData.children, newChildren[0]);
+                        }
+                        else {
+                            element.append(newChildren);
+                        }
+                        _this.render(newChildren);
+                    });
+                });
+            });
+        };
         VM.prototype.run = function () {
             this.render(this._root, this._data, '', this._defaultAlias);
         };
