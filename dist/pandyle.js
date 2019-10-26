@@ -908,7 +908,10 @@ var Pandyle;
             return reg.test(subProperty);
         };
         Util.prototype.isChild = function (property, subProperty) {
-            var reg = new RegExp('^' + property + '[\\[\\.]\\w+');
+            var regStr = '^' + property.replace(/[\[\]\.]/g, function ($0) {
+                return '\\' + $0;
+            }) + '[\\[\\.]\\w+';
+            var reg = new RegExp(regStr);
             return reg.test(subProperty);
         };
         Util.prototype.transfer = function (method, data) {
