@@ -245,7 +245,10 @@ namespace Pandyle {
          * @param subProperty 子字段
          */
         public isChild(property: string, subProperty: string) {
-            let reg = new RegExp('^' + property + '[\\[\\.]\\w+');
+            var regStr = '^' + property.replace(/[\[\]\.]/g, ($0) => {
+                return '\\' + $0;
+            }) + '[\\[\\.]\\w+';
+            let reg = new RegExp(regStr);
             return reg.test(subProperty);
         }
 

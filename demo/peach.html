@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,28 +9,52 @@
     <script src="../dist/pandyle.js"></script>
     <title>Document</title>
 </head>
+
 <body>
     <div class="main">
-        <div p-each="list"><span>{{name}}</span></div>
+        <div p-each="data">
+            <div p-each="list"><span>{{name}}</span></div>
+        </div>
         <button onclick="addName()">click me</button>
+        <button onclick="refresh()">click me 2</button>
     </div>
 
     <script>
         var index = 3;
         var vm = $('.main').vm({
-            list: [
-                {id: 1, name: 'test1'},
-                {id: 2, name: 'test2'},
-                {id: 3, name: 'test3'}
+            data: [
+                {
+                    list: [
+                        { id: 1, name: 'test1' },
+                        { id: 2, name: 'test2' },
+                        { id: 3, name: 'test3' }
+                    ]
+                },
+                {
+                    list: [
+                        { id: 4, name: 'test4' },
+                        { id: 5, name: 'test5' },
+                        { id: 6, name: 'test6' }
+                    ]
+                }
             ]
         })
 
-        function addName(){
-            vm.append('list', {
+        function addName() {
+            vm.append('data[0].list', {
                 id: ++index,
                 name: 'test' + index
             })
         }
+
+        function refresh() {
+            vm.set('data[0].list', [
+                { id: 44, name: 'test44' },
+                { id: 54, name: 'test54' },
+                { id: 64, name: 'test64' }
+            ])
+        }
     </script>
 </body>
+
 </html>

@@ -226,7 +226,7 @@ var Pandyle;
             this.bindChange();
         }
         Inputs.prototype.data = function () {
-            return Pandyle.$.extend({}, this._data);
+            return Pandyle.$.extend(true, {}, this._data);
         };
         Inputs.prototype.set = function (data) {
             for (var key in data) {
@@ -236,26 +236,32 @@ var Pandyle;
                 elements.trigger('modelChange', data[key]);
             }
         };
+        Inputs.prototype.refresh = function () {
+            this._data = {};
+            this.initData();
+        };
         Inputs.prototype.initData = function () {
             var _this = this;
             this._root.find('input,textarea,select').each(function (index, ele) {
                 var target = Pandyle.$(ele);
                 var tag = target.prop('tagName');
                 var name = target.prop('name');
-                var value = target.val() || '';
-                _this.initName(name);
-                switch (tag) {
-                    case 'INPUT':
-                        _this.initData_input(target, name, value);
-                        break;
-                    case 'TEXTAREA':
-                        _this.initData_normal(target, name, value);
-                        break;
-                    case 'SELECT':
-                        _this.initData_select(target, name, value);
-                        break;
-                    default:
-                        break;
+                if (name) {
+                    var value = target.val() || '';
+                    _this.initName(name);
+                    switch (tag) {
+                        case 'INPUT':
+                            _this.initData_input(target, name, value);
+                            break;
+                        case 'TEXTAREA':
+                            _this.initData_normal(target, name, value);
+                            break;
+                        case 'SELECT':
+                            _this.initData_select(target, name, value);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             });
         };
@@ -585,6 +591,33 @@ var Pandyle;
                 });
             });
         };
+        VM.prototype.appendArray = function (arrayName, value) {
+            var _this = this;
+            var lastProperty = this.getLastProperty(arrayName);
+            var target = this.getTargetData(arrayName);
+            var array = target[lastProperty];
+            value.forEach(function (item) {
+                array.push(item);
+            });
+            var relations = this._relationCollection.findSelf(arrayName);
+            relations.forEach(function (relation) {
+                relation.elements.forEach(function (element) {
+                    var domData = Pandyle.getDomData(element);
+                    value.forEach(function (currentValue) {
+                        var newChildren = Pandyle.iteratorBase.generateChild(domData, element.children().length, currentValue, arrayName);
+                        if (domData.binding['For']) {
+                            domData.children.last().after(newChildren);
+                            var arr = [];
+                            arr.push.call(domData.children, newChildren[0]);
+                        }
+                        else {
+                            element.append(newChildren);
+                        }
+                        _this.render(newChildren);
+                    });
+                });
+            });
+        };
         VM.prototype.run = function () {
             this.render(this._root, this._data, '', this._defaultAlias);
         };
@@ -881,7 +914,10 @@ var Pandyle;
             return reg.test(subProperty);
         };
         Util.prototype.isChild = function (property, subProperty) {
-            var reg = new RegExp('^' + property + '[\\[\\.]\\w+');
+            var regStr = '^' + property.replace(/[\[\]\.]/g, function ($0) {
+                return '\\' + $0;
+            }) + '[\\[\\.]\\w+';
+            var reg = new RegExp(regStr);
             return reg.test(subProperty);
         };
         Util.prototype.transfer = function (method, data) {
