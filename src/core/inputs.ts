@@ -16,7 +16,7 @@ namespace Pandyle {
         }
 
         public data() {
-            return $.extend({}, this._data);
+            return $.extend(true, {}, this._data);
         }
 
         public set(data: any) {
@@ -28,25 +28,32 @@ namespace Pandyle {
             }
         }
 
+        public refresh(){
+            this._data = {};
+            this.initData();
+        }
+
         private initData() {
             this._root.find('input,textarea,select').each((index, ele) => {
                 let target = $(ele);
                 let tag = target.prop('tagName');
                 let name = target.prop('name');
-                let value = target.val() || '';
-                this.initName(name);
-                switch (tag) {
-                    case 'INPUT':
-                        this.initData_input(target, name, value);
-                        break;
-                    case 'TEXTAREA':
-                        this.initData_normal(target, name, value);
-                        break;
-                    case 'SELECT':
-                        this.initData_select(target, name, value);
-                        break;
-                    default:
-                        break;
+                if (name) {
+                    let value = target.val() || '';
+                    this.initName(name);
+                    switch (tag) {
+                        case 'INPUT':
+                            this.initData_input(target, name, value);
+                            break;
+                        case 'TEXTAREA':
+                            this.initData_normal(target, name, value);
+                            break;
+                        case 'SELECT':
+                            this.initData_select(target, name, value);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             });
         }
@@ -76,16 +83,16 @@ namespace Pandyle {
         }
 
         private initData_check(element: JQuery<HTMLElement>, name: string, value: any) {
-            if($('input[name="' + name + '"]').length === 1){
+            if ($('input[name="' + name + '"]').length === 1) {
                 this.setData(name, element.prop('checked') ? true : false);
-            }else{
+            } else {
                 if ($.isEmptyObject(this.getDataByName(name))) {
                     this.setData(name, []);
                 }
                 if (element.prop('checked')) {
                     this.getDataByName(name).push(value);
                 }
-            }          
+            }
         }
 
         private initData_normal(element: JQuery<HTMLElement>, name: string, value: any) {
@@ -145,9 +152,9 @@ namespace Pandyle {
 
         private onChange_check(element: JQuery<HTMLElement>, name: string, value: any) {
             let data = this.getDataByName(name);
-            if($.type(data) === 'boolean'){
+            if ($.type(data) === 'boolean') {
                 this.setData(name, !data);
-            }else{
+            } else {
                 if (element.prop('checked')) {
                     data.push(value);
                 } else {

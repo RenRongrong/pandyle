@@ -226,7 +226,7 @@ var Pandyle;
             this.bindChange();
         }
         Inputs.prototype.data = function () {
-            return Pandyle.$.extend({}, this._data);
+            return Pandyle.$.extend(true, {}, this._data);
         };
         Inputs.prototype.set = function (data) {
             for (var key in data) {
@@ -236,26 +236,32 @@ var Pandyle;
                 elements.trigger('modelChange', data[key]);
             }
         };
+        Inputs.prototype.refresh = function () {
+            this._data = {};
+            this.initData();
+        };
         Inputs.prototype.initData = function () {
             var _this = this;
             this._root.find('input,textarea,select').each(function (index, ele) {
                 var target = Pandyle.$(ele);
                 var tag = target.prop('tagName');
                 var name = target.prop('name');
-                var value = target.val() || '';
-                _this.initName(name);
-                switch (tag) {
-                    case 'INPUT':
-                        _this.initData_input(target, name, value);
-                        break;
-                    case 'TEXTAREA':
-                        _this.initData_normal(target, name, value);
-                        break;
-                    case 'SELECT':
-                        _this.initData_select(target, name, value);
-                        break;
-                    default:
-                        break;
+                if (name) {
+                    var value = target.val() || '';
+                    _this.initName(name);
+                    switch (tag) {
+                        case 'INPUT':
+                            _this.initData_input(target, name, value);
+                            break;
+                        case 'TEXTAREA':
+                            _this.initData_normal(target, name, value);
+                            break;
+                        case 'SELECT':
+                            _this.initData_select(target, name, value);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             });
         };

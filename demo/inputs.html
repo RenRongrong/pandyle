@@ -19,6 +19,7 @@
         <div>
             <input type="text" name="name">
             <input type="text" name="phone">
+            <input type="text" value="这是没用的数据">
         </div>
         <div>
             <input type="checkbox" name="swiches.s1">开关一
@@ -32,6 +33,8 @@
     </div>
 
     <button onclick="print()">打印数据</button>
+    <button onclick="changeData()">设置数据而不触发change事件</button>
+    <button onclick="refresh()">手动刷新inputs</button>
 
     <script>
         var vm = $('.main').vm({ name: '', phone: '' });
@@ -42,6 +45,14 @@
 
         function print() {
             console.log(inputs);
+        }
+
+        function changeData(){
+            $('[name=phone]').val('13800000000');
+        }
+
+        function refresh(){
+            inputs.refresh();
         }
     </script>
 </body>

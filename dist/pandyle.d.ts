@@ -46,6 +46,7 @@ declare namespace Pandyle {
         constructor(element: JQuery<HTMLElement>);
         data(): any;
         set(data: any): void;
+        refresh(): void;
         private initData();
         private initData_input(element, name, value);
         private initData_radio(element, name, value);
@@ -83,7 +84,7 @@ declare namespace Pandyle {
     class RelationCollection<T> implements IRelationCollection {
         private _util;
         private _relations;
-        private constructor(util);
+        private constructor();
         static CreateRelationCollection<T>(util: Util<T>): RelationCollection<T>;
         setRelation(property: string, element: JQuery<HTMLElement>, parentProperty: string): void;
         findSelf(key: string): IRelation[];
@@ -121,7 +122,7 @@ declare namespace Pandyle {
 declare namespace Pandyle {
     class Util<T> {
         vm: VM<T>;
-        private constructor(vm);
+        private constructor();
         static CreateUtil<T>(vm: VM<T>): Util<T>;
         getValue(element: JQuery<HTMLElement>, property: string, data: any): any;
         calcuExpression(property: string, element: JQuery<HTMLElement>, data: any): any;
@@ -241,7 +242,7 @@ declare namespace Pandyle {
         private _firstDirective;
         private _lastDirective;
         private _util;
-        private constructor(util);
+        private constructor();
         private add(directive);
         start(context: IPipeContext): void;
         static createPipeLine<T>(util: Util<T>): PipeLine<T>;
