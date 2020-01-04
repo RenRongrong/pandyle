@@ -60,14 +60,13 @@ namespace Pandyle {
         public static generateChild(domData: IDomData, index:number, value:any, fullProp:string) {
             let alias = domData.alias;
             let htmlText = domData.pattern;
-            let children = $(htmlText);
-            let newChildren = children.clone(true, true);
+            let newChild = $(htmlText);
             let _alias = $.extend({}, alias, { index: { data: index, property: '@index' } });
-            let childrenDomData = Pandyle.getDomData(newChildren);
+            let childrenDomData = Pandyle.getDomData(newChild);
             childrenDomData.context = value;
             childrenDomData.parentProperty = fullProp.concat('[', index.toString(), ']');
             childrenDomData.alias = _alias;
-            return newChildren;
+            return newChild;
         }
     }
 }

@@ -1,4 +1,5 @@
 /// <reference path="../src/index.d.ts" />
+/// <reference types="jquery" />
 declare namespace Pandyle {
     const _variables: any;
     const _methods: any;
@@ -22,9 +23,9 @@ declare namespace Pandyle {
         readonly name: string;
         html: string;
         onLoad: <T>(context: any, root: HTMLElement, vm: VM<T>) => void;
-        private setPrivateData(element, data);
-        private afterRender(element, handler);
-        private getPrivateData(root);
+        private setPrivateData;
+        private afterRender;
+        private getPrivateData;
         constructor(name: string, html: string);
     }
     interface IComponent {
@@ -47,27 +48,27 @@ declare namespace Pandyle {
         data(): any;
         set(data: any): void;
         refresh(): void;
-        private initData();
-        private initData_input(element, name, value);
-        private initData_radio(element, name, value);
-        private initData_check(element, name, value);
-        private initData_normal(element, name, value);
-        private initData_select(element, name, value);
-        private bindChange();
-        private onChange_normal(element, name, value);
-        private onChange_input(element, name, value);
-        private onChange_radio(element, name, value);
-        private onChange_check(element, name, value);
-        private onChange_select(element, name, value);
-        private initName(name);
-        private getDataByName(name);
-        private setData(name, value);
-        private updateDom(element, value);
-        private updateDom_input(element, value);
-        private updateDom_radio(element, value);
-        private updateDom_check(element, value);
-        private updateDom_normal(element, value);
-        private updateDom_select(element, value);
+        private initData;
+        private initData_input;
+        private initData_radio;
+        private initData_check;
+        private initData_normal;
+        private initData_select;
+        private bindChange;
+        private onChange_normal;
+        private onChange_input;
+        private onChange_radio;
+        private onChange_check;
+        private onChange_select;
+        private initName;
+        private getDataByName;
+        private setData;
+        private updateDom;
+        private updateDom_input;
+        private updateDom_radio;
+        private updateDom_check;
+        private updateDom_normal;
+        private updateDom_select;
     }
 }
 interface IRelation {
@@ -113,10 +114,10 @@ declare namespace Pandyle {
         getMethod(name: string): Function;
         transfer(method: string, data: any[]): any;
         register(name: string, value: any): void;
-        private updateDataAndGetElementToRerender(_newData);
-        private getTargetData(key);
-        private getDataByKey(key);
-        private getLastProperty(key);
+        private updateDataAndGetElementToRerender;
+        private getTargetData;
+        private getDataByKey;
+        private getLastProperty;
     }
 }
 declare namespace Pandyle {
@@ -243,7 +244,7 @@ declare namespace Pandyle {
         private _lastDirective;
         private _util;
         private constructor();
-        private add(directive);
+        private add;
         start(context: IPipeContext): void;
         static createPipeLine<T>(util: Util<T>): PipeLine<T>;
     }

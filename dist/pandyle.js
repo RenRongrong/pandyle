@@ -1,7 +1,10 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -1173,14 +1176,13 @@ var Pandyle;
         iteratorBase.generateChild = function (domData, index, value, fullProp) {
             var alias = domData.alias;
             var htmlText = domData.pattern;
-            var children = Pandyle.$(htmlText);
-            var newChildren = children.clone(true, true);
+            var newChild = Pandyle.$(htmlText);
             var _alias = Pandyle.$.extend({}, alias, { index: { data: index, property: '@index' } });
-            var childrenDomData = Pandyle.getDomData(newChildren);
+            var childrenDomData = Pandyle.getDomData(newChild);
             childrenDomData.context = value;
             childrenDomData.parentProperty = fullProp.concat('[', index.toString(), ']');
             childrenDomData.alias = _alias;
-            return newChildren;
+            return newChild;
         };
         return iteratorBase;
     }(Pandyle.DirectiveBase));
@@ -1202,10 +1204,12 @@ var Pandyle;
             if (domData.children) {
                 domData.children.remove();
             }
+            var arr = [];
             targetArray.forEach(function (value, index) {
                 var newChildren = Pandyle.iteratorBase.generateChild(domData, index, value, fullProp);
-                element.append(newChildren);
+                arr.push(newChildren);
             });
+            element.append(arr);
             domData.children = element.children();
         };
         return PEachDirective;
