@@ -66,7 +66,7 @@ namespace Pandyle {
             childrenDomData.context = value;
             childrenDomData.parentProperty = fullProp.concat('[', index.toString(), ']');
             childrenDomData.alias = _alias;
-            return newChild;
+            return newChild[0];
         }
     }
 }

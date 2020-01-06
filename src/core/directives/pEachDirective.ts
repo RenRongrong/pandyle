@@ -21,7 +21,9 @@ namespace Pandyle {
                 let newChildren = iteratorBase.generateChild(domData, index, value, fullProp);
                 arr.push(newChildren);
             })
-            element.append(arr);
+            if(arr.length > 0){
+                element.append(arr);
+            }           
             domData.children = element.children();
         }
     }

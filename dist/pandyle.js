@@ -1,10 +1,7 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -1182,7 +1179,7 @@ var Pandyle;
             childrenDomData.context = value;
             childrenDomData.parentProperty = fullProp.concat('[', index.toString(), ']');
             childrenDomData.alias = _alias;
-            return newChild;
+            return newChild[0];
         };
         return iteratorBase;
     }(Pandyle.DirectiveBase));
@@ -1209,7 +1206,9 @@ var Pandyle;
                 var newChildren = Pandyle.iteratorBase.generateChild(domData, index, value, fullProp);
                 arr.push(newChildren);
             });
-            element.append(arr);
+            if (arr.length > 0) {
+                element.append(arr);
+            }
             domData.children = element.children();
         };
         return PEachDirective;
