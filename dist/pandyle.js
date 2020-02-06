@@ -582,12 +582,12 @@ var Pandyle;
                     if (domData.binding['For']) {
                         domData.children.last().after(newChildren);
                         var arr = [];
-                        arr.push.call(domData.children, newChildren[0]);
+                        arr.push.call(domData.children, newChildren);
                     }
                     else {
                         element.append(newChildren);
                     }
-                    _this.render(newChildren);
+                    _this.render(Pandyle.$(newChildren));
                 });
             });
         };
@@ -608,12 +608,12 @@ var Pandyle;
                         if (domData.binding['For']) {
                             domData.children.last().after(newChildren);
                             var arr = [];
-                            arr.push.call(domData.children, newChildren[0]);
+                            arr.push.call(domData.children, newChildren);
                         }
                         else {
                             element.append(newChildren);
                         }
-                        _this.render(newChildren);
+                        _this.render(Pandyle.$(newChildren));
                     });
                 });
             });
@@ -1232,10 +1232,12 @@ var Pandyle;
                 domData.children.remove();
             }
             var div = Pandyle.$('<div />');
+            var arr = [];
             targetArray.forEach(function (value, index) {
                 var newChildren = Pandyle.iteratorBase.generateChild(domData, index, value, fullProp);
-                div.append(newChildren);
+                arr.push(newChildren);
             });
+            div.append(arr);
             var actualChildren = div.children();
             domData.children = actualChildren;
             element.detach();

@@ -16,10 +16,12 @@ namespace Pandyle {
                 domData.children.remove();
             }
             let div = $('<div />');
+            let arr = [];
             targetArray.forEach((value, index) => {
                 let newChildren = iteratorBase.generateChild(domData, index, value, fullProp);
-                div.append(newChildren);
+                arr.push(newChildren);
             })
+            div.append(arr);
             let actualChildren = div.children();
 
             domData.children = actualChildren;

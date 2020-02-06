@@ -93,11 +93,11 @@ namespace Pandyle {
                     if (domData.binding['For']) {
                         domData.children.last().after(newChildren);
                         var arr = [];
-                        arr.push.call(domData.children, newChildren[0]);
+                        arr.push.call(domData.children, newChildren);
                     } else {
                         element.append(newChildren);
                     }
-                    this.render(newChildren);
+                    this.render($(newChildren));
                 })
             })
         }
@@ -118,11 +118,11 @@ namespace Pandyle {
                         if (domData.binding['For']) {
                             domData.children.last().after(newChildren);
                             var arr = [];
-                            arr.push.call(domData.children, newChildren[0]);
+                            arr.push.call(domData.children, newChildren);
                         } else {
                             element.append(newChildren);
                         }
-                        this.render(newChildren);
+                        this.render($(newChildren));
                     })                 
                 })
             })
