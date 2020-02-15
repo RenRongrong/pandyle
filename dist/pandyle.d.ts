@@ -84,7 +84,7 @@ declare namespace Pandyle {
     class RelationCollection<T> implements IRelationCollection {
         private _util;
         private _relations;
-        private constructor();
+        private constructor(util);
         static CreateRelationCollection<T>(util: Util<T>): RelationCollection<T>;
         setRelation(property: string, element: JQuery<HTMLElement>, parentProperty: string): void;
         findSelf(key: string): IRelation[];
@@ -106,8 +106,8 @@ declare namespace Pandyle {
         set(newData: string, value: any): any;
         set(newData: object): any;
         get(param?: any): any;
-        append(arrayName: string, value: any): void;
-        appendArray(arrayName: string, value: any[]): void;
+        append(target: string | JQuery<HTMLElement>, value: any): void;
+        appendArray(target: string | JQuery<HTMLElement>, value: any[]): void;
         run(): void;
         render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string, alias?: any): void;
         getMethod(name: string): Function;
@@ -122,7 +122,7 @@ declare namespace Pandyle {
 declare namespace Pandyle {
     class Util<T> {
         vm: VM<T>;
-        private constructor();
+        private constructor(vm);
         static CreateUtil<T>(vm: VM<T>): Util<T>;
         getValue(element: JQuery<HTMLElement>, property: string, data: any): any;
         calcuExpression(property: string, element: JQuery<HTMLElement>, data: any): any;
@@ -212,7 +212,7 @@ declare namespace Pandyle {
         protected _directiveBinding: string;
         execute(): void;
         abstract addChildren(element: JQuery<HTMLElement>, targetArray: any[], fullProp: string): void;
-        static generateChild(domData: IDomData, index: number, value: any, fullProp: string): JQuery<HTMLElement>;
+        static generateChild(domData: IDomData, index: number, value: any, fullProp: string): HTMLElement;
     }
 }
 declare namespace Pandyle {
@@ -242,7 +242,7 @@ declare namespace Pandyle {
         private _firstDirective;
         private _lastDirective;
         private _util;
-        private constructor();
+        private constructor(util);
         private add(directive);
         start(context: IPipeContext): void;
         static createPipeLine<T>(util: Util<T>): PipeLine<T>;

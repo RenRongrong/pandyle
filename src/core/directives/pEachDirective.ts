@@ -16,10 +16,14 @@ namespace Pandyle {
             if (domData.children) {
                 domData.children.remove();
             }
+            let arr = [];
             targetArray.forEach((value, index) => {
                 let newChildren = iteratorBase.generateChild(domData, index, value, fullProp);
-                element.append(newChildren);
+                arr.push(newChildren);
             })
+            if(arr.length > 0){
+                element.append(arr);
+            }           
             domData.children = element.children();
         }
     }

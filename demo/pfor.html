@@ -4,14 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script>
+    <!-- <script src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script> -->
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
     <script src="../dist/pandyle.js"></script>
+    <!-- <script src="../dist/pandyle.min.js"></script> -->
     <title>Document</title>
 </head>
 <body>
     <div class="main">
-        <div p-for="list">{{name}}</div>
+        <button class="btn">click me2</button>
+        <div p-for="list" class="list">{{name}}</div>
         <button onclick="addName()">click me</button>
+        
     </div>
 
     <script>
@@ -22,7 +26,24 @@
                 {id: 2, name: 'test2'},
                 {id: 3, name: 'test3'}
             ]
+        }, false)
+
+        var ele = $('.list');
+
+        $('.btn').click(function(){
+            vm.appendArray(ele, [
+                {
+                    id: ++index,
+                    name: 'test' + index
+                },
+                {
+                    id: ++index,
+                    name: 'test' + index
+                }
+            ])
         })
+
+        vm.run();
 
         function addName(){
             vm.append('list', {

@@ -7,41 +7,48 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script>
     <script src="../dist/pandyle.js"></script>
+    <!-- <script src="../dist/pandyle.min.js"></script> -->
     <title>Document</title>
 </head>
 
 <body>
     <div class="main">
         <div p-each="data">
-            <div p-each="list"><span>{{name}}</span></div>
+            <div p-each="list" class="list"><span>{{name}}</span></div>
         </div>
         <button onclick="addName()">click me</button>
         <button onclick="refresh()">click me 2</button>
+        <button onclick="addName2()">click me 3</button>
     </div>
 
     <script>
         var index = 3;
+        var data = [];
+        for (var i = 0; i < 10; i++) {
+            data.push({
+                list: [
+                    { id: i, name: 'test1' },
+                    { id: i, name: 'test2' },
+                    { id: i, name: 'test3' }
+                ]
+            })
+        }
+        var startTime = Date.now();
         var vm = $('.main').vm({
-            data: [
-                {
-                    list: [
-                        { id: 1, name: 'test1' },
-                        { id: 2, name: 'test2' },
-                        { id: 3, name: 'test3' }
-                    ]
-                },
-                {
-                    list: [
-                        { id: 4, name: 'test4' },
-                        { id: 5, name: 'test5' },
-                        { id: 6, name: 'test6' }
-                    ]
-                }
-            ]
+            data: data
         })
+        var endTime = Date.now();
+        console.log(endTime - startTime);
 
         function addName() {
             vm.append('data[0].list', {
+                id: ++index,
+                name: 'test' + index
+            })
+        }
+
+        function addName2(){
+            vm.append($('.list'), {
                 id: ++index,
                 name: 'test' + index
             })
