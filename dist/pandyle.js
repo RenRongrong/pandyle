@@ -568,43 +568,18 @@ var Pandyle;
                     return null;
             }
         };
-        VM.prototype.append = function (arrayName, value) {
+        VM.prototype.append = function (target, value) {
             var _this = this;
-            var lastProperty = this.getLastProperty(arrayName);
-            var target = this.getTargetData(arrayName);
-            var array = target[lastProperty];
-            array.push(value);
-            var relations = this._relationCollection.findSelf(arrayName);
-            relations.forEach(function (relation) {
-                relation.elements.forEach(function (element) {
-                    var domData = Pandyle.getDomData(element);
-                    var newChildren = Pandyle.iteratorBase.generateChild(domData, element.children().length, value, arrayName);
-                    if (domData.binding['For']) {
-                        domData.children.last().after(newChildren);
-                        var arr = [];
-                        arr.push.call(domData.children, newChildren);
-                    }
-                    else {
-                        element.append(newChildren);
-                    }
-                    _this.render(Pandyle.$(newChildren));
-                });
-            });
-        };
-        VM.prototype.appendArray = function (arrayName, value) {
-            var _this = this;
-            var lastProperty = this.getLastProperty(arrayName);
-            var target = this.getTargetData(arrayName);
-            var array = target[lastProperty];
-            value.forEach(function (item) {
-                array.push(item);
-            });
-            var relations = this._relationCollection.findSelf(arrayName);
-            relations.forEach(function (relation) {
-                relation.elements.forEach(function (element) {
-                    var domData = Pandyle.getDomData(element);
-                    value.forEach(function (currentValue) {
-                        var newChildren = Pandyle.iteratorBase.generateChild(domData, element.children().length, currentValue, arrayName);
+            if (typeof target === 'string') {
+                var lastProperty = this.getLastProperty(target);
+                var targetData = this.getTargetData(target);
+                var array = targetData[lastProperty];
+                array.push(value);
+                var relations = this._relationCollection.findSelf(target);
+                relations.forEach(function (relation) {
+                    relation.elements.forEach(function (element) {
+                        var domData = Pandyle.getDomData(element);
+                        var newChildren = Pandyle.iteratorBase.generateChild(domData, element.children().length, value, target);
                         if (domData.binding['For']) {
                             domData.children.last().after(newChildren);
                             var arr = [];
@@ -616,7 +591,84 @@ var Pandyle;
                         _this.render(Pandyle.$(newChildren));
                     });
                 });
-            });
+            }
+            else {
+                target.each(function (index, item) {
+                    var domData = Pandyle.getDomData(Pandyle.$(item));
+                    var context = domData.context;
+                    if (domData.binding['For']) {
+                        var arrayName = domData.binding['For'].pattern;
+                        context[arrayName].push(value);
+                        var newChildren = Pandyle.iteratorBase.generateChild(domData, Pandyle.$(item).children().length, value, domData.parentProperty + "." + arrayName);
+                        domData.children.last().after(newChildren);
+                        var arr = [];
+                        arr.push.call(domData.children, newChildren);
+                        _this.render(Pandyle.$(newChildren));
+                    }
+                    else {
+                        var arrayName = domData.binding['Each'].pattern;
+                        context[arrayName].push(value);
+                        var newChildren = Pandyle.iteratorBase.generateChild(domData, Pandyle.$(item).children().length, value, domData.parentProperty + "." + arrayName);
+                        Pandyle.$(item).append(newChildren);
+                        _this.render(Pandyle.$(newChildren));
+                    }
+                });
+            }
+        };
+        VM.prototype.appendArray = function (target, value) {
+            var _this = this;
+            if (typeof target == 'string') {
+                var lastProperty = this.getLastProperty(target);
+                var targetData = this.getTargetData(target);
+                var array_1 = targetData[lastProperty];
+                value.forEach(function (item) {
+                    array_1.push(item);
+                });
+                var relations = this._relationCollection.findSelf(target);
+                relations.forEach(function (relation) {
+                    relation.elements.forEach(function (element) {
+                        var domData = Pandyle.getDomData(element);
+                        value.forEach(function (currentValue) {
+                            var newChildren = Pandyle.iteratorBase.generateChild(domData, element.children().length, currentValue, target);
+                            if (domData.binding['For']) {
+                                domData.children.last().after(newChildren);
+                                var arr = [];
+                                arr.push.call(domData.children, newChildren);
+                            }
+                            else {
+                                element.append(newChildren);
+                            }
+                            _this.render(Pandyle.$(newChildren));
+                        });
+                    });
+                });
+            }
+            else {
+                target.each(function (index, item) {
+                    var domData = Pandyle.getDomData(Pandyle.$(item));
+                    var context = domData.context;
+                    if (domData.binding['For']) {
+                        var arrayName_1 = domData.binding['For'].pattern;
+                        value.forEach(function (val) {
+                            context[arrayName_1].push(val);
+                            var newChildren = Pandyle.iteratorBase.generateChild(domData, Pandyle.$(item).children().length, val, domData.parentProperty + "." + arrayName_1);
+                            domData.children.last().after(newChildren);
+                            var arr = [];
+                            arr.push.call(domData.children, newChildren);
+                            _this.render(Pandyle.$(newChildren));
+                        });
+                    }
+                    else {
+                        var arrayName_2 = domData.binding['Each'].pattern;
+                        value.forEach(function (val) {
+                            context[arrayName_2].push(val);
+                            var newChildren = Pandyle.iteratorBase.generateChild(domData, Pandyle.$(item).children().length, val, domData.parentProperty + "." + arrayName_2);
+                            Pandyle.$(item).append(newChildren);
+                            _this.render(Pandyle.$(newChildren));
+                        });
+                    }
+                });
+            }
         };
         VM.prototype.run = function () {
             this.render(this._root, this._data, '', this._defaultAlias);
@@ -1419,7 +1471,7 @@ if (!Array.prototype.forEach) {
     };
 }
 if (!Array.prototype.map) {
-    Array.prototype.map = function (fun) {
+    Array.prototype.map = function (fun, thisp) {
         var len = this.length;
         if (typeof fun != "function")
             throw new TypeError();

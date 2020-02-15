@@ -77,44 +77,20 @@ namespace Pandyle {
 
         /**
          * 
-         * @param arrayName 数组名称
+         * @param target 目标
          * @param value 要添加的数据
          */
-        public append(arrayName: string, value: any) {
-            let lastProperty = this.getLastProperty(arrayName);
-            let target = this.getTargetData(arrayName);
-            let array: any[] = target[lastProperty];
-            array.push(value);
-            let relations = this._relationCollection.findSelf(arrayName);
-            relations.forEach(relation => {
-                relation.elements.forEach(element => {
-                    let domData = Pandyle.getDomData(element);
-                    let newChildren = iteratorBase.generateChild(domData, element.children().length, value, arrayName);
-                    if (domData.binding['For']) {
-                        domData.children.last().after(newChildren);
-                        var arr = [];
-                        arr.push.call(domData.children, newChildren);
-                    } else {
-                        element.append(newChildren);
-                    }
-                    this.render($(newChildren));
-                })
-            })
-        }
-
-        public appendArray(arrayName: string, value: any[]) {
-            let lastProperty = this.getLastProperty(arrayName);
-            let target = this.getTargetData(arrayName);
-            let array: any[] = target[lastProperty];
-            value.forEach((item) => {
-                array.push(item);
-            })
-            let relations = this._relationCollection.findSelf(arrayName);
-            relations.forEach(relation => {
-                relation.elements.forEach(element => {
-                    let domData = Pandyle.getDomData(element);
-                    value.forEach((currentValue) => {
-                        let newChildren = iteratorBase.generateChild(domData, element.children().length, currentValue, arrayName);
+        public append(target: string | JQuery<HTMLElement>, value: any) {
+            if (typeof target === 'string') {
+                let lastProperty = this.getLastProperty(target);
+                let targetData = this.getTargetData(target);
+                let array: any[] = targetData[lastProperty];
+                array.push(value);
+                let relations = this._relationCollection.findSelf(target);
+                relations.forEach(relation => {
+                    relation.elements.forEach(element => {
+                        let domData = Pandyle.getDomData(element);
+                        let newChildren = iteratorBase.generateChild(domData, element.children().length, value, target);
                         if (domData.binding['For']) {
                             domData.children.last().after(newChildren);
                             var arr = [];
@@ -123,9 +99,81 @@ namespace Pandyle {
                             element.append(newChildren);
                         }
                         this.render($(newChildren));
-                    })                 
+                    })
                 })
-            })
+            } else {
+                target.each((index, item) => {
+                    let domData = Pandyle.getDomData($(item));
+                    let context = domData.context;
+                    if (domData.binding['For']) {
+                        let arrayName = domData.binding['For'].pattern;
+                        context[arrayName].push(value);
+                        let newChildren = iteratorBase.generateChild(domData, $(item).children().length, value, `${domData.parentProperty}.${arrayName}`);
+                        domData.children.last().after(newChildren);
+                        var arr = [];
+                        arr.push.call(domData.children, newChildren);
+                        this.render($(newChildren));
+                    } else {
+                        let arrayName = domData.binding['Each'].pattern;
+                        context[arrayName].push(value);
+                        let newChildren = iteratorBase.generateChild(domData, $(item).children().length, value, `${domData.parentProperty}.${arrayName}`);
+                        $(item).append(newChildren);
+                        this.render($(newChildren));
+                    }
+                })
+            }
+        }
+
+        public appendArray(target: string | JQuery<HTMLElement>, value: any[]) {
+            if (typeof target == 'string') {
+                let lastProperty = this.getLastProperty(target);
+                let targetData = this.getTargetData(target);
+                let array: any[] = targetData[lastProperty];
+                value.forEach((item) => {
+                    array.push(item);
+                })
+                let relations = this._relationCollection.findSelf(target);
+                relations.forEach(relation => {
+                    relation.elements.forEach(element => {
+                        let domData = Pandyle.getDomData(element);
+                        value.forEach((currentValue) => {
+                            let newChildren = iteratorBase.generateChild(domData, element.children().length, currentValue, target);
+                            if (domData.binding['For']) {
+                                domData.children.last().after(newChildren);
+                                var arr = [];
+                                arr.push.call(domData.children, newChildren);
+                            } else {
+                                element.append(newChildren);
+                            }
+                            this.render($(newChildren));
+                        })
+                    })
+                })
+            } else {
+                target.each((index, item) => {
+                    let domData = Pandyle.getDomData($(item));
+                    let context = domData.context;
+                    if (domData.binding['For']) {
+                        let arrayName = domData.binding['For'].pattern;
+                        value.forEach(val => {
+                            context[arrayName].push(val);
+                            let newChildren = iteratorBase.generateChild(domData, $(item).children().length, val, `${domData.parentProperty}.${arrayName}`);
+                            domData.children.last().after(newChildren);
+                            var arr = [];
+                            arr.push.call(domData.children, newChildren);
+                            this.render($(newChildren));
+                        })
+                    } else {
+                        let arrayName = domData.binding['Each'].pattern;
+                        value.forEach(val => {
+                            context[arrayName].push(val);
+                            let newChildren = iteratorBase.generateChild(domData, $(item).children().length, val, `${domData.parentProperty}.${arrayName}`);
+                            $(item).append(newChildren);
+                            this.render($(newChildren));
+                        })
+                    }
+                })
+            }
         }
 
         public run() {

@@ -14,16 +14,17 @@
 <body>
     <div class="main">
         <div p-each="data">
-            <div p-each="list"><span>{{name}}</span></div>
+            <div p-each="list" class="list"><span>{{name}}</span></div>
         </div>
         <button onclick="addName()">click me</button>
         <button onclick="refresh()">click me 2</button>
+        <button onclick="addName2()">click me 3</button>
     </div>
 
     <script>
         var index = 3;
         var data = [];
-        for (var i = 0; i < 1000; i++) {
+        for (var i = 0; i < 10; i++) {
             data.push({
                 list: [
                     { id: i, name: 'test1' },
@@ -41,6 +42,13 @@
 
         function addName() {
             vm.append('data[0].list', {
+                id: ++index,
+                name: 'test' + index
+            })
+        }
+
+        function addName2(){
+            vm.append($('.list'), {
                 id: ++index,
                 name: 'test' + index
             })

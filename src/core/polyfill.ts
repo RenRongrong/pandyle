@@ -36,12 +36,12 @@ if (!Array.prototype.forEach)
 }
 if (!Array.prototype.map)
 {
-  Array.prototype.map = function(fun /*, thisp?:any*/)
+  Array.prototype.map = function<U>(fun:(value:any,index:number,array:any[]) => U, thisp?:any)
   {
     var len = this.length;
     if (typeof fun != "function")
       throw new TypeError(); 
-     var res = new Array(len);
+    var res = new Array<U>(len);
     var thisp = arguments[1];
     for (var i = 0; i < len; i++)
     {
