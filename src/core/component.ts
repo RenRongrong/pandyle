@@ -6,8 +6,7 @@ namespace Pandyle {
         public onLoad: <T>(context: any, root: HTMLElement, vm:VM<T>) => void;
         private setPrivateData(element: JQuery<HTMLElement>, data: any) {
             Pandyle.getDomData(element).alias.private = {
-                data: data,
-                property: '@private'
+                data: data
             }
         }
 

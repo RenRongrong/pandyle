@@ -70,28 +70,6 @@ declare namespace Pandyle {
         private updateDom_select(element, value);
     }
 }
-interface IRelation {
-    property: string;
-    elements: JQuery<HTMLElement>[];
-}
-interface IRelationCollection {
-    setRelation: (property: string, element: JQuery<HTMLElement>, parentProperty: string) => void;
-    findSelf: (key: string) => IRelation[];
-    findSelfOrChild: (key: string) => IRelation[];
-    removeChildren: (key: string) => void;
-}
-declare namespace Pandyle {
-    class RelationCollection<T> implements IRelationCollection {
-        private _util;
-        private _relations;
-        private constructor(util);
-        static CreateRelationCollection<T>(util: Util<T>): RelationCollection<T>;
-        setRelation(property: string, element: JQuery<HTMLElement>, parentProperty: string): void;
-        findSelf(key: string): IRelation[];
-        findSelfOrChild(key: string): IRelation[];
-        removeChildren(key: string): void;
-    }
-}
 declare namespace Pandyle {
     class VM<T> {
         protected _data: T;
@@ -99,24 +77,17 @@ declare namespace Pandyle {
         _methods: object;
         private _variables;
         private _defaultAlias;
-        _relationCollection: IRelationCollection;
         private _util;
         private _renderer;
         constructor(element: JQuery<HTMLElement>, data: T, autoRun?: boolean);
-        set(newData: string, value: any): any;
-        set(newData: object): any;
         get(param?: any): any;
-        append(target: string | JQuery<HTMLElement>, value: any): void;
-        appendArray(target: string | JQuery<HTMLElement>, value: any[]): void;
+        append(target: JQuery<HTMLElement>, value: any): void;
+        appendArray(target: JQuery<HTMLElement>, value: any[]): void;
         run(): void;
-        render(element: JQuery<HTMLElement>, data?: any, parentProperty?: string, alias?: any): void;
+        render(element: JQuery<HTMLElement>, data?: any, alias?: any): void;
         getMethod(name: string): Function;
         transfer(method: string, data: any[]): any;
         register(name: string, value: any): void;
-        private updateDataAndGetElementToRerender(_newData);
-        private getTargetData(key);
-        private getDataByKey(key);
-        private getLastProperty(key);
     }
 }
 declare namespace Pandyle {
@@ -127,11 +98,10 @@ declare namespace Pandyle {
         getValue(element: JQuery<HTMLElement>, property: string, data: any): any;
         calcuExpression(property: string, element: JQuery<HTMLElement>, data: any): any;
         calcu(property: string, element: JQuery<HTMLElement>, data: any): any;
-        convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object, parentProperty: any): string;
+        convertFromPattern(element: JQuery<HTMLElement>, prop: string, pattern: string, data: object): string;
         toDefault(type: string): {};
-        setAlias(element: JQuery<HTMLElement>, property: string, data?: any): void;
+        setAlias(element: JQuery<HTMLElement>, data?: any): void;
         getAliasData(element: JQuery<HTMLElement>, alias: string): any;
-        getAliasProperty(element: JQuery<HTMLElement>, alias: string): string;
         dividePipe(expression: string): {
             property: string;
             method: string;
@@ -140,12 +110,10 @@ declare namespace Pandyle {
         isSelfOrChild(property: string, subProperty: string): boolean;
         isChild(property: string, subProperty: string): boolean;
         transfer(method: string, data: any[]): any;
-        setRelation(property: string, element: JQuery<HTMLElement>, parentProperty: string): void;
     }
 }
 interface IPipeContext {
     element: HTMLElement;
-    parentProperty: string;
 }
 declare namespace Pandyle {
     abstract class DirectiveBase<T> {
@@ -166,8 +134,6 @@ interface IDomData {
     pattern?: string;
     children?: JQuery<HTMLElement>;
     parent?: JQuery<HTMLElement>;
-    parentProperty?: string;
-    oparentProperty?: string;
     alias?: IAlias;
     pIndex?: number;
     ocontext?: any;
@@ -177,13 +143,11 @@ interface IDomData {
 interface IBinding {
     [key: string]: {
         pattern: string;
-        related: boolean;
     };
 }
 interface IAlias {
     [key: string]: {
         data: any;
-        property: string;
     };
 }
 declare namespace Pandyle {
@@ -211,20 +175,20 @@ declare namespace Pandyle {
         protected _directiveName: string;
         protected _directiveBinding: string;
         execute(): void;
-        abstract addChildren(element: JQuery<HTMLElement>, targetArray: any[], fullProp: string): void;
-        static generateChild(domData: IDomData, index: number, value: any, fullProp: string): HTMLElement;
+        abstract addChildren(element: JQuery<HTMLElement>, targetArray: any[]): void;
+        static generateChild(domData: IDomData, index: number, value: any): HTMLElement;
     }
 }
 declare namespace Pandyle {
     class PEachDirective<T> extends iteratorBase<T> {
         constructor();
-        addChildren(element: JQuery<HTMLElement>, targetArray: any[], fullProp: string): void;
+        addChildren(element: JQuery<HTMLElement>, targetArray: any[]): void;
     }
 }
 declare namespace Pandyle {
     class PForDirective<T> extends iteratorBase<T> {
         constructor();
-        addChildren(element: JQuery<HTMLElement>, targetArray: any[], fullProp: string): void;
+        addChildren(element: JQuery<HTMLElement>, targetArray: any[]): void;
     }
 }
 declare namespace Pandyle {
@@ -253,8 +217,8 @@ declare namespace Pandyle {
         private _util;
         private _pipeline;
         constructor(vm: VM<T>);
-        renderSingle(ele: HTMLElement, data: any, parentProperty: string, alias?: any): void;
-        renderChild(ele: HTMLElement, data: any, parentProperty: string): void;
-        renderPipe(ele: HTMLElement, parentProperty: string): void;
+        renderSingle(ele: HTMLElement, data: any, alias?: any): void;
+        renderChild(ele: HTMLElement, data: any): void;
+        renderPipe(ele: HTMLElement): void;
     }
 }

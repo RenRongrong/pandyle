@@ -9,7 +9,7 @@ namespace Pandyle {
             this._directiveBinding = "For";
             this._directiveName = "p-for";
         }
-        public addChildren(element: JQuery<HTMLElement>, targetArray: any[], fullProp: string): void {
+        public addChildren(element: JQuery<HTMLElement>, targetArray: any[]): void {
             let domData = Pandyle.getDomData(element);
             element.children().remove();
             if (domData.children) {
@@ -18,7 +18,7 @@ namespace Pandyle {
             let div = $('<div />');
             let arr = [];
             targetArray.forEach((value, index) => {
-                let newChildren = iteratorBase.generateChild(domData, index, value, fullProp);
+                let newChildren = iteratorBase.generateChild(domData, index, value);
                 arr.push(newChildren);
             })
             div.append(arr);

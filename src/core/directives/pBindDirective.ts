@@ -15,8 +15,7 @@ namespace Pandyle {
                         let attr = array[1];
                         let value = array[2].replace(/\s*$/, '');
                         domData.binding[attr] = {
-                            pattern: value,
-                            related: false
+                            pattern: value
                         }
                     });
                     ele.removeAttr('p-bind');
@@ -25,7 +24,7 @@ namespace Pandyle {
                 let data = domData.context;
                 for (let a in bindings) {
                     if (['text', 'If', 'Each', 'For', 'Context'].indexOf(a) < 0) {
-                        $(ele).attr(a, this._util.convertFromPattern($(ele), a, bindings[a].pattern, data, this._context.parentProperty));
+                        $(ele).attr(a, this._util.convertFromPattern($(ele), a, bindings[a].pattern, data));
                     }
                 }
                 this.next();

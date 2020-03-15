@@ -13,7 +13,7 @@ namespace Pandyle {
                     if (domData.binding['text']) {
                         text = domData.binding['text'].pattern;
                     }
-                    let result = this._util.convertFromPattern(element, 'text', text, data, this._context.parentProperty);
+                    let result = this._util.convertFromPattern(element, 'text', text, data);
                     element.html(result);
                 }
             } catch (err) {

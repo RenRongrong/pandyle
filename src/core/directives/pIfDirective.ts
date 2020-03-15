@@ -5,13 +5,11 @@ namespace Pandyle {
     export class PIfDirective<T> extends DirectiveBase<T>{
         public execute(): void {
             let ele = $(this._context.element);
-            let parentProperty = this._context.parentProperty;
             let domData = Pandyle.getDomData(ele);
             try {
                 if (ele.attr('p-if')) {
                     domData.binding['If'] = {
-                        pattern: ele.attr('p-if'),
-                        related: false
+                        pattern: ele.attr('p-if')
                     }
                     ele.removeAttr('p-if');
                 }
@@ -22,7 +20,7 @@ namespace Pandyle {
                     }
                     let expression = domData.binding['If'].pattern;
                     let data = domData.context;
-                    let convertedExpression = this._util.convertFromPattern(ele, 'If', expression, data, parentProperty);
+                    let convertedExpression = this._util.convertFromPattern(ele, 'If', expression, data);
                     let judge = new Function('return ' + convertedExpression);
                     if (judge()) {
                         if (ele.parent().length === 0) {

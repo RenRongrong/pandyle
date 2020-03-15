@@ -18,9 +18,11 @@
             <p p-if="{{subInfo.visible}}">this is visible</p>
         </div>
         <div p-each="list" class="list">
-            <p>{{id}}:{{name}}{{@index + 1}}</p>
-            <div p-each="child">
-                <p>{{@index + 1}}:{{@self}}</p>
+            <div>
+                <p>{{id}}:{{name}}{{@index + 1}}</p>
+                <div p-each="child">
+                    <p>{{@index + 1}}:{{@self}}</p>
+                </div>
             </div>
         </div>
         <div p-context="subInfo">

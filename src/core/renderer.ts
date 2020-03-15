@@ -9,7 +9,7 @@ namespace Pandyle {
             this._pipeline = PipeLine.createPipeLine(this._util);
         };
 
-        public renderSingle(ele: HTMLElement, data: any, parentProperty: string, alias?: any) {
+        public renderSingle(ele: HTMLElement, data: any, alias?: any) {
             let element = $(ele);
             let domData = Pandyle.getDomData(element);
 
@@ -18,9 +18,6 @@ namespace Pandyle {
             }
             if (!domData.binding) {
                 domData.binding = {};
-            }
-            if (!domData.parentProperty) {
-                domData.parentProperty = parentProperty;
             }
             if (alias && !$.isEmptyObject(alias)) {
                 if (domData.alias) {
@@ -32,22 +29,18 @@ namespace Pandyle {
                 }
             }
             data = domData.context;
-            parentProperty = domData.parentProperty;
 
-            this._util.setAlias(element, parentProperty, data);
-            this.renderPipe(ele, parentProperty);
+            this._util.setAlias(element, data);
+            this.renderPipe(ele);
             data = domData.context;
-            if (domData.oparentProperty) {
-                parentProperty = domData.oparentProperty;
-            }
-            this.renderChild(ele, data, parentProperty);
+            this.renderChild(ele, data);
 
             if(domData.afterRender){
                 domData.afterRender();
             }
         }
 
-        public renderChild(ele: HTMLElement, data: any, parentProperty: string) {
+        public renderChild(ele: HTMLElement, data: any) {
             let $this = this;
             let element = $(ele);
             let domData = Pandyle.getDomData(element);
@@ -64,15 +57,14 @@ namespace Pandyle {
                         childDomData.context = data;
                     }
                     childDomData.pIndex = index;
-                    $this.renderSingle(child[0], data, parentProperty, $.extend({}, alias));
+                    $this.renderSingle(child[0], data, $.extend({}, alias));
                 })
             }
         }
 
-        public renderPipe(ele: HTMLElement, parentProperty: string) {
+        public renderPipe(ele: HTMLElement) {
             let context: IPipeContext = {
-                element: ele,
-                parentProperty: parentProperty
+                element: ele
             };
             this._pipeline.start(context);
         }

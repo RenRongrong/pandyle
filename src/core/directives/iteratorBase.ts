@@ -13,11 +13,9 @@ namespace Pandyle {
             let domData = Pandyle.getDomData(element);
             try {
                 let data = domData.context;
-                let parentProperty = this._context.parentProperty;
                 if (element.attr(this._directiveName)) {
                     domData.binding[this._directiveBinding] = {
-                        pattern: element.attr(this._directiveName),
-                        related: false
+                        pattern: element.attr(this._directiveName)
                     }
                     element.removeAttr(this._directiveName);
                 }
@@ -40,14 +38,10 @@ namespace Pandyle {
                         } else {
                             domData.pattern = element.html();
                         }
-                        this._util.setRelation(property, element, parentProperty);
                     };
                     let fullProp = property;
-                    if (parentProperty !== '') {
-                        fullProp = parentProperty + '.' + property;
-                    };
 
-                    this.addChildren(element, target, fullProp);
+                    this.addChildren(element, target);
                 }
                 this.next();
             } catch (err) {
@@ -55,16 +49,15 @@ namespace Pandyle {
             }
         }
 
-        public abstract addChildren(element:JQuery<HTMLElement>, targetArray: any[], fullProp: string): void;
+        public abstract addChildren(element:JQuery<HTMLElement>, targetArray: any[]): void;
 
-        public static generateChild(domData: IDomData, index:number, value:any, fullProp:string) {
+        public static generateChild(domData: IDomData, index:number, value:any) {
             let alias = domData.alias;
             let htmlText = domData.pattern;
             let newChild = $(htmlText);
             let _alias = $.extend({}, alias, { index: { data: index, property: '@index' } });
             let childrenDomData = Pandyle.getDomData(newChild);
             childrenDomData.context = value;
-            childrenDomData.parentProperty = fullProp.concat('[', index.toString(), ']');
             childrenDomData.alias = _alias;
             return newChild[0];
         }

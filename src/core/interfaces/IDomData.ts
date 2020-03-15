@@ -4,8 +4,6 @@ interface IDomData{
     pattern?: string,
     children?: JQuery<HTMLElement>,
     parent?: JQuery<HTMLElement>,
-    parentProperty?: string,
-    oparentProperty?: string,
     alias?: IAlias,
     pIndex?: number,
     ocontext?: any,
@@ -15,14 +13,12 @@ interface IDomData{
 
 interface IBinding{
     [key:string] : {
-        pattern: string,
-        related: boolean
+        pattern: string
     }
 }
 
 interface IAlias{
     [key:string] : {
-        data: any,
-        property: string
+        data: any
     }
 }

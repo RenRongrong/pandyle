@@ -5,14 +5,12 @@ namespace Pandyle {
     export class PContextDirective<T> extends DirectiveBase<T>{
         public execute(): void {
             let element = $(this._context.element);
-            let parentProperty = this._context.parentProperty;
             let domData = Pandyle.getDomData(element);
             let binding = domData.binding;
             try {
                 if (element.attr('p-context')) {
                     binding['Context'] = {
-                        pattern: element.attr('p-context'),
-                        related: false
+                        pattern: element.attr('p-context')
                     }
                     element.removeAttr('p-context');
                 }
@@ -22,10 +20,6 @@ namespace Pandyle {
                     let divided = this._util.dividePipe(expression);
                     let property = divided.property;
                     let method = divided.method;
-                    let fullProp = property;
-                    if (parentProperty !== '') {
-                        fullProp = parentProperty + '.' + property;
-                    }
 
                     if (domData.ocontext) {
                         data = domData.ocontext;
@@ -37,18 +31,14 @@ namespace Pandyle {
                         target = this._util.convert(method, $.extend({}, target));
                     }
                     if (!domData.ocontext) {
-                        this._util.setAlias(element, fullProp, target);
-                        this._util.setRelation(property, $(element), parentProperty);
+                        this._util.setAlias(element, target);
                         domData.ocontext = data;
                     }
                     domData.context = target;
-                    domData.oparentProperty = fullProp;
 
                     element.find('*').each((index, ele) => {
                         Pandyle.getDomData($(ele)).context = null
                     })
-
-                    this._context.parentProperty = fullProp;
                 }
                 this.next();
             } catch (err) {
