@@ -11,7 +11,7 @@ namespace Pandyle {
                 if (ele.attr('p-bind')) {
                     let binds = $(ele).attr('p-bind').split('^');
                     binds.forEach((bindInfo, index) => {
-                        let array = bindInfo.match(/^\s*([\w-]+)\s*:\s*(.*)$/);
+                        let array = bindInfo.match(/^\s*([\w-\?]+)\s*:\s*(.*)$/);
                         let attr = array[1];
                         let value = array[2].replace(/\s*$/, '');
                         domData.binding[attr] = {
@@ -24,14 +24,20 @@ namespace Pandyle {
                 let data = domData.context;
                 for (let a in bindings) {
                     if (['text', 'If', 'Each', 'For', 'Context'].indexOf(a) < 0) {
-                        $(ele).attr(a, this._util.convertFromPattern($(ele), a, bindings[a].pattern, data));
+                        let value = this._util.convertFromPattern($(ele), a, bindings[a].pattern, data);
+                        if (a.endsWith('?')) {
+                            let attr = a.replace(/\?$/, '');
+                            value == 'true' ? $(ele).attr(attr, attr) : $(ele).removeAttr(attr);
+                        } else {
+                            $(ele).attr(a, value);
+                        }
                     }
                 }
                 this.next();
             } catch (err) {
                 this.error('p-bind', err.message, domData);
             }
-            
+
         }
     }
 }

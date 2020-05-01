@@ -15,6 +15,7 @@
     <div class="main">
         <div p-bind="class: {{class}}-on">{{message|add}}</div>
         <div p-bind="class: {{subInfo.class}}">
+            <input type="text" p-bind="disabled?:{{subInfo.visible}}">
             <p p-if="{{subInfo.visible}}">this is visible</p>
         </div>
         <div p-each="list" class="list">
@@ -39,7 +40,7 @@
             class: 'active',
             subInfo: {
                 class: 'on',
-                visible: true
+                visible: false
             },
             list: [
                 { id: 1, name: 'test1', child: ['child1', 'child2'] },
@@ -66,25 +67,24 @@
 
         function test() {
             var visible = vm.get('subInfo.visible');
-            vm.set({
-                subInfo: {
-                    class: 'off',
-                    visible: !visible
-                },
-                list: [
-                    { id: 4, name: 'test4', child: ['child7', 'child8'] },
-                    { id: 5, name: 'test5', child: ['child9', 'child10'] },
-                    { id: 6, name: 'test6', child: ['child11', 'child12'] }
-                ],
-                book: {
-                    title: '水浒传',
-                    author: '施耐庵',
-                    price: 40,
-                    tags: ['tag3', 'tag4'],
-                    num: 2
-                }
-                // 'book.tags': ['tag3', 'tag4']
-            });
+            console.log(visible);
+            vm._data.subInfo = {
+                class: 'off',
+                visible: !visible
+            }
+            vm._data.list = [
+                { id: 4, name: 'test4', child: ['child7', 'child8'] },
+                { id: 5, name: 'test5', child: ['child9', 'child10'] },
+                { id: 6, name: 'test6', child: ['child11', 'child12'] }
+            ]
+            vm._data.book = {
+                title: '水浒传',
+                author: '施耐庵',
+                price: 40,
+                tags: ['tag3', 'tag4'],
+                num: 2
+            }
+            vm.render($('.main'));
         }
 
         function isOdd(x) {
