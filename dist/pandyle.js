@@ -1027,7 +1027,7 @@ var Pandyle;
                 if (ele.attr('p-bind')) {
                     var binds = Pandyle.$(ele).attr('p-bind').split('^');
                     binds.forEach(function (bindInfo, index) {
-                        var array = bindInfo.match(/^\s*([\w-]+)\s*:\s*(.*)$/);
+                        var array = bindInfo.match(/^\s*([\w-\?]+)\s*:\s*(.*)$/);
                         var attr = array[1];
                         var value = array[2].replace(/\s*$/, '');
                         domData.binding[attr] = {
@@ -1041,7 +1041,14 @@ var Pandyle;
                 var data = domData.context;
                 for (var a in bindings) {
                     if (['text', 'If', 'Each', 'For', 'Context'].indexOf(a) < 0) {
-                        Pandyle.$(ele).attr(a, this._util.convertFromPattern(Pandyle.$(ele), a, bindings[a].pattern, data, this._context.parentProperty));
+                        var value = this._util.convertFromPattern(Pandyle.$(ele), a, bindings[a].pattern, data, this._context.parentProperty);
+                        if (a.endsWith('?')) {
+                            var attr = a.replace(/\?$/, '');
+                            value == 'true' ? Pandyle.$(ele).attr(attr, attr) : Pandyle.$(ele).removeAttr(attr);
+                        }
+                        else {
+                            Pandyle.$(ele).attr(a, value);
+                        }
                     }
                 }
                 this.next();

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../dist/pandyle.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div class="main">
+        <div>
+            <input p-bind="disabled? : {{disabled}}">
+            <input p-bind="disabled? : {{num > 3}}">
+            <input p-bind="disabled? : {{isDisabled(num)}}">
+        </div>
+        <button p-on="click:test()">click me</button>
+    </div>
+
+    <script>
+        var vm = $('.main').vm({
+            disabled: true,
+            num: 1,
+            isDisabled: function(n){
+                return n > 3;
+            },
+            test: function(){
+                vm._data.num = 4;
+                vm.render($('.main'));
+            }
+        })
+
+    </script>
+</body>
+</html>
