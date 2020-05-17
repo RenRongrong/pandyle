@@ -34,9 +34,9 @@
     <script>
         var vm = $('.main').vm({
             message: 'hello world',
-            class: 'active',
+            class: 'active"></div><div class="',
             subInfo: {
-                class: 'on',
+                class: 'on\<script\>alert(\"xss\")\</script\>',
                 visible: true
             },
             list: [
