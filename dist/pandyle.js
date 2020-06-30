@@ -899,7 +899,7 @@ var Pandyle;
                         text = domData.binding['text'].pattern;
                     }
                     var result = this._util.convertFromPattern(element, 'text', text, data);
-                    element.html(result);
+                    element.text(result);
                 }
             }
             catch (err) {

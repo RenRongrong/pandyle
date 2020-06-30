@@ -14,7 +14,7 @@ namespace Pandyle {
                         text = domData.binding['text'].pattern;
                     }
                     let result = this._util.convertFromPattern(element, 'text', text, data);
-                    element.html(result);
+                    element.text(result);
                 }
             } catch (err) {
                 this.error('文本插值', err.message, domData);
